@@ -1,2 +1,3 @@
 fastapi>=0.115.12
 gunicorn>=23.0.0
+openapi>=1.76.0
