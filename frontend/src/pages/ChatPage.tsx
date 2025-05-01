@@ -49,7 +49,9 @@ const ChatPage = () => {
 			});
 			console.log('Prompt Result:', promptResult);
 
-			chatId === null ? setChatId(promptResult[0].chat_id) : "";
+			if (chatId === null) {
+				setChatId(promptResult[0].chat_id);
+			}
 
 			const chatMessages = JSON.parse(promptResult[0].content);
 			console.log('Chat Messages:', chatMessages);
@@ -69,7 +71,7 @@ const ChatPage = () => {
 			console.error('Error submitting prompt:', error);
 
 			setChatContent((prevMessages) => {
-				return [...prevMessages!.splice(0, prevMessages!.length - 1)];
+				return prevMessages!.slice(0, -1);
 			})
 
 			setPrompt(lastPrompt); // restore the last prompt
