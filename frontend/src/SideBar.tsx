@@ -32,6 +32,7 @@ const SideBar = () => {
         
         <h3 className="font-bold mt-6 flex justify-start">Recent</h3>
         <div className="">
+          {/* links of list of recent history that you can go to */}
         </div>
         
         <div className="flex flex-col items-start font-bold gap-2 mt-6">
