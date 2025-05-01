@@ -1,36 +1,41 @@
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
+export interface History {
+	role: string;
+	content: string;
+}
 export interface PromptAIRequest {
 	prompt: string;
-	advisorName: string;
+	advisor_name: string;
+	chat_id?: string;
+	history?: History[];
 }
 
-export interface PromptAIResponse {
-	chatId: string;
-	advisorName: string;
+export interface ChatResponse {
+	chat_id: string;
+	advisor_name: string;
 	content: string;
 }
 
-const promptAI = async (request: PromptAIRequest): Promise<PromptAIResponse> => {
+export type PromptAIResponse = ChatResponse[];
+
+const promptAI = async (request: PromptAIRequest) => {
+	console.log("Request:", request);
 	try {
 		const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/v1/prompt`, request);
-		console.log(response.data);
-
 		const promptAIResponse: PromptAIResponse = response.data;
 
-		console.log(promptAIResponse);
-
-		toast.success('Success!', {
-			position: 'bottom-right',
-			autoClose: 5000,
-			hideProgressBar: false,
-			closeOnClick: true,
-			pauseOnHover: true,
-			draggable: false,
-			progress: undefined,
-			theme: 'light',
-		});
+		// toast.success('Success!', {
+		// 	position: 'bottom-right',
+		// 	autoClose: 5000,
+		// 	hideProgressBar: false,
+		// 	closeOnClick: true,
+		// 	pauseOnHover: true,
+		// 	draggable: false,
+		// 	progress: undefined,
+		// 	theme: 'light',
+		// });
 
 		return promptAIResponse;
 	} catch (error: any) {

@@ -1,8 +1,10 @@
 import os
+import json
 from openai import OpenAI
 from supabase import create_client, Client
 from fastapi import HTTPException
 from dotenv import load_dotenv
+from routes.prompt import History
 
 load_dotenv()
 
@@ -14,7 +16,7 @@ supabase: Client = create_client(
   supabase_key=key
 )
 
-def prompt_advisor(prompt: str, advisor_name: str, chat_id: str = None, history: list[str] = None):
+def prompt_advisor(prompt: str, advisor_name: str, chat_id: str = None, history: list[History] = None):
   """
   Prompts the AI Advisor
   """
@@ -39,10 +41,13 @@ def prompt_advisor(prompt: str, advisor_name: str, chat_id: str = None, history:
       "role": "user",
       "content": prompt
     })
+    
+    # Convert History objects to the format expected by OpenAI
+    messages = [item.to_dict() if isinstance(item, History) else item for item in history]
   
     response = client.responses.create(
       model="o4-mini-2025-04-16",
-      input=history,
+      input=messages,
       instructions=advisor_config,
       reasoning={
         "effort": "high",
@@ -50,6 +55,10 @@ def prompt_advisor(prompt: str, advisor_name: str, chat_id: str = None, history:
     )
   else:
     history = []
+    history.append({
+      "role": "user",
+      "content": prompt
+    })
     response = client.responses.create(
       model="o4-mini-2025-04-16",
       input=prompt,
@@ -63,23 +72,33 @@ def prompt_advisor(prompt: str, advisor_name: str, chat_id: str = None, history:
   # save the response of the advisor AI to the database
   try:
     last_prompt = {
-      "role": "assitant",
+      "role": "assistant",
       "content": response.output[1].content[0].text
     }
     history.append(last_prompt)
+    
+    serialized_history = []
+    for item in history:
+      if isinstance(item, History):
+        serialized_history.append({"role": item.role, "content": item.content})
+      else:
+        serialized_history.append(item)
+    print("serialized_history:", serialized_history)
+
     print("history:", history)
+    print("chat_id:", chat_id)
     result = supabase.table("Chat").upsert({
       "chat_id": chat_id,
       "advisor_name": advisor_name,
-      "content": history
+      "content": serialized_history,
     } if chat_id else {
       "advisor_name": advisor_name,
-      "content": history
+      "content": serialized_history,
     }).execute()
-    
-    print("result:", result)
   except Exception as e:
     print(e)
     raise HTTPException(status_code=500, detail="Error saving chat history")
+  
+  print("result:", result.data)
   
   return result.data

@@ -1,6 +1,6 @@
 import './App.css'
 import SideBar from './SideBar'
-import Chatbox from './components/Chatbox'
+import ChatPage from './pages/ChatPage'
 import { ToastContainer } from 'react-toastify';
 
 function App() {
@@ -9,7 +9,7 @@ function App() {
 			<ToastContainer />
 			<SideBar />
 			<div className="flex flex-col w-full h-screen p-10">
-				<Chatbox />
+				<ChatPage />
 			</div>
 		</div>
   )
