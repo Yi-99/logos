@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routes import chat_router
@@ -6,11 +7,14 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+frontend_url = os.getenv("FRONTEND_URL")
+
 app = FastAPI()
 
 origins = [
 	"http://localhost:5173", # Local React App
 	"http://localhost",
+  frontend_url,
 ]
 
 app.add_middleware(
