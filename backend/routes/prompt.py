@@ -5,7 +5,9 @@ prompt_router = APIRouter(prefix="/v1/prompt", tags=["prompt"])
 
 class PromptRequest(BaseModel):
   prompt: str
-  config: str
+  advisor_name: str
+  chat_id: str = None
+  history: list[str] = None
 
 @prompt_router.post("/")
 def prompt_advisor_route(request: PromptRequest):
@@ -13,4 +15,4 @@ def prompt_advisor_route(request: PromptRequest):
     Prompts the AI as an advisor
     """
     from controllers import prompt_advisor
-    return prompt_advisor(request.prompt, request.config)
+    return prompt_advisor(request.prompt, request.advisor_name)
