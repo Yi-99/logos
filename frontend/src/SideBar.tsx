@@ -14,8 +14,8 @@ const SideBar = () => {
 
   return (
     <>
-      <aside className="w-12 bg-neutral-100 p-4 h-screen overflow-y-auto">
-        <button onClick={ToggleSideBar} className="cursor-pointer transition-all hover:scale-110 mb-2 ">
+      <aside className="w-12 bg-neutral-100 p-4 h-screen flex justify-center items-start">
+        <button onClick={ToggleSideBar} className="cursor-pointer transition-all hover:scale-110">
           <MenuIcon />
         </button>
       </aside>
