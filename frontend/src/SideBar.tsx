@@ -20,7 +20,7 @@ const SideBar = () => {
         </button>
       </aside>
 
-      <aside className={`transition-all duration-300 ${isOpen ? 'w-64' : 'w-0'} bg-neutral-100 h-screen overflow-y-auto`}>
+      <aside className={`transition-all duration-300 ${isOpen ? 'w-64' : 'w-0'} bg-neutral-100 h-screen overflow-y-auto absolute left-11 z-10`}>
         <div className="flex gap-4 justify-end items-center mt-4 mr-4">
           <button className="cursor-pointer transition-all hover:scale-110">
             <SearchIcon />
