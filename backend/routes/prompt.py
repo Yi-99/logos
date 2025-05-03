@@ -13,6 +13,7 @@ class History(BaseModel):
 class PromptRequest(BaseModel):
   prompt: str
   advisor_name: str
+  chat_name: str
   chat_id: str = None
   history: list[History] = None
 
@@ -22,4 +23,4 @@ def prompt_advisor_route(request: PromptRequest):
   Prompts the AI as an advisor
   """
   from controllers import prompt_advisor
-  return prompt_advisor(request.prompt, request.advisor_name, request.chat_id, request.history)
+  return prompt_advisor(request.prompt, request.advisor_name, request.chat_name, request.chat_id, request.history)

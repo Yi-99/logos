@@ -8,7 +8,12 @@ export interface ChatMessage {
 	content: string;
 }
 
-const ChatPage = () => {
+interface ChatPageProps {
+	advisorName: string;
+	chatname: string | null;
+}
+
+const ChatPage = ({ advisorName, chatname }: ChatPageProps) => {
 	const [prompt, setPrompt] = useState<string>('');
 	const [chatContent, setChatContent] = useState<ChatMessage[] | null>(null);
 	const [chatId, setChatId] = useState<string | null>(null);
@@ -43,7 +48,8 @@ const ChatPage = () => {
 			console.log('Chat ID:', chatId);
 			const promptResult: PromptAIResponse = await chatService.promptAI({
 				prompt,
-				advisor_name: 'Jesus Christ',
+				advisor_name: advisorName ,
+				chat_name: chatname ?? `Chat with ${advisorName}`,
 				chat_id: chatId ?? undefined,
 				history: chatContent ? chatContent : undefined,
 			});

@@ -8,6 +8,7 @@ export interface History {
 export interface PromptAIRequest {
 	prompt: string;
 	advisor_name: string;
+	chat_name: string;
 	chat_id?: string;
 	history?: History[];
 }

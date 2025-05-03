@@ -1,25 +1,17 @@
 import os
-import json
 from openai import OpenAI
-from supabase import create_client, Client
 from fastapi import HTTPException
-from dotenv import load_dotenv
 from routes.prompt import History
+from db import SupabaseService
 
-load_dotenv()
 
-url: str = os.getenv("SUPABASE_URL")
-key: str = os.getenv("SUPABASE_KEY")
-
-supabase: Client = create_client(
-  supabase_url=url,
-  supabase_key=key
-)
-
-def prompt_advisor(prompt: str, advisor_name: str, chat_id: str = None, history: list[History] = None):
+def prompt_advisor(prompt: str, advisor_name: str, chat_name:str, chat_id: str = None, history: list[History] = None):
   """
   Prompts the AI Advisor
   """
+  db_service = SupabaseService()
+  supabase = db_service.get_client()
+  
   client = OpenAI(
     api_key=os.getenv("OPENAI_API_KEY"),
   )
@@ -89,9 +81,11 @@ def prompt_advisor(prompt: str, advisor_name: str, chat_id: str = None, history:
     print("chat_id:", chat_id)
     result = supabase.table("Chat").upsert({
       "chat_id": chat_id,
+      "chat_name": chat_name,
       "advisor_name": advisor_name,
       "content": serialized_history,
     } if chat_id else {
+      "chat_name": chat_name,
       "advisor_name": advisor_name,
       "content": serialized_history,
     }).execute()
