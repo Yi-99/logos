@@ -1,17 +1,29 @@
 import './App.css'
-import SideBar from './SideBar'
 import ChatPage from './pages/ChatPage'
+import HomePage from './pages/HomePage';
+import { Route, Routes, BrowserRouter } from 'react-router-dom';
+import { useState, createContext } from 'react';
 import { ToastContainer } from 'react-toastify';
+import SideBar from './SideBar'
+
+export const UserContext = createContext({});
 
 function App() {
+	const [theme, setTheme] = useState('light');
+
   return (
-		<div className="flex flex-row">
-			<ToastContainer />
-			<SideBar />
-			<div className="flex flex-col w-full h-screen p-10">
-				<ChatPage />
-			</div>
-		</div>
+		<>
+			<UserContext.Provider value={{ theme, setTheme }}>
+				<BrowserRouter>
+					<ToastContainer />
+					<SideBar />
+					<Routes>
+						<Route path="/" element={<HomePage />} />
+						<Route path="/chat" element={<ChatPage />} />
+					</Routes>
+				</BrowserRouter>
+			</UserContext.Provider>
+		</>
   )
 }
 
