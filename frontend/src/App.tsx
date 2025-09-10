@@ -1,17 +1,22 @@
 import './App.css'
-import SideBar from './SideBar'
-import ChatPage from './pages/ChatPage'
-import { ToastContainer } from 'react-toastify';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { ToastContainer } from 'react-toastify'
+import PhilosopherSelectionPage from './pages/PhilosopherSelectionPage'
+import PhilosopherChatPage from './pages/PhilosopherChatPage'
+import VoiceCallPage from './pages/VoiceCallPage'
 
 function App() {
   return (
-		<div className="flex flex-row">
-			<ToastContainer />
-			<SideBar />
-			<div className="flex flex-col w-full h-screen p-10">
-				<ChatPage />
-			</div>
-		</div>
+    <Router>
+      <div className="min-h-screen bg-white">
+        <ToastContainer />
+        <Routes>
+          <Route path="/" element={<PhilosopherSelectionPage />} />
+          <Route path="/chat/:philosopherId" element={<PhilosopherChatPage />} />
+          <Route path="/voice/:philosopherId" element={<VoiceCallPage />} />
+        </Routes>
+      </div>
+    </Router>
   )
 }
 
