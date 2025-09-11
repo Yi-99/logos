@@ -1,103 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-
-interface Philosopher {
-  id: string;
-  name: string;
-  subtitle: string;
-  description: string;
-  dates: string;
-  school: string;
-  image: string;
-  imageClassic?: string;
-}
-
-const philosophers: Philosopher[] = [
-  {
-    id: 'socrates',
-    name: 'Socrates',
-    subtitle: 'Father of Western Philosophy',
-    description: 'Known for the Socratic method and the famous quote "I know that I know nothing"',
-    dates: '469-399 BC',
-    school: 'Classical Greek',
-		image: '/socrates-real.jpg'
-  },
-  {
-    id: 'plato',
-    name: 'Plato',
-    subtitle: 'Student of Socrates',
-    description: 'Founded the Academy in Athens and wrote philosophical dialogues',
-    dates: '428-348 BC',
-    school: 'Platonism',
-		image: '/plato-real.jpg',
-		imageClassic: '/plato-athens.jpg',
-  },
-  {
-    id: 'aristotle',
-    name: 'Aristotle',
-    subtitle: 'The Philosopher',
-    description: 'Student of Plato and tutor to Alexander the Great, father of logic',
-    dates: '384-322 BC',
-    school: 'Aristotelian',
-		image: '/aristotle-real.jpg',
-		imageClassic: '/aristotle-athens.webp',
-  },
-  {
-    id: 'confucius',
-    name: 'Confucius',
-    subtitle: 'Greatest Chinese Philosopher',
-    description: 'Emphasized morality, justice, kindness, and sincerity',
-    dates: '551-479 BC',
-    school: 'Confucianism',
-		image: '/confucius-real.jpg'
-  },
-  {
-    id: 'buddha',
-    name: 'Buddha',
-    subtitle: 'The Enlightened One',
-    description: 'Founded Buddhism and taught the path to enlightenment',
-    dates: '563-483 BC',
-    school: 'Buddhism',
-		image: '/buddha-handsome.png'
-  },
-	{
-		id: 'jesus',
-		name: 'Jesus',
-		subtitle: 'The Messiah',
-		description: 'Founder of Christianity, Savior of Mankind',
-		dates: '0-33 AD',
-		school: 'Christianity',
-		image: '/jesus.jpg'
-	},
-	{
-		id: 'thomas-aquinas',
-		name: 'Thomas Aquinas',
-		subtitle: 'The Angelic Doctor',
-		description: 'The Angelic Doctor, Known for the Summa Theologica',
-		dates: '1225-1274',
-		school: 'Thomism',
-		image: '/thomas-aquinas-real.jpg',
-		imageClassic: '/thomas-aquinas.jpg'
-	},
-	{
-		id: 'descartes',
-		name: 'René Descartes',
-		subtitle: 'The Father of Modern Philosophy',
-		description: 'Father of Modern Philosophy, Known for the Cogito, ergo sum',
-		dates: '1596-1650',
-		school: 'Cartesianism',
-		image: '/descartes-real.jpg'
-	},
-  {
-    id: 'nietzsche',
-    name: 'Friedrich Nietzsche',
-    subtitle: 'God is Dead',
-    description: 'Challenged traditional values and proclaimed the death of God',
-    dates: '1844-1900',
-    school: 'Existentialism',
-		image: '/nietzsche.jpg'
-  }
-];
+import { philosophers } from '../constants/philosophers';
 
 const PhilosopherSelectionPage: React.FC = () => {
   const navigate = useNavigate();
@@ -112,11 +15,10 @@ const PhilosopherSelectionPage: React.FC = () => {
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-800 mb-4">
-            Choose Your Philosophical Guide
+            Choose Your Philosopher
           </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-md text-gray-600 max-w-2xl mx-auto">
             Select a philosopher to engage in deep conversations about life, wisdom, and the nature of existence. 
-            Each brings their unique perspective and teaching style.
           </p>
         </div>
 
@@ -146,6 +48,9 @@ const PhilosopherSelectionPage: React.FC = () => {
                 <p className="text-sm text-gray-700 mb-3 leading-relaxed">
                   {philosopher.description}
                 </p>
+								<p className="text-sm text-gray-700 bg-gray-100 p-2 rounded-lg mb-3 leading-relaxed">
+									{philosopher.quote}
+								</p>
                 <div className="text-xs text-gray-500">
                   {philosopher.dates} • {philosopher.school}
                 </div>

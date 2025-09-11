@@ -2,12 +2,15 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import MicIcon from '@mui/icons-material/Mic';
 import VolumeUpIcon from '@mui/icons-material/VolumeUp';
-import DownloadIcon from '@mui/icons-material/Download';
-import ShareIcon from '@mui/icons-material/Share';
-import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
+import MicNoneIcon from '@mui/icons-material/MicNone';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import { getPhilosopherInfo } from '../constants/philosophers';
+import InputSettingsBar from '../components/InputSettingsBar';
+import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
+import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
+import Chatbar from '../components/Chatbar';
+import HistoryIcon from '@mui/icons-material/History';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -18,6 +21,7 @@ interface ChatMessage {
 const PhilosopherChatPage: React.FC = () => {
   const { philosopherId } = useParams<{ philosopherId: string }>();
   const navigate = useNavigate();
+  const philosopher = getPhilosopherInfo(philosopherId);
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       role: 'user',
@@ -32,6 +36,10 @@ const PhilosopherChatPage: React.FC = () => {
   ]);
   const [isListening, setIsListening] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isSpeechToSpeech, setIsSpeechToSpeech] = useState(false);
+  const [isTextToText, setIsTextToText] = useState(true);
+  const [isSpeechToText, setIsSpeechToText] = useState(false);
+  const [isTextToSpeech, setIsTextToSpeech] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -41,20 +49,6 @@ const PhilosopherChatPage: React.FC = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-
-  const getPhilosopherInfo = (id: string) => {
-    const philosophers: Record<string, { name: string; subtitle: string; image: string }> = {
-      socrates: { name: 'Socrates', subtitle: 'Father of Western Philosophy', image: '👨‍🦳' },
-      plato: { name: 'Plato', subtitle: 'Student of Socrates', image: '🧙‍♂️' },
-      aristotle: { name: 'Aristotle', subtitle: 'The Philosopher', image: '👨‍🎓' },
-      confucius: { name: 'Confucius', subtitle: 'Greatest Chinese Philosopher', image: '👴' },
-      buddha: { name: 'Buddha', subtitle: 'The Enlightened One', image: '🧘‍♂️' },
-      nietzsche: { name: 'Friedrich Nietzsche', subtitle: 'God is Dead', image: '👨‍💼' }
-    };
-    return philosophers[id] || philosophers.plato;
-  };
-
-  const philosopher = getPhilosopherInfo(philosopherId || 'plato');
 
   const handleMicClick = () => {
     setIsListening(!isListening);
@@ -76,6 +70,30 @@ const PhilosopherChatPage: React.FC = () => {
     navigate(`/voice/${philosopherId}`);
   };
 
+  const handleModeChange = (mode: 'speechToSpeech' | 'textToText' | 'speechToText' | 'textToSpeech') => {
+    // Reset all modes to false
+    setIsSpeechToSpeech(false);
+    setIsTextToText(false);
+    setIsSpeechToText(false);
+    setIsTextToSpeech(false);
+    
+    // Set the selected mode to true
+    switch (mode) {
+      case 'speechToSpeech':
+        setIsSpeechToSpeech(true);
+        break;
+      case 'textToText':
+        setIsTextToText(true);
+        break;
+      case 'speechToText':
+        setIsSpeechToText(true);
+        break;
+      case 'textToSpeech':
+        setIsTextToSpeech(true);
+        break;
+    }
+  };
+
   return (
     <div className="h-screen bg-white flex flex-col">
       {/* Header */}
@@ -83,19 +101,19 @@ const PhilosopherChatPage: React.FC = () => {
         <div className="flex items-center space-x-4">
           <button 
             onClick={handleBackClick}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
           >
-            <ArrowBackIcon className="w-5 h-5" />
+            <ArrowBackIcon sx={{ fontSize: 20 }} />
           </button>
-          <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-            <RefreshIcon className="w-5 h-5" />
+          <button className="p-2 hover:bg-gray-100 rounded-xl transition-colors">
+            <HistoryIcon sx={{ fontSize: 20 }} />
           </button>
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center">
-            <span className="text-lg">{philosopher.image}</span>
+          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center">
+            <img className="h-full w-full rounded-full" src={philosopher?.image} alt={philosopher?.name}/>
           </div>
           <div>
-            <h1 className="font-bold text-lg">{philosopher.name}</h1>
-            <p className="text-sm text-gray-600">{philosopher.subtitle}</p>
+            <h1 className="font-bold text-lg">{philosopher?.name}</h1>
+            <p className="text-sm text-gray-600">{philosopher?.subtitle}</p>
           </div>
         </div>
       </div>
@@ -132,7 +150,7 @@ const PhilosopherChatPage: React.FC = () => {
         {/* Central Philosopher Image */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="w-64 h-64 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center opacity-20">
-            <span className="text-8xl">{philosopher.image}</span>
+            <img className="h-full w-full rounded-full" src={philosopher?.image} alt={philosopher?.name}/>
           </div>
         </div>
 
@@ -146,55 +164,63 @@ const PhilosopherChatPage: React.FC = () => {
         )}
       </div>
 
-      {/* Bottom Controls */}
-      <div className="p-6 border-t border-gray-100">
-        {/* Suggested Question */}
-        <div className="flex justify-center mb-4">
-          <div className="bg-gray-100 px-4 py-2 rounded-full">
-            <span className="text-sm text-gray-700">
-              "How can wisdom guide us through difficult decisions?"
-            </span>
-          </div>
-        </div>
+			{/* Suggested Question */}
+			<div className="flex justify-center mb-4">
+				<div className="bg-gray-100 px-4 py-2 rounded-full">
+					<span className="text-sm text-gray-700">
+						"How can wisdom guide us through difficult decisions?"
+					</span>
+				</div>
+			</div>
 
+      {/* Bottom Controls */}
+      <div className="p-6 pb-0">
         {/* Main Controls */}
         <div className="flex items-center justify-center space-x-6 mb-4">
-          <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-            <DownloadIcon className="w-5 h-5 text-gray-600" />
-          </button>
-          <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-            <ShareIcon className="w-5 h-5 text-gray-600" />
-          </button>
-          <button
+          {isSpeechToSpeech && <button
             onClick={handleMicClick}
-            className={`w-16 h-16 rounded-full flex items-center justify-center transition-all ${
+            className={`w-16 h-16 cursor-pointer rounded-full flex items-center justify-center transition-all text-white shadow-lg shadow-gray-500 ${
               isListening 
                 ? 'bg-red-500 hover:bg-red-600' 
                 : 'bg-gray-800 hover:bg-gray-700'
             }`}
           >
-            <MicIcon className="w-8 h-8 text-white" />
-          </button>
-          <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-            <VolumeUpIcon className="w-5 h-5 text-gray-600" />
-          </button>
-        </div>
+            <MicNoneIcon sx={{ fontSize: 24}} />
+          </button>}
 
-        {/* Bottom Bar */}
-        <div className="flex items-center justify-between">
-          <button 
-            onClick={handleVoiceCall}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <div className="w-6 h-6 border-2 border-gray-400 rounded flex items-center justify-center">
-              <div className="w-2 h-2 bg-gray-400 rounded"></div>
-            </div>
-          </button>
-          <button className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-gray-700 transition-colors">
-            <MicIcon className="w-4 h-4 text-white" />
-          </button>
+					{isTextToText && <Chatbar></Chatbar>}
         </div>
       </div>
+
+			<div className="flex flex-col items-center justify-center mb-5 gap-3">
+				{isSpeechToSpeech && <div className="w-full flex flex-row items-center justify-center gap-1 text-gray-500">
+					<MicNoneIcon sx={{ fontSize: 16 }} />
+					<ArrowRightAltIcon sx={{ fontSize: 16 }} />
+					<VolumeUpIcon sx={{ fontSize: 16 }} />
+				</div>}
+				{isTextToText && <div className="w-full flex flex-row items-center justify-center gap-1 text-gray-500">
+					<ChatBubbleOutlineIcon sx={{ fontSize: 16 }} />
+					<ArrowRightAltIcon sx={{ fontSize: 16 }} />
+					<ChatBubbleOutlineIcon sx={{ fontSize: 16 }} />
+				</div>}
+				{isSpeechToText && <div className="w-full flex flex-row items-center justify-center gap-1 text-gray-500">
+					<MicNoneIcon sx={{ fontSize: 16 }} />
+					<ArrowRightAltIcon sx={{ fontSize: 16 }} />
+					<ChatBubbleOutlineIcon sx={{ fontSize: 16 }} />
+				</div>}
+				{isTextToSpeech && <div className="w-full flex flex-row items-center justify-center gap-1 text-gray-500">
+					<ChatBubbleOutlineIcon sx={{ fontSize: 16 }} />
+					<ArrowRightAltIcon sx={{ fontSize: 16 }} />
+					<VolumeUpIcon sx={{ fontSize: 16 }} />
+				</div>}
+				<InputSettingsBar 
+					isSpeechToSpeech={isSpeechToSpeech}
+					isTextToText={isTextToText}
+					isSpeechToText={isSpeechToText}
+					isTextToSpeech={isTextToSpeech}
+					onModeChange={handleModeChange}
+				/>
+			</div>
 
       {/* Help Button */}
       <div className="absolute bottom-6 right-6">
