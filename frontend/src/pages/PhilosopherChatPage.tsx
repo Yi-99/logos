@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import RefreshIcon from '@mui/icons-material/Refresh';
 import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 import MicNoneIcon from '@mui/icons-material/MicNone';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
@@ -11,6 +10,8 @@ import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import Chatbar from '../components/Chatbar';
 import HistoryIcon from '@mui/icons-material/History';
+import StopIcon from '@mui/icons-material/Stop';
+import { WormLoading } from '../components/WormLoading';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -52,15 +53,16 @@ const PhilosopherChatPage: React.FC = () => {
 
   const handleMicClick = () => {
     setIsListening(!isListening);
-    if (!isListening) {
-      setIsProcessing(true);
-      // Simulate processing
-      setTimeout(() => {
-        setIsProcessing(false);
-        setIsListening(false);
-      }, 2000);
-    }
   };
+
+	const handleStopListening = () => {
+		setIsListening(false);
+		setIsProcessing(true);
+
+		setTimeout(() => {
+			setIsProcessing(false);
+		}, 2000)
+	};
 
   const handleBackClick = () => {
     navigate('/');
@@ -70,7 +72,7 @@ const PhilosopherChatPage: React.FC = () => {
     navigate(`/voice/${philosopherId}`);
   };
 
-  const handleModeChange = (mode: 'speechToSpeech' | 'textToText' | 'speechToText' | 'textToSpeech') => {
+  const handleModeChange = (mode: 'speechToSpeech' | 'textToText') => {
     // Reset all modes to false
     setIsSpeechToSpeech(false);
     setIsTextToText(false);
@@ -84,12 +86,6 @@ const PhilosopherChatPage: React.FC = () => {
         break;
       case 'textToText':
         setIsTextToText(true);
-        break;
-      case 'speechToText':
-        setIsSpeechToText(true);
-        break;
-      case 'textToSpeech':
-        setIsTextToSpeech(true);
         break;
     }
   };
@@ -149,44 +145,51 @@ const PhilosopherChatPage: React.FC = () => {
 
         {/* Central Philosopher Image */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="w-64 h-64 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center opacity-20">
+          <div className="w-64 h-64 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center opacity-15">
             <img className="h-full w-full rounded-full" src={philosopher?.image} alt={philosopher?.name}/>
           </div>
         </div>
-
-        {/* Processing Indicator */}
-        {isProcessing && (
-          <div className="absolute bottom-32 left-1/2 transform -translate-x-1/2">
-            <div className="bg-gray-100 px-4 py-2 rounded-full">
-              <span className="text-sm text-gray-600">Processing...</span>
-            </div>
-          </div>
-        )}
       </div>
 
-			{/* Suggested Question */}
-			<div className="flex justify-center mb-4">
-				<div className="bg-gray-100 px-4 py-2 rounded-full">
-					<span className="text-sm text-gray-700">
-						"How can wisdom guide us through difficult decisions?"
-					</span>
+			{/*Listening Indicator */}
+			{isListening && (
+				<div className="absolute bottom-52 left-1/2 transform -translate-x-1/2">
+					<div className="flex flex-row items-center gap-2 bg-white border border-gray-300 px-4 py-2 rounded-xl">
+						<div className="h-2 w-2 bg-red-500 rounded-full animate-pulse"></div>
+						<span className="text-sm text-gray-600">Listening...</span>
+					</div>
 				</div>
-			</div>
+			)} 
+
+			{/*Processing Indicator */}
+			{isProcessing && (
+				<div className="absolute bottom-52 left-1/2 transform -translate-x-1/2">
+					<div className="flex flex-row items-center gap-2 bg-white border border-gray-300 px-4 py-2 rounded-xl">
+						<WormLoading />
+						<span className="text-sm text-gray-600">Processing...</span>
+					</div>
+				</div>
+			)} 
 
       {/* Bottom Controls */}
       <div className="p-6 pb-0">
         {/* Main Controls */}
         <div className="flex items-center justify-center space-x-6 mb-4">
-          {isSpeechToSpeech && <button
+          {isSpeechToSpeech && !isListening ? (<button
             onClick={handleMicClick}
-            className={`w-16 h-16 cursor-pointer rounded-full flex items-center justify-center transition-all text-white shadow-lg shadow-gray-500 ${
-              isListening 
-                ? 'bg-red-500 hover:bg-red-600' 
-                : 'bg-gray-800 hover:bg-gray-700'
-            }`}
+            className={`w-16 h-16 cursor-pointer rounded-full flex items-center justify-center
+							transition-all text-white shadow-lg shadow-gray-500 ${isProcessing ? 'bg-black/50' : 'bg-gray-800 hover:bg-gray-700'}
+            `}
           >
             <MicNoneIcon sx={{ fontSize: 24}} />
-          </button>}
+          </button>) : (isSpeechToSpeech && <button
+            onClick={handleStopListening}
+            className={`w-16 h-16 cursor-pointer rounded-full flex items-center justify-center
+							transition-all text-white shadow-lg shadow-gray-500 bg-red-500 hover:bg-red-700
+            `}
+          >
+            <StopIcon sx={{ fontSize: 24}} />
+          </button>)}
 
 					{isTextToText && <Chatbar></Chatbar>}
         </div>
