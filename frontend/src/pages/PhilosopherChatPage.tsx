@@ -37,8 +37,8 @@ const PhilosopherChatPage: React.FC = () => {
   ]);
   const [isListening, setIsListening] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [isSpeechToSpeech, setIsSpeechToSpeech] = useState(false);
-  const [isTextToText, setIsTextToText] = useState(true);
+  const [isSpeechToSpeech, setIsSpeechToSpeech] = useState(true);
+  const [isTextToText, setIsTextToText] = useState(false);
   const [isSpeechToText, setIsSpeechToText] = useState(false);
   const [isTextToSpeech, setIsTextToSpeech] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -178,8 +178,9 @@ const PhilosopherChatPage: React.FC = () => {
           {isSpeechToSpeech && !isListening ? (<button
             onClick={handleMicClick}
             className={`w-16 h-16 cursor-pointer rounded-full flex items-center justify-center
-							transition-all text-white shadow-lg shadow-gray-500 ${isProcessing ? 'bg-black/50' : 'bg-gray-800 hover:bg-gray-700'}
+							transition-all text-white shadow-lg shadow-gray-500 ${isProcessing ? 'bg-black/50 !cursor-not-allowed' : 'bg-gray-800 hover:bg-gray-700'}
             `}
+						disabled={isProcessing}
           >
             <MicNoneIcon sx={{ fontSize: 24}} />
           </button>) : (isSpeechToSpeech && <button
