@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import RefreshIcon from '@mui/icons-material/Refresh';
 import MicIcon from '@mui/icons-material/Mic';
 import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 import DownloadIcon from '@mui/icons-material/Download';
 import ShareIcon from '@mui/icons-material/Share';
-import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import StopIcon from '@mui/icons-material/Stop';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import Navbar from '../components/Navbar';
 
 const VoiceCallPage: React.FC = () => {
   const { philosopherId } = useParams<{ philosopherId: string }>();
@@ -45,26 +43,14 @@ const VoiceCallPage: React.FC = () => {
   return (
     <div className="h-screen bg-white flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-100">
-        <div className="flex items-center space-x-4">
-          <button 
-            onClick={handleBackClick}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-          >
-            <ArrowBackIcon className="w-5 h-5" />
-          </button>
-          <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-            <RefreshIcon className="w-5 h-5" />
-          </button>
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center">
-            <span className="text-lg">{philosopher.image}</span>
-          </div>
-          <div>
-            <h1 className="font-bold text-lg">{philosopher.name}</h1>
-            <p className="text-sm text-gray-600">{philosopher.subtitle}</p>
-          </div>
-        </div>
-      </div>
+      <Navbar
+        philosopherName={philosopher.name}
+        philosopherSubtitle={philosopher.subtitle}
+        philosopherImage={philosopher.image}
+        onBackClick={handleBackClick}
+        showHistory={false}
+        showProfile={true}
+      />
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col items-center justify-center p-8">

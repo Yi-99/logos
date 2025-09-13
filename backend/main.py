@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routes import chat_router
 from routes import prompt_router
+from routes import philosophers_router
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -23,8 +24,9 @@ app.add_middleware(
 
 app.include_router(chat_router, prefix="/api")
 app.include_router(prompt_router, prefix="/api")
+app.include_router(philosophers_router, prefix="/api")
 
 @app.get("/")
 async def root():
-	return { "message": "Hello World" }
-
+	"""Health check endpoint"""
+	return { "status": "healthy" }

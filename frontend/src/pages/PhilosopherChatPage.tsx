@@ -1,17 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 import MicNoneIcon from '@mui/icons-material/MicNone';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { getPhilosopherInfo } from '../constants/philosophers';
 import InputSettingsBar from '../components/InputSettingsBar';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import Chatbar from '../components/Chatbar';
-import HistoryIcon from '@mui/icons-material/History';
 import StopIcon from '@mui/icons-material/Stop';
 import { WormLoading } from '../components/WormLoading';
+import Navbar from '../components/Navbar';
+import ChatHistorySidebar from '../components/ChatHistorySidebar';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -23,24 +22,16 @@ const PhilosopherChatPage: React.FC = () => {
   const { philosopherId } = useParams<{ philosopherId: string }>();
   const navigate = useNavigate();
   const philosopher = getPhilosopherInfo(philosopherId);
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      role: 'user',
-      content: 'How can wisdom guide us through difficult decisions?',
-      timestamp: '01:14 AM'
-    },
-    {
-      role: 'assistant',
-      content: 'As I\'ve written, the unexamined life is not worth living. How does this apply to your question?',
-      timestamp: '01:14 AM'
-    }
-  ]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isListening, setIsListening] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [isSpeechToSpeech, setIsSpeechToSpeech] = useState(true);
-  const [isTextToText, setIsTextToText] = useState(false);
+  const [isAIResponding, setIsAIResponding] = useState(false);
+  const [isSpeechToSpeech, setIsSpeechToSpeech] = useState(false);
+  const [isTextToText, setIsTextToText] = useState(true);
   const [isSpeechToText, setIsSpeechToText] = useState(false);
   const [isTextToSpeech, setIsTextToSpeech] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [currentChatId, setCurrentChatId] = useState<string | undefined>(undefined);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -68,9 +59,20 @@ const PhilosopherChatPage: React.FC = () => {
     navigate('/');
   };
 
-  const handleVoiceCall = () => {
-    navigate(`/voice/${philosopherId}`);
+  const handleHistoryClick = () => {
+    setIsSidebarOpen(true);
   };
+
+  const handleSidebarClose = () => {
+    setIsSidebarOpen(false);
+  };
+
+  const handleChatSelect = (chatId: string) => {
+    setCurrentChatId(chatId);
+    // TODO: Load the selected chat's messages
+    console.log('Selected chat:', chatId);
+  };
+
 
   const handleModeChange = (mode: 'speechToSpeech' | 'textToText') => {
     // Reset all modes to false
@@ -90,34 +92,45 @@ const PhilosopherChatPage: React.FC = () => {
     }
   };
 
+  const handleNewMessage = (message: ChatMessage) => {
+    setMessages(prev => [...prev, message]);
+    
+    // If it's a user message, set AI responding state
+    if (message.role === 'user') {
+      setIsAIResponding(true);
+    } else if (message.role === 'assistant') {
+      setIsAIResponding(false);
+    }
+  };
+
   return (
     <div className="h-screen bg-white flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-100">
-        <div className="flex items-center space-x-4">
-          <button 
-            onClick={handleBackClick}
-            className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
-          >
-            <ArrowBackIcon sx={{ fontSize: 20 }} />
-          </button>
-          <button className="p-2 hover:bg-gray-100 rounded-xl transition-colors">
-            <HistoryIcon sx={{ fontSize: 20 }} />
-          </button>
-          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center">
-            <img className="h-full w-full rounded-full" src={philosopher?.image} alt={philosopher?.name}/>
-          </div>
-          <div>
-            <h1 className="font-bold text-lg">{philosopher?.name}</h1>
-            <p className="text-sm text-gray-600">{philosopher?.subtitle}</p>
-          </div>
-        </div>
-      </div>
+      <Navbar
+        philosopherName={philosopher?.name || ''}
+        philosopherSubtitle={philosopher?.subtitle || ''}
+        philosopherImage={philosopher?.image || ''}
+        onBackClick={handleBackClick}
+        onHistoryClick={handleHistoryClick}
+        showHistory={true}
+        showProfile={true}
+      />
+
+      {/* Chat History Sidebar */}
+      <ChatHistorySidebar
+        isOpen={isSidebarOpen}
+        onClose={handleSidebarClose}
+        onChatSelect={handleChatSelect}
+        currentChatId={currentChatId}
+      />
 
       {/* Main Chat Area */}
-      <div className="flex-1 relative overflow-hidden">
+      <div 
+        className="flex-1 relative overflow-hidden"
+        onClick={isSidebarOpen ? handleSidebarClose : undefined}
+      >
         {/* Chat Messages */}
-        <div className="absolute inset-0 p-4 flex flex-col justify-center items-center">
+        <div className="absolute inset-0 p-4 flex flex-col justify-start items-center z-10">
           <div className="w-full max-w-4xl space-y-6">
             {messages.map((message, index) => (
               <div
@@ -143,9 +156,9 @@ const PhilosopherChatPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Central Philosopher Image */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="w-64 h-64 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center opacity-15">
+        {/* Central Philosopher Image - Fixed position */}
+        <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-0">
+          <div className="w-64 h-64 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center opacity-10">
             <img className="h-full w-full rounded-full" src={philosopher?.image} alt={philosopher?.name}/>
           </div>
         </div>
@@ -153,7 +166,7 @@ const PhilosopherChatPage: React.FC = () => {
 
 			{/*Listening Indicator */}
 			{isListening && (
-				<div className="absolute bottom-52 left-1/2 transform -translate-x-1/2">
+				<div className="fixed bottom-52 left-1/2 transform -translate-x-1/2 z-20">
 					<div className="flex flex-row items-center gap-2 bg-white border border-gray-300 px-4 py-2 rounded-xl">
 						<div className="h-2 w-2 bg-red-500 rounded-full animate-pulse"></div>
 						<span className="text-sm text-gray-600">Listening...</span>
@@ -163,10 +176,20 @@ const PhilosopherChatPage: React.FC = () => {
 
 			{/*Processing Indicator */}
 			{isProcessing && (
-				<div className="absolute bottom-52 left-1/2 transform -translate-x-1/2">
+				<div className="fixed bottom-52 left-1/2 transform -translate-x-1/2 z-20">
 					<div className="flex flex-row items-center gap-2 bg-white border border-gray-300 px-4 py-2 rounded-xl">
 						<WormLoading />
 						<span className="text-sm text-gray-600">Processing...</span>
+					</div>
+				</div>
+			)}
+
+			{/* AI Responding Indicator */}
+			{isAIResponding && (
+				<div className="fixed bottom-52 left-1/2 transform -translate-x-1/2 z-20">
+					<div className="flex flex-row items-center gap-2 bg-white border border-gray-300 px-4 py-2 rounded-xl">
+						<WormLoading />
+						<span className="text-sm text-gray-600">Thinking...</span>
 					</div>
 				</div>
 			)} 
@@ -192,7 +215,7 @@ const PhilosopherChatPage: React.FC = () => {
             <StopIcon sx={{ fontSize: 24}} />
           </button>)}
 
-					{isTextToText && <Chatbar></Chatbar>}
+					{isTextToText && <Chatbar philosopherId={philosopherId} onNewMessage={handleNewMessage} />}
         </div>
       </div>
 
@@ -225,13 +248,6 @@ const PhilosopherChatPage: React.FC = () => {
 					onModeChange={handleModeChange}
 				/>
 			</div>
-
-      {/* Help Button */}
-      <div className="absolute bottom-6 right-6">
-        <button className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center text-white hover:bg-gray-700 transition-colors">
-          <HelpOutlineIcon className="w-5 h-5" />
-        </button>
-      </div>
     </div>
   );
 };

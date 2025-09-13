@@ -65,13 +65,6 @@ const PhilosopherSelectionPage: React.FC = () => {
             Each conversation is unique and tailored to the philosopher's teachings and personality.
           </p>
         </div>
-
-        {/* Help Button */}
-        <div className="fixed bottom-6 right-6">
-          <button className="btn-hover w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center text-white hover:bg-gray-700">
-            <span className="text-lg">?</span>
-          </button>
-        </div>
       </div>
     </div>
   );

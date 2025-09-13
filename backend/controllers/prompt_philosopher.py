@@ -16,25 +16,25 @@ supabase: Client = create_client(
   supabase_key=key
 )
 
-def prompt_advisor(prompt: str, advisor_name: str, chat_id: str = None, history: list[History] = None):
+def prompt_philosopher(prompt: str, philosopher_name: str, chat_id: str = None, history: list[History] = None):
   """
-  Prompts the AI Advisor
+  Prompts the AI Philosopher
   """
   client = OpenAI(
     api_key=os.getenv("OPENAI_API_KEY"),
   )
   
-  if advisor_name == None:
-    raise HTTPException(status_code=400, detail="Advisor required!")
+  if philosopher_name == None:
+    raise HTTPException(status_code=400, detail="Philosopher required!")
   
   try:
-    response = supabase.table("Advisor").select("advisor_config").eq("advisor_name", advisor_name).execute()
+    response = supabase.table("Philosophers").select("philosopher_config").eq("philosopher_name", philosopher_name).execute()
     if len(response.data) == 0:
-      raise HTTPException(status_code=400, detail="Advisor config NOT found!")
-    advisor_config = response.data[0]["advisor_config"]
+      raise HTTPException(status_code=400, detail="Philosopher config NOT found!")
+    philosopher_config = response.data[0]["philosopher_config"]
   except Exception as e:
     print(e)
-    raise HTTPException(status_code=500, detail="Error fetching advisor config")
+    raise HTTPException(status_code=500, detail="Error fetching philosopher config")
     
   if history:
     history.append({
@@ -48,7 +48,7 @@ def prompt_advisor(prompt: str, advisor_name: str, chat_id: str = None, history:
     response = client.responses.create(
       model="o4-mini-2025-04-16",
       input=messages,
-      instructions=advisor_config,
+      instructions=philosopher_config,
       reasoning={
         "effort": "high",
       }
@@ -62,14 +62,14 @@ def prompt_advisor(prompt: str, advisor_name: str, chat_id: str = None, history:
     response = client.responses.create(
       model="o4-mini-2025-04-16",
       input=prompt,
-      instructions=advisor_config,
+      instructions=philosopher_config,
       reasoning={
         "effort": "high",
       }
     )
     
   
-  # save the response of the advisor AI to the database
+  # save the response of the philosopher AI to the database
   try:
     last_prompt = {
       "role": "assistant",
@@ -89,10 +89,10 @@ def prompt_advisor(prompt: str, advisor_name: str, chat_id: str = None, history:
     print("chat_id:", chat_id)
     result = supabase.table("Chat").upsert({
       "chat_id": chat_id,
-      "advisor_name": advisor_name,
+      "philosopher_name": philosopher_name,
       "content": serialized_history,
     } if chat_id else {
-      "advisor_name": advisor_name,
+      "philosopher_name": philosopher_name,
       "content": serialized_history,
     }).execute()
   except Exception as e:
