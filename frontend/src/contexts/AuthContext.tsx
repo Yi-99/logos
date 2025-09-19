@@ -1,11 +1,16 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, AuthState } from '@/types';
+import supabase from '../lib/supabase';
 
 interface AuthContextType extends AuthState {
   login: (user: User) => void;
   logout: () => void;
   updateUser: (user: Partial<User>) => void;
   getSessionDuration: () => number;
+  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, fullName: string) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
+  signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -80,6 +85,67 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return Math.floor((now.getTime() - authState.loginTime.getTime()) / (1000 * 60));
   };
 
+  // Supabase authentication methods
+  const signIn = async (email: string, password: string) => {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) throw error;
+
+    if (data.user) {
+      const user: User = {
+        id: data.user.id,
+        email: data.user.email || '',
+        name: data.user.user_metadata?.full_name || data.user.email || '',
+        lastLoginAt: new Date().toISOString(),
+      };
+      login(user);
+    }
+  };
+
+  const signUp = async (email: string, password: string, fullName: string) => {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: fullName,
+        },
+      },
+    });
+
+    if (error) throw error;
+
+    if (data.user) {
+      const user: User = {
+        id: data.user.id,
+        email: data.user.email || '',
+        name: fullName,
+        lastLoginAt: new Date().toISOString(),
+      };
+      login(user);
+    }
+  };
+
+  const signInWithGoogle = async () => {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/philosophers`,
+      },
+    });
+
+    if (error) throw error;
+  };
+
+  const signOut = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
+    logout();
+  };
+
   // Restore auth state from localStorage on mount
   useEffect(() => {
     const stored = localStorage.getItem('authState');
@@ -103,13 +169,38 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   }, []);
 
+  // Listen for auth state changes (including OAuth callbacks)
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event === 'SIGNED_IN' && session?.user) {
+          const user: User = {
+            id: session.user.id,
+            email: session.user.email || '',
+            name: session.user.user_metadata?.full_name || session.user.email || '',
+            lastLoginAt: new Date().toISOString(),
+          };
+          login(user);
+        } else if (event === 'SIGNED_OUT') {
+          logout();
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, []);
+
   return (
     <AuthContext.Provider value={{
       ...authState,
       login,
       logout,
       updateUser,
-      getSessionDuration
+      getSessionDuration,
+      signIn,
+      signUp,
+      signInWithGoogle,
+      signOut
     }}>
       {children}
     </AuthContext.Provider>

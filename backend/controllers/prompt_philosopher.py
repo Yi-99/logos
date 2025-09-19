@@ -16,7 +16,7 @@ supabase: Client = create_client(
   supabase_key=key
 )
 
-def prompt_philosopher(prompt: str, philosopher_name: str, chat_id: str = None, history: list[History] = None):
+def prompt_philosopher(prompt: str, name: str, chat_id: str = None, history: list[History] = None):
   """
   Prompts the AI Philosopher
   """
@@ -24,14 +24,18 @@ def prompt_philosopher(prompt: str, philosopher_name: str, chat_id: str = None, 
     api_key=os.getenv("OPENAI_API_KEY"),
   )
   
-  if philosopher_name == None:
+  number_of_prompts = 0
+  
+  if name == None:
     raise HTTPException(status_code=400, detail="Philosopher required!")
   
   try:
-    response = supabase.table("Philosophers").select("philosopher_config").eq("philosopher_name", philosopher_name).execute()
+    response = supabase.table("Philosophers").select("config").eq("name", name).execute()
     if len(response.data) == 0:
       raise HTTPException(status_code=400, detail="Philosopher config NOT found!")
-    philosopher_config = response.data[0]["philosopher_config"]
+    config = response.data[0]["config"]
+    number_of_prompts = response.data[0]["number_of_prompts"]
+    number_of_prompts += 1
   except Exception as e:
     print(e)
     raise HTTPException(status_code=500, detail="Error fetching philosopher config")
@@ -48,7 +52,7 @@ def prompt_philosopher(prompt: str, philosopher_name: str, chat_id: str = None, 
     response = client.responses.create(
       model="o4-mini-2025-04-16",
       input=messages,
-      instructions=philosopher_config,
+      instructions=config,
       reasoning={
         "effort": "high",
       }
@@ -62,7 +66,7 @@ def prompt_philosopher(prompt: str, philosopher_name: str, chat_id: str = None, 
     response = client.responses.create(
       model="o4-mini-2025-04-16",
       input=prompt,
-      instructions=philosopher_config,
+      instructions=config,
       reasoning={
         "effort": "high",
       }
@@ -87,14 +91,20 @@ def prompt_philosopher(prompt: str, philosopher_name: str, chat_id: str = None, 
 
     print("history:", history)
     print("chat_id:", chat_id)
+    print("number_of_prompts:", number_of_prompts)
+    
     result = supabase.table("Chat").upsert({
       "chat_id": chat_id,
-      "philosopher_name": philosopher_name,
+      "name": name,
       "content": serialized_history,
     } if chat_id else {
-      "philosopher_name": philosopher_name,
+      "name": name,
       "content": serialized_history,
     }).execute()
+    
+    supabase.table("Philosophers").update({
+			"number_of_prompts": number_of_prompts,
+		}).eq("name", name).execute()
   except Exception as e:
     print(e)
     raise HTTPException(status_code=500, detail="Error saving chat history")

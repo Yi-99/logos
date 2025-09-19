@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 import MicNoneIcon from '@mui/icons-material/MicNone';
-import { getPhilosopherInfo } from '../constants/philosophers';
 import InputSettingsBar from '../components/InputSettingsBar';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
@@ -11,7 +10,10 @@ import StopIcon from '@mui/icons-material/Stop';
 import { WormLoading } from '../components/WormLoading';
 import Navbar from '../components/Navbar';
 import ChatHistorySidebar from '../components/ChatHistorySidebar';
-
+import { Philosopher } from '../constants/types/Philosopher';
+import philosopherService from '../services/philosophers/PhilosopherService';
+import { toast } from 'react-toastify';
+import supabase from '../lib/supabase';
 interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
@@ -20,8 +22,8 @@ interface ChatMessage {
 
 const PhilosopherChatPage: React.FC = () => {
   const { philosopherId } = useParams<{ philosopherId: string }>();
+	const [philosopher, setPhilosopher] = useState<Philosopher | null>(null);
   const navigate = useNavigate();
-  const philosopher = getPhilosopherInfo(philosopherId);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isListening, setIsListening] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -42,6 +44,42 @@ const PhilosopherChatPage: React.FC = () => {
     scrollToBottom();
   }, [messages]);
 
+	useEffect(() => {
+		let isCancelled = false;
+		
+		const fetchPhilosopher = async () => {
+			if (!philosopherId) {
+				toast.error('Philosopher ID is required');
+				return;
+			}
+			
+			try {
+				const philosopher = await philosopherService.getPhilosopherById(philosopherId);
+				if (!isCancelled) {
+					setPhilosopher(philosopher);
+				}
+			} catch (error) {
+				if (!isCancelled) {
+					console.error('Error fetching philosopher:', error);
+					// Optionally show error to user
+					toast.error('Failed to load philosopher details');
+				}
+			}
+		}
+		
+		// Call the async function and handle any unhandled promise rejections
+		fetchPhilosopher().catch((error) => {
+			if (!isCancelled) {
+				console.error('Unhandled error in fetchPhilosopher:', error);
+			}
+		});
+		
+		// Cleanup function to prevent state updates if component unmounts
+		return () => {
+			isCancelled = true;
+		};
+	}, [philosopherId]);
+
   const handleMicClick = () => {
     setIsListening(!isListening);
   };
@@ -56,7 +94,7 @@ const PhilosopherChatPage: React.FC = () => {
 	};
 
   const handleBackClick = () => {
-    navigate('/');
+    navigate('/philosophers');
   };
 
   const handleHistoryClick = () => {
@@ -109,7 +147,7 @@ const PhilosopherChatPage: React.FC = () => {
       <Navbar
         philosopherName={philosopher?.name || ''}
         philosopherSubtitle={philosopher?.subtitle || ''}
-        philosopherImage={philosopher?.image || ''}
+        philosopherImage={supabase.storage.from('Portraits').getPublicUrl(philosopher?.image.split('/').pop() || '').data.publicUrl}
         onBackClick={handleBackClick}
         onHistoryClick={handleHistoryClick}
         showHistory={true}
@@ -159,7 +197,13 @@ const PhilosopherChatPage: React.FC = () => {
         {/* Central Philosopher Image - Fixed position */}
         <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-0">
           <div className="w-64 h-64 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center opacity-10">
-            <img className="h-full w-full rounded-full" src={philosopher?.image} alt={philosopher?.name}/>
+            {philosopher?.image && 
+							<img 
+								className="h-full w-full rounded-full" 
+								src={supabase.storage.from('Portraits').getPublicUrl(philosopher?.image.split('/').pop() || '').data.publicUrl} 
+								alt={philosopher?.name || ''}
+							/>
+						}
           </div>
         </div>
       </div>

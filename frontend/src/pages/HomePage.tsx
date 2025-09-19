@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import MicIcon from '@mui/icons-material/Mic';
 import VolumeUpIcon from '@mui/icons-material/VolumeUp';
@@ -9,6 +10,7 @@ import FlashOnIcon from '@mui/icons-material/FlashOn';
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const [scrollY, setScrollY] = useState(0);
 
   useEffect(() => {
@@ -20,13 +22,13 @@ const HomePage: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleStartJourney = () => {
-    navigate('/philosophers');
-  };
-
-  const handleLearnMore = () => {
-    // TODO: Implement learn more functionality
-    console.log('Learn more clicked');
+  const handleStartJourney = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (isAuthenticated) {
+      navigate('/philosophers');
+    } else {
+      navigate('/login');
+    }
   };
 
   const features = [
@@ -48,7 +50,7 @@ const HomePage: React.FC = () => {
     {
       icon: <PeopleIcon sx={{ fontSize: 32 }} />,
       title: 'Multiple Philosophers',
-      description: 'Choose from Socrates, Plato, Aristotle, Confucius, Buddha, and Nietzsche.'
+      description: 'Choose from Socrates, Plato, Aristotle, Confucius, Buddha, Nietzsche, Jesus, Descartes, and more.'
     },
     {
       icon: <PsychologyIcon sx={{ fontSize: 32 }} />,
@@ -70,7 +72,7 @@ const HomePage: React.FC = () => {
         style={{
           backgroundImage: 'url(/school-of-athens.jpg)',
           zIndex: 1,
-          transform: `scale(${Math.max(1, 1 - (scrollY - window.innerHeight) * 0.0005)})`,
+          transform: `scale(${Math.max(1, 1.3 - (scrollY - window.innerHeight) * 0.0005)})`,
           transition: 'transform 0.1s ease-out'
         }}
       />
@@ -104,7 +106,7 @@ const HomePage: React.FC = () => {
 							onClick={handleStartJourney}
 							className="px-8 py-4 text-xl font-bold text-gray-700 mb-4 p-4 bg-gray-50/50 rounded-lg border border-gray-700 hover:bg-gray-900 hover:text-white transition-colors ease-in-out"
 						>
-							Start Your Journey
+							{'Start Your Journey'}
 						</button>
 					</div>
 				</div>

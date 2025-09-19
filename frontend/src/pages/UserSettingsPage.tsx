@@ -1,22 +1,16 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CheckIcon from '@mui/icons-material/Check';
 import StarIcon from '@mui/icons-material/Star';
 import AllInclusiveIcon from '@mui/icons-material/AllInclusive';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
 import EmailIcon from '@mui/icons-material/Email';
 import SecurityIcon from '@mui/icons-material/Security';
+import Layout from '../components/Layout';
 
 const UserSettingsPage: React.FC = () => {
-  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'profile' | 'subscription'>('profile');
   const [fullName, setFullName] = useState('John Doe');
   const [email, setEmail] = useState('john.doe@example.com');
-
-  const handleBackClick = () => {
-    navigate('/');
-  };
 
   const handleSaveChanges = () => {
     // TODO: Implement save functionality
@@ -33,26 +27,13 @@ const UserSettingsPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-6 py-4">
-          <div className="flex items-center space-x-4">
-            <button
-              onClick={handleBackClick}
-              className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
-            >
-              <ArrowBackIcon sx={{ fontSize: 20 }} />
-            </button>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Account Settings</h1>
-              <p className="text-sm text-gray-600">Manage your profile and subscription preferences</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-4xl mx-auto px-6 py-8">
+    <Layout 
+      title="Account Settings" 
+      subtitle="Manage your profile and subscription preferences"
+      backPath="/"
+    >
+      <div className="bg-gray-50 min-h-screen">
+        <div className="max-w-4xl mx-auto px-6 py-8">
         {/* Navigation Tabs */}
         <div className="flex space-x-1 mb-8">
           <button
@@ -317,8 +298,9 @@ const UserSettingsPage: React.FC = () => {
             </div>
           </div>
         )}
+        </div>
       </div>
-    </div>
+    </Layout>
   );
 };
 

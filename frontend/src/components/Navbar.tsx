@@ -25,7 +25,7 @@ const Navbar: React.FC<NavbarProps> = ({
   return (
     <div className="flex items-center justify-between p-4 border-b border-gray-100">
       <div className="flex items-center space-x-4">
-        <button 
+        <button
           onClick={onBackClick}
           className="py-2 px-3 hover:bg-gray-100 rounded-xl transition-colors"
         >
@@ -42,9 +42,9 @@ const Navbar: React.FC<NavbarProps> = ({
         )}
         
         <div className="w-20 h-20 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center">
-          <img 
-            className="h-full w-full rounded-full" 
-            src={philosopherImage} 
+          <img
+            className="h-full w-full rounded-full"
+            src={philosopherImage}
             alt={philosopherName}
           />
         </div>

@@ -2,9 +2,9 @@ export interface User {
   id: string;
   email: string;
   name: string;
-  avatar?: string;
-  createdAt: string;
-  lastLoginAt?: string;
+  picture?: string;
+  accessToken?: string;
+	lastLoginAt: string;
 }
 
 export interface AuthState {
@@ -12,4 +12,5 @@ export interface AuthState {
   isAuthenticated: boolean;
   loginTime: Date | null;
   sessionDuration: number; // in minutes
+  data?: any | null;
 }

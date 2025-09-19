@@ -21,21 +21,9 @@ export interface ChatResponse {
 export type PromptAIResponse = ChatResponse[];
 
 const promptAI = async (request: PromptAIRequest) => {
-	console.log("Request:", request);
 	try {
 		const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/v1/prompt`, request);
 		const promptAIResponse: PromptAIResponse = response.data;
-
-		// toast.success('Success!', {
-		// 	position: 'bottom-right',
-		// 	autoClose: 5000,
-		// 	hideProgressBar: false,
-		// 	closeOnClick: true,
-		// 	pauseOnHover: true,
-		// 	draggable: false,
-		// 	progress: undefined,
-		// 	theme: 'light',
-		// });
 
 		return promptAIResponse;
 	} catch (error: any) {

@@ -5,7 +5,8 @@ export interface Philosopher {
   description: string;
   quote: string;
   dates: string;
-  school: string;
+  location: string;
   image: string;
   imageClassic?: string;
+	sortOrder: number;
 }
