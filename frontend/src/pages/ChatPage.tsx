@@ -8,11 +8,20 @@ export interface ChatMessage {
 	content: string;
 }
 
+// interface ChatPageProps {
+// 	advisorName: string;
+// 	chatname: string | null;
+// }
+
 const ChatPage = () => {
 	const [prompt, setPrompt] = useState<string>('');
 	const [chatContent, setChatContent] = useState<ChatMessage[] | null>(null);
 	const [chatId, setChatId] = useState<string | null>(null);
 	const [isLoading, setIsLoading] = useState<boolean>(false);
+	// const [advisorName, setAdvisorName] = useState<string>('');
+	const advisorName = 'Jesus Christ'; // TODO: get this from the context
+	// const [chatname, setChatname] = useState<string | null>(null);
+	const chatname = '';
 
 	const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -43,7 +52,8 @@ const ChatPage = () => {
 			console.log('Chat ID:', chatId);
 			const promptResult: PromptAIResponse = await chatService.promptAI({
 				prompt,
-				advisor_name: 'Jesus Christ',
+				advisor_name: advisorName ?? 'Jesus Christ',
+				chat_name: chatname ?? `Chat with ${advisorName}` ?? 'Chat with Jesus Christ',
 				chat_id: chatId ?? undefined,
 				history: chatContent ? chatContent : undefined,
 			});

@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routes import chat_router
@@ -7,19 +8,22 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+frontend_url = os.getenv("FRONTEND_URL")
+
 app = FastAPI()
 
 origins = [
 	"http://localhost:5173", # Local React App
 	"http://localhost",
+	frontend_url,
 ]
 
 app.add_middleware(
 	CORSMiddleware,
-	allow_origins=origins,
+	allow_origins=["*"],
 	allow_credentials=True,
-  allow_methods=["*"],
-  allow_headers=["*"],
+	allow_methods=["*"],
+	allow_headers=["*"],
 )
 
 app.include_router(chat_router, prefix="/api")
@@ -28,5 +32,18 @@ app.include_router(philosophers_router, prefix="/api")
 
 @app.get("/")
 async def root():
-	"""Health check endpoint"""
-	return { "status": "healthy" }
+	return { "message": "Hello World" }
+
+@app.get("/health")
+async def health_check():
+	"""
+	Health check endpoint to verify the API is running properly.
+	Returns the status of the API and basic system information.
+	"""
+	return {
+		"status": "healthy",
+		"message": "API is running successfully",
+		"service": "logos-backend",
+		"version": "1.0.0"
+	}
+

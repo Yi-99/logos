@@ -1,13 +1,11 @@
 import os
-import json
 from openai import OpenAI
-from supabase import create_client, Client
 from fastapi import HTTPException
-from dotenv import load_dotenv
 from routes.prompt import History
+from db import SupabaseService
 
-load_dotenv()
 
+<<<<<<< HEAD
 url: str = os.getenv("SUPABASE_URL")
 key: str = os.getenv("SUPABASE_KEY")
 
@@ -17,13 +15,20 @@ supabase: Client = create_client(
 )
 
 def prompt_philosopher(prompt: str, name: str, chat_id: str = None, history: list[History] = None):
+=======
+def prompt_philosopher(prompt: str, philosopher_name: str, chat_name:str, chat_id: str = None, history: list[History] = None):
+>>>>>>> origin/main
   """
   Prompts the AI Philosopher
   """
+  db_service = SupabaseService()
+  supabase = db_service.get_client()
+  
   client = OpenAI(
     api_key=os.getenv("OPENAI_API_KEY"),
   )
   
+<<<<<<< HEAD
   number_of_prompts = 0
   
   if name == None:
@@ -36,6 +41,16 @@ def prompt_philosopher(prompt: str, name: str, chat_id: str = None, history: lis
     config = response.data[0]["config"]
     number_of_prompts = response.data[0]["number_of_prompts"]
     number_of_prompts += 1
+=======
+  if philosopher_name == None:
+    raise HTTPException(status_code=400, detail="Philosopher required!")
+  
+  try:
+    response = supabase.table("Philosopher").select("philosopher_config").eq("philosopher_name", philosopher_name).execute()
+    if len(response.data) == 0:
+      raise HTTPException(status_code=400, detail="Philosopher config NOT found!")
+    philosopher_config = response.data[0]["philosopher_config"]
+>>>>>>> origin/main
   except Exception as e:
     print(e)
     raise HTTPException(status_code=500, detail="Error fetching philosopher config")
@@ -52,7 +67,11 @@ def prompt_philosopher(prompt: str, name: str, chat_id: str = None, history: lis
     response = client.responses.create(
       model="o4-mini-2025-04-16",
       input=messages,
+<<<<<<< HEAD
       instructions=config,
+=======
+      instructions=philosopher_config,
+>>>>>>> origin/main
       reasoning={
         "effort": "high",
       }
@@ -66,7 +85,11 @@ def prompt_philosopher(prompt: str, name: str, chat_id: str = None, history: lis
     response = client.responses.create(
       model="o4-mini-2025-04-16",
       input=prompt,
+<<<<<<< HEAD
       instructions=config,
+=======
+      instructions=philosopher_config,
+>>>>>>> origin/main
       reasoning={
         "effort": "high",
       }
@@ -95,10 +118,19 @@ def prompt_philosopher(prompt: str, name: str, chat_id: str = None, history: lis
     
     result = supabase.table("Chat").upsert({
       "chat_id": chat_id,
+<<<<<<< HEAD
       "name": name,
       "content": serialized_history,
     } if chat_id else {
       "name": name,
+=======
+      "chat_name": chat_name,
+      "philosopher_name": philosopher_name,
+      "content": serialized_history,
+    } if chat_id else {
+      "chat_name": chat_name,
+      "philosopher_name": philosopher_name,
+>>>>>>> origin/main
       "content": serialized_history,
     }).execute()
     

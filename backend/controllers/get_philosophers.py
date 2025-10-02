@@ -1,19 +1,12 @@
 import os
-from supabase import create_client, Client
-from dotenv import load_dotenv
-
-load_dotenv()
-
-url: str = os.getenv("SUPABASE_URL")
-key: str = os.getenv("SUPABASE_KEY")
-
-supabase: Client = create_client(
-  supabase_url=url,
-  supabase_key=key
-)
+from db import SupabaseService
 
 def get_philosophers():
 	"""
-	Get all philosophers
+	Get all advisors
 	"""
-	return supabase.table("Philosophers").select("*").execute()
+	db_service = SupabaseService()
+	supabase = db_service.get_client()
+	
+	response = supabase.table("Philosophers").select("*").execute()
+	return response.data
