@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
 from controllers import get_chat_by_id, get_chats, create_chat
-from models.models import Chat, create_chat
+from models.models import Chat
 
 chat_router = APIRouter(prefix="/v1/chat", tags=["chat"])
 

@@ -1,4 +1,4 @@
-from backend.db import SupabaseService
+from db import SupabaseService
 from models.models import Chat
 from supabase import create_client, Client
 from dotenv import load_dotenv
