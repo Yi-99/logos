@@ -4,6 +4,7 @@ import { ArrowBack } from '@mui/icons-material';
 
 const artNotes: Record<string, string> = {
   '/login': 'Wanderer above the Sea of Fog · Caspar David Friedrich · 1818',
+  '/forgot-password': 'Wanderer above the Sea of Fog · Caspar David Friedrich · 1818',
   '/': 'The School of Athens · Raphael · 1511',
   '/philosophers': 'Gatherings of minds beyond time',
   '/chat': 'Dialogue is a journey inward',

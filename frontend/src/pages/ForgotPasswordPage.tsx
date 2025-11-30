@@ -44,27 +44,20 @@ const ForgotPasswordPage: React.FC = () => {
         style={{ zIndex: 2, backgroundColor: 'rgba(0, 0, 0, 0.35)' }}
       />
 
-      <div className="relative" style={{ zIndex: 3 }}>
-        <div className="p-6">
-          <Link to="/login" className="flex items-center text-white/80 hover:text-white transition-colors">
-            <ArrowBack className="mr-2" />
-            Back to Login
-          </Link>
-        </div>
-
-        <div className="max-w-5xl mx-auto px-6 py-16 grid gap-12 lg:grid-cols-2 items-center">
-          <div className="text-white space-y-6">
-            <p className="text-sm uppercase tracking-[0.4em] text-white/70">Logos Project</p>
+      <div className="relative min-h-screen flex items-center justify-center px-4" style={{ zIndex: 3 }}>
+        <div className="max-w-5xl w-full mx-auto px-6 py-16 grid gap-12 lg:grid-cols-2 items-center rounded-3xl">
+          <div className="text-white space-y-6 rounded-3xl">
+            <p className="text-sm uppercase tracking-[0.4em] text-white">Logos Project</p>
             <h1 className="text-4xl md:text-5xl font-semibold leading-tight">
               Forgotten password, familiar journey.
             </h1>
-            <p className="text-lg text-white/80">
+            <p className="text-lg text-white">
               Reclaim access to your conversations with the thinkers who guide you. We will send a secure link to help you reset your password and continue the dialogue.
             </p>
-            <div className="flex items-center space-x-3 text-white/70">
-              <span className="h-px flex-1 bg-white/40" />
+            <div className="flex items-center space-x-3 text-white">
+              <span className="h-px flex-1 bg-white" />
               <span className="text-xs tracking-[0.45em] uppercase">Remembering</span>
-              <span className="h-px flex-1 bg-white/40" />
+              <span className="h-px flex-1 bg-white" />
             </div>
           </div>
 

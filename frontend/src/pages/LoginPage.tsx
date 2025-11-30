@@ -151,16 +151,12 @@ const LoginPage: React.FC = () => {
 
 							{/* Forgot Password */}
 							<div className="text-center">
-								<button 
-									type="button"
+								<Link 
 									className="text-sm text-gray-600 hover:text-gray-900 hover:underline"
-									onClick={() => {
-										// TODO: Implement forgot password functionality
-										console.log('Forgot password clicked');
-									}}
+									to="/forgot-password"
 								>
 									Forgot your password?
-								</button>
+								</Link>
 							</div>
 
 							{/* Sign In Button */}
