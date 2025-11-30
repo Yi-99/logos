@@ -7,7 +7,7 @@ const getAllPhilosophers = async () => {
 	try {
 		const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/v1/philosophers`);
 		const getAllPhilosophersResponse: GetAllPhilosophersResponse = {
-			philosophers: response.data.data.map((philosopher: any) => ({
+			philosophers: response.data.map((philosopher: any) => ({
 				id: philosopher.id,
 				name: philosopher.name,
 				subtitle: philosopher.subtitle,

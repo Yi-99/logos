@@ -11,6 +11,7 @@ interface AuthContextType extends AuthState {
   signUp: (email: string, password: string, fullName: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -146,6 +147,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     logout();
   };
 
+  const resetPassword = async (email: string) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/login`,
+    });
+
+    if (error) throw error;
+  };
+
   // Restore auth state from localStorage on mount
   useEffect(() => {
     const stored = localStorage.getItem('authState');
@@ -200,7 +209,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       signIn,
       signUp,
       signInWithGoogle,
-      signOut
+      signOut,
+      resetPassword
     }}>
       {children}
     </AuthContext.Provider>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
@@ -12,6 +12,7 @@ const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const [scrollY, setScrollY] = useState(0);
+  const featuresRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -28,6 +29,12 @@ const HomePage: React.FC = () => {
       navigate('/philosophers');
     } else {
       navigate('/login');
+    }
+  };
+
+  const handleScrollToFeatures = () => {
+    if (featuresRef.current) {
+      featuresRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
@@ -80,16 +87,21 @@ const HomePage: React.FC = () => {
       {/* Overlay for text readability */}
       <div className="fixed inset-0 bg-opacity-20" style={{ zIndex: 2 }} />
 
-      {/* Scrollable Content */}
-      <div className="relative" style={{ zIndex: 3 }}>
-				<div className="h-screen"></div>
+	      {/* Scrollable Content */}
+	      <div className="relative" style={{ zIndex: 3 }}>
         {/* Hero Section */}
         <div className="hero-section min-h-screen flex flex-col items-center justify-center">
           <div className="max-w-6xl mx-auto px-6 py-20 text-center">
             <h1 className="text-5xl md:text-6xl font-bold text-gray-700 mb-6 text-shadow-lg">
               Converse with History's Greatest Philosophers
             </h1>
-					</div>
+				<button
+					onClick={handleScrollToFeatures}
+					className="px-6 py-3 border border-gray-700/60 rounded-full text-sm font-semibold tracking-widest hover:bg-white/10 transition backdrop-blur-sm text-gray-700"
+				>
+					Scroll to Features
+				</button>
+			</div>
         </div>
 
 				<div className="min-h-screen flex flex-col items-center justify-center">
@@ -99,23 +111,12 @@ const HomePage: React.FC = () => {
 						</div>
 					</div>
 				</div>
-
-				<div className="min-h-screen flex flex-col items-center justify-center">
-					<div className="flex flex-col sm:flex-row gap-4 justify-center">
-						<button
-							onClick={handleStartJourney}
-							className="px-8 py-4 text-xl font-bold text-gray-700 mb-4 p-4 bg-gray-50/50 rounded-lg border border-gray-700 hover:bg-gray-900 hover:text-white transition-colors ease-in-out"
-						>
-							{'Start Your Journey'}
-						</button>
-					</div>
-				</div>
 				
         {/* Features Section */}
-        <div className="min-h-screen py-20 bg-transparent backdrop-blur-xs flex flex-col items-center justify-center">
+        <div ref={featuresRef} className="min-h-screen py-20 bg-transparent backdrop-blur-xs flex flex-col items-center justify-between gap-10">
 					<div className="max-w-6xl mx-auto px-6">
 						<div className="text-center mb-16">
-							<h2 className="text-4xl font-bold text-gray-700 mb-4 p-4 bg-gray-50/50 rounded-lg border border-gray-700">
+							<h2 className="text-4xl font-bold text-gray-700 mb-4 p-4 bg-gray-50/75 rounded-lg border border-gray-700">
 								Powerful Features for Deep Conversations
 							</h2>
 							<p className="text-xl font-bold text-gray-700 max-w-3xl mx-auto">
@@ -127,7 +128,7 @@ const HomePage: React.FC = () => {
 							{features.map((feature, index) => (
 								<div
 									key={index}
-									className="bg-gray-50/50 rounded-lg p-8 shadow-sm border border-gray-700 hover:shadow-lg transition-all duration-300 hover:backdrop-blur-xl"
+									className="bg-gray-50/75 rounded-lg p-8 shadow-sm border border-gray-700 hover:shadow-lg transition-all duration-300 hover:backdrop-blur-xl"
 								>
 									<div className="text-gray-600 mb-4">
 										{feature.icon}
@@ -140,6 +141,17 @@ const HomePage: React.FC = () => {
 									</p>
 								</div>
 							))}
+						</div>
+					</div>
+
+					<div className="flex flex-col items-center justify-center">
+						<div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+							<button
+								onClick={handleStartJourney}
+								className="px-8 py-4 text-xl font-bold text-gray-700 mb-4 p-4 bg-gray-50/75 rounded-lg border border-gray-700 hover:bg-gray-900 hover:text-white transition-colors ease-in-out"
+							>
+								{'Start Your Journey'}
+							</button>
 						</div>
 					</div>
         </div>

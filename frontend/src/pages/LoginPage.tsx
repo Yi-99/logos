@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { ArrowBack, Email, Lock, Visibility, VisibilityOff } from '@mui/icons-material';
+import { Link } from 'react-router-dom';
+import { Email, Lock, Visibility, VisibilityOff } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 
 const LoginPage: React.FC = () => {
@@ -10,6 +10,10 @@ const LoginPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [scrollY, setScrollY] = useState(0);
   const { signIn, signInWithGoogle } = useAuth();
+
+  const baseZoom = 1.75;
+  const zoomFactor = 0.0006;
+  const backgroundScale = Math.max(1.15, baseZoom - scrollY * zoomFactor);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -44,6 +48,12 @@ const LoginPage: React.FC = () => {
     }
   };
 
+  const handleScrollToForm = () => {
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
+    }
+  };
+
   return (
     <div className="min-h-screen relative">
       {/* Fixed Background Image */}
@@ -52,29 +62,38 @@ const LoginPage: React.FC = () => {
         style={{
           backgroundImage: 'url(/wanderer.jpg)',
           zIndex: 1,
-          transform: `scale(${Math.max(1, 1.3 - (scrollY - window.innerHeight) * 0.0005)})`,
+          transform: `scale(${backgroundScale})`,
           transition: 'transform 0.1s ease-out'
         }}
       />
       
       {/* Overlay for text readability */}
-      <div className="fixed inset-0 bg-opacity-20" style={{ zIndex: 2 }} />
+      <div
+        className="fixed inset-0"
+        style={{ zIndex: 2, backgroundColor: 'rgba(0, 0, 0, 0.25)' }}
+      />
 
       {/* Scrollable Content */}
       <div className="relative" style={{ zIndex: 3 }}>
 
-       {/* Navigation */}
-			<div className="p-6" style={{ zIndex: 4 }}>
-				<Link to="/" className="flex items-center text-gray-600 hover:text-gray-900 transition-colors">
-					<ArrowBack className="mr-2" />
-					Back to Home
-				</Link>
+		<div className="max-w-4xl mx-auto px-6 py-12">
+			<div className="h-screen flex flex-col items-center justify-center text-white text-center space-y-6">
+				<p className="text-sm uppercase tracking-[0.4em]">Logos Project</p>
+				<h1 className="text-4xl md:text-5xl font-semibold leading-tight">
+					Reflect, wander, and then sign in to continue the journey.
+				</h1>
+				<p className="text-lg max-w-2xl">
+					We push the login deeper into the scroll so you can soak in the art before stepping back inside.
+				</p>
+				<button
+					onClick={handleScrollToForm}
+					className="px-6 py-3 border border-white/60 font-semibold rounded-full text-sm tracking-widest hover:bg-white/10 transition backdrop-blur-sm"
+				>
+					Scroll to Sign In
+				</button>
 			</div>
 
-			<div className="max-w-4xl mx-auto px-6 py-12">
-				<div className="min-h-screen"></div>
-
-				<div className="min-h-screen flex flex-col items-center justify-center">
+			<div className="min-h-screen flex flex-col items-center justify-center">
 					{/* Login Form */}
 					<div className="bg-white rounded-lg shadow-lg p-8 mb-16 max-w-md mx-auto">
 						<div className="text-center mb-8">
@@ -131,7 +150,7 @@ const LoginPage: React.FC = () => {
 							</div>
 
 							{/* Forgot Password */}
-							<div className="text-right">
+							<div className="text-center">
 								<button 
 									type="button"
 									className="text-sm text-gray-600 hover:text-gray-900 hover:underline"
@@ -172,7 +191,7 @@ const LoginPage: React.FC = () => {
 							{/* Register Button */}
 							<Link
 								to="/register"
-								className="w-full bg-gray-100 text-gray-900 py-3 px-4 rounded-lg font-medium border-2 border-gray-300 hover:bg-gray-200 transition-colors flex items-center justify-center"
+								className="w-full bg-white text-gray-900 py-3 px-4 rounded-lg font-medium border-2 border-gray-300 hover:bg-gray-50 transition-colors flex items-center justify-center"
 							>
 								Create New Account
 							</Link>
