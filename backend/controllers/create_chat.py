@@ -14,23 +14,23 @@ supabase: Client = create_client(
   supabase_key=key
 )
 
-def create_chat(chat_name: str, advisor_name: str):
+def create_chat(user_id: str, advisor_name: str):
   """
   Create a new chat
   """
   try:
-    response = supabase.table("Chat").insert({
-      "chat_name", chat_name,
-      "advisor_name", advisor_name
+    response = supabase.table("Chats").insert({
+      "user_id": user_id,
+      "advisor_name": advisor_name,
     }).execute()
-    
+
     if len(response.data) == 0:
       raise HTTPException(status_code=400, detail="Failed to create chat!")
-    
+
     new_chat = response.data[0]
     print(new_chat)
-    
+
     return new_chat
   except Exception as e:
     print(e)
-    raise HTTPException(status_code=500, detail="Error creating chat")
+    raise HTTPException(status_code=500, detail="Unknown error creating chat") from e

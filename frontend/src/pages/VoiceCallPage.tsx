@@ -33,7 +33,7 @@ const VoiceCallPage: React.FC = () => {
   };
 
   const handleEndCall = () => {
-    navigate(`/chat/${philosopherId}`);
+    navigate(`/chat/new/${philosopherId}`);
   };
 
   const handleMicToggle = () => {

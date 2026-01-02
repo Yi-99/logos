@@ -113,7 +113,7 @@ const HomePage: React.FC = () => {
 				</div>
 				
         {/* Features Section */}
-        <div ref={featuresRef} className="min-h-screen py-20 bg-transparent backdrop-blur-xs flex flex-col items-center justify-between gap-10">
+        <div ref={featuresRef} className="min-h-screen py-20 bg-transparent backdrop-blur-xs flex flex-col items-center justify-around gap-10">
 					<div className="max-w-6xl mx-auto px-6">
 						<div className="text-center mb-16">
 							<h2 className="text-4xl font-bold text-gray-700 mb-4 p-4 bg-gray-50/75 rounded-lg border border-gray-700">

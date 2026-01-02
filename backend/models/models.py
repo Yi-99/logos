@@ -9,10 +9,11 @@ class History(BaseModel):
     return {"role": self.role, "content": self.content}
 
 class PromptRequest(BaseModel):
+  user_id: str
   prompt: str
   advisor_name: str
-  chat_id: str = None
-  history: list[History] = None
+  chat_id: str | None = None
+  history: list[History] | None = None
   
 class Philosopher(BaseModel):
   name: str

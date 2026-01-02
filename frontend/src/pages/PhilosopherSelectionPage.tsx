@@ -27,7 +27,7 @@ const PhilosopherSelectionPage: React.FC = () => {
 	}, [philosophers]);
 
   const handlePhilosopherSelect = (philosopherId: string) => {
-    navigate(`/chat/${philosopherId}`);
+    navigate(`/chat/new/${philosopherId}`);
   };
 
   return (

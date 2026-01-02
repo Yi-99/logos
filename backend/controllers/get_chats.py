@@ -10,7 +10,7 @@ def get_chats():
   supabase = db_service.get_client()
   
   try:
-    response = supabase.table("Chat").select("*").execute()
+    response = supabase.table("Chats").select("*").execute()
     
     if len(response.data) == 0:
       raise HTTPException(status_code=404, detail="No chats found!")

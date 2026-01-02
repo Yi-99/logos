@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import chatService from '../services/chat/ChatService';
 import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 import MicNoneIcon from '@mui/icons-material/MicNone';
 import InputSettingsBar from '../components/InputSettingsBar';
@@ -14,6 +15,8 @@ import { Philosopher } from '../constants/types/Philosopher';
 import philosopherService from '../services/philosophers/PhilosopherService';
 import { toast } from 'react-toastify';
 import supabase from '../lib/supabase';
+import { useAuth } from '../contexts/AuthContext';
+
 interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
@@ -21,9 +24,11 @@ interface ChatMessage {
 }
 
 const PhilosopherChatPage: React.FC = () => {
-  const { philosopherId } = useParams<{ philosopherId: string }>();
+  let { philosopherId, chatId } = useParams<{ philosopherId?: string; chatId?: string }>();
 	const [philosopher, setPhilosopher] = useState<Philosopher | null>(null);
   const navigate = useNavigate();
+  const location = useLocation();
+  const isNewChat = location.pathname.includes('/new/');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isListening, setIsListening] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -35,6 +40,7 @@ const PhilosopherChatPage: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [currentChatId, setCurrentChatId] = useState<string | undefined>(undefined);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+	const { user } = useAuth();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -45,40 +51,91 @@ const PhilosopherChatPage: React.FC = () => {
   }, [messages]);
 
 	useEffect(() => {
+		if (user?.id == null) {
+			navigate('/');
+		}
+	}, [user?.id, navigate]);
+
+	useEffect(() => {
 		let isCancelled = false;
-		
-		const fetchPhilosopher = async () => {
+
+		const handleNewChat = async () => {
 			if (!philosopherId) {
 				toast.error('Philosopher ID is required');
+				navigate('/philosophers');
 				return;
 			}
-			
+
 			try {
-				const philosopher = await philosopherService.getPhilosopherById(philosopherId);
+				// Fetch philosopher details only - chat will be created on first message
+				const philosopherData = await philosopherService.getPhilosopherById(philosopherId);
 				if (!isCancelled) {
-					setPhilosopher(philosopher);
+					setPhilosopher(philosopherData);
 				}
 			} catch (error) {
 				if (!isCancelled) {
 					console.error('Error fetching philosopher:', error);
-					// Optionally show error to user
-					toast.error('Failed to load philosopher details');
+					toast.error('Failed to load philosopher');
+					navigate('/philosophers');
 				}
 			}
-		}
-		
-		// Call the async function and handle any unhandled promise rejections
-		fetchPhilosopher().catch((error) => {
-			if (!isCancelled) {
-				console.error('Unhandled error in fetchPhilosopher:', error);
+		};
+
+		const handleExistingChat = async () => {
+			if (!chatId) {
+				toast.error('Chat ID is required');
+				navigate('/philosophers');
+				return;
 			}
-		});
-		
+
+			try {
+				// Fetch chat details
+				const chat = await chatService.getChatById(chatId);
+				if (!isCancelled) {
+					setCurrentChatId(chatId);
+
+					// Fetch philosopher by name
+					const allPhilosophers = await philosopherService.getAllPhilosophers();
+					const philosopherData = allPhilosophers.philosophers.find(
+						p => p.name === chat.advisor_name
+					);
+
+					if (philosopherData) {
+						setPhilosopher(philosopherData);
+					} else {
+						throw new Error('Philosopher not found');
+					}
+
+					// TODO: Load chat messages from chat.content if exists
+				}
+			} catch (error) {
+				if (!isCancelled) {
+					console.error('Error loading chat:', error);
+					toast.error('Failed to load chat');
+					navigate('/philosophers');
+				}
+			}
+		};
+
+		if (isNewChat) {
+			handleNewChat().catch((error) => {
+				if (!isCancelled) {
+					console.error('Unhandled error in handleNewChat:', error);
+				}
+			});
+		} else {
+			handleExistingChat().catch((error) => {
+				if (!isCancelled) {
+					console.error('Unhandled error in handleExistingChat:', error);
+				}
+			});
+		}
+
 		// Cleanup function to prevent state updates if component unmounts
 		return () => {
 			isCancelled = true;
 		};
-	}, [philosopherId]);
+	}, [philosopherId, chatId, isNewChat, navigate]);
 
   const handleMicClick = () => {
     setIsListening(!isListening);
@@ -106,9 +163,9 @@ const PhilosopherChatPage: React.FC = () => {
   };
 
   const handleChatSelect = (chatId: string) => {
-    setCurrentChatId(chatId);
-    // TODO: Load the selected chat's messages
-    console.log('Selected chat:', chatId);
+    // Navigate to the selected chat
+    navigate(`/chat/${chatId}`);
+    setIsSidebarOpen(false);
   };
 
 
@@ -132,13 +189,19 @@ const PhilosopherChatPage: React.FC = () => {
 
   const handleNewMessage = (message: ChatMessage) => {
     setMessages(prev => [...prev, message]);
-    
+
     // If it's a user message, set AI responding state
     if (message.role === 'user') {
       setIsAIResponding(true);
     } else if (message.role === 'assistant') {
       setIsAIResponding(false);
     }
+  };
+
+  const handleChatCreated = (newChatId: string) => {
+    setCurrentChatId(newChatId);
+    // Optionally navigate to the new chat URL
+    navigate(`/chat/${newChatId}`, { replace: true });
   };
 
   return (
@@ -168,7 +231,7 @@ const PhilosopherChatPage: React.FC = () => {
         onClick={isSidebarOpen ? handleSidebarClose : undefined}
       >
         {/* Chat Messages */}
-        <div className="absolute inset-0 p-4 flex flex-col justify-start items-center z-10">
+        <div className="absolute inset-0 p-4 flex flex-col justify-start items-center z-10 overflow-auto">
           <div className="w-full max-w-4xl space-y-6">
             {messages.map((message, index) => (
               <div
@@ -176,7 +239,7 @@ const PhilosopherChatPage: React.FC = () => {
                 className={`chat-message flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-xs lg:max-w-md px-4 py-3 rounded-2xl ${
+                  className={`max-w-xs lg:max-w-2xl px-4 py-3 rounded-2xl ${
                     message.role === 'user'
                       ? 'bg-gray-800 text-white'
                       : 'bg-white text-gray-800 border border-gray-200'
@@ -191,6 +254,8 @@ const PhilosopherChatPage: React.FC = () => {
                 </div>
               </div>
             ))}
+            {/* Scroll anchor */}
+            <div ref={messagesEndRef} />
           </div>
         </div>
 
@@ -259,7 +324,16 @@ const PhilosopherChatPage: React.FC = () => {
             <StopIcon sx={{ fontSize: 24}} />
           </button>)}
 
-					{isTextToText && <Chatbar philosopherId={philosopherId} onNewMessage={handleNewMessage} />}
+					{isTextToText && philosopher?.name && (
+						<Chatbar
+							advisorName={philosopher.name}
+							philosopherId={philosopherId}
+							chatId={currentChatId}
+							onNewMessage={handleNewMessage}
+							onChatCreated={handleChatCreated}
+							onListeningChange={setIsListening}
+						/>
+					)}
         </div>
       </div>
 
