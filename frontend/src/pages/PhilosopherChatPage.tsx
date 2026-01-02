@@ -17,7 +17,7 @@ import { toast } from 'react-toastify';
 import supabase from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 
-interface ChatMessage {
+export interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
   timestamp: string;
@@ -40,7 +40,7 @@ const PhilosopherChatPage: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [currentChatId, setCurrentChatId] = useState<string | undefined>(undefined);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-	const { user } = useAuth();
+	const { user, isLoading: isAuthLoading } = useAuth();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -51,12 +51,20 @@ const PhilosopherChatPage: React.FC = () => {
   }, [messages]);
 
 	useEffect(() => {
-		if (user?.id == null) {
+		// Wait for auth to finish loading before checking
+		if (!isAuthLoading && user?.id == null) {
 			navigate('/');
 		}
-	}, [user?.id, navigate]);
+	}, [user?.id, isAuthLoading, navigate]);
 
 	useEffect(() => {
+		// Skip fetch if we just created the chat (navigated with skipFetch state)
+		if (location.state?.skipFetch) {
+			// Clear the state so refreshing the page will fetch
+			window.history.replaceState({}, document.title);
+			return;
+		}
+
 		let isCancelled = false;
 
 		const handleNewChat = async () => {
@@ -106,7 +114,19 @@ const PhilosopherChatPage: React.FC = () => {
 						throw new Error('Philosopher not found');
 					}
 
-					// TODO: Load chat messages from chat.content if exists
+					if (chat.content) {
+						const content = JSON.parse(chat.content)
+						for (const message of content) {
+							const newMessage = {
+								role: message.role,
+								content: message.content,
+								timestamp: message.timestamp,
+							}
+							setMessages(prev => [...prev, newMessage])
+						}
+					} else {
+						throw new Error('Chat content is null or undefined')
+					}
 				}
 			} catch (error) {
 				if (!isCancelled) {
@@ -135,7 +155,7 @@ const PhilosopherChatPage: React.FC = () => {
 		return () => {
 			isCancelled = true;
 		};
-	}, [philosopherId, chatId, isNewChat, navigate]);
+	}, [philosopherId, chatId, isNewChat, navigate, location.state?.skipFetch]);
 
   const handleMicClick = () => {
     setIsListening(!isListening);
@@ -200,8 +220,8 @@ const PhilosopherChatPage: React.FC = () => {
 
   const handleChatCreated = (newChatId: string) => {
     setCurrentChatId(newChatId);
-    // Optionally navigate to the new chat URL
-    navigate(`/chat/${newChatId}`, { replace: true });
+    // Navigate to the new chat URL with state to prevent refetching
+    navigate(`/chat/${newChatId}`, { replace: true, state: { skipFetch: true } });
   };
 
   return (
@@ -298,7 +318,7 @@ const PhilosopherChatPage: React.FC = () => {
 				<div className="fixed bottom-52 left-1/2 transform -translate-x-1/2 z-20">
 					<div className="flex flex-row items-center gap-2 bg-white border border-gray-300 px-4 py-2 rounded-xl">
 						<WormLoading />
-						<span className="text-sm text-gray-600">Thinking...</span>
+						<span className="text-sm text-gray-600 backdrop-blur-xs">Thinking...</span>
 					</div>
 				</div>
 			)} 
@@ -327,7 +347,7 @@ const PhilosopherChatPage: React.FC = () => {
 					{isTextToText && philosopher?.name && (
 						<Chatbar
 							advisorName={philosopher.name}
-							philosopherId={philosopherId}
+							messages={messages}
 							chatId={currentChatId}
 							onNewMessage={handleNewMessage}
 							onChatCreated={handleChatCreated}

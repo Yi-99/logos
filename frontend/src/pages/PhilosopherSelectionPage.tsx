@@ -38,13 +38,6 @@ const PhilosopherSelectionPage: React.FC = () => {
     >
       <div className="p-8">
         <div className="max-w-6xl mx-auto">
-          {/* Description */}
-          <div className="text-center mb-12">
-            <p className="text-lg text-gray-600">
-              Select a philosopher to engage in deep conversations about life, wisdom, and the nature of existence.
-            </p>
-          </div>
-
           {/* Philosopher Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
             {philosophers?.length > 0 && philosophers.sort((a,b) => a.sortOrder - b.sortOrder).map((philosopher) => (
@@ -84,13 +77,6 @@ const PhilosopherSelectionPage: React.FC = () => {
                 </div>
               </div>
             ))}
-          </div>
-
-          {/* Footer */}
-          <div className="text-center">
-            <p className="text-gray-600">
-              Each conversation is unique and tailored to the philosopher's teachings and personality.
-            </p>
           </div>
         </div>
       </div>

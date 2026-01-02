@@ -5,10 +5,11 @@ import SendIcon from '@mui/icons-material/Send'
 import chatService from '../services/chat/ChatService'
 import { useAuth } from '../contexts/AuthContext';
 import { toast } from 'react-toastify';
+import { ChatMessage } from '@/pages/PhilosopherChatPage'
 
 interface ChatbarProps {
 	advisorName: string;
-	philosopherId?: string;
+	messages?: ChatMessage[];
 	chatId?: string;
 	onNewMessage?: (message: { role: 'user' | 'assistant'; content: string; timestamp: string }) => void;
 	onChatCreated?: (chatId: string) => void;
@@ -17,7 +18,7 @@ interface ChatbarProps {
 
 const Chatbar: React.FC<ChatbarProps> = ({
 	advisorName,
-	philosopherId,
+	messages,
 	chatId,
 	onNewMessage,
 	onChatCreated,
@@ -157,7 +158,7 @@ const Chatbar: React.FC<ChatbarProps> = ({
 				prompt: inputValue,
 				advisor_name: advisorName,
 				chat_id: currentChatId,
-				history: undefined, // For now, no history
+				history: messages,
 			});
 
 			// Extract the AI response
@@ -210,7 +211,7 @@ const Chatbar: React.FC<ChatbarProps> = ({
 						onChange={(e) => setInputValue(e.target.value)}
 						onKeyPress={handleKeyPress}
 						placeholder="Share your thoughts with the philosopher..."
-						className="w-full px-4 py-3 bg-white border border-gray-300 rounded-2xl outline-none text-gray-700 placeholder-gray-500 text-sm shadow-md"
+						className="w-full px-4 py-3 bg-white border border-gray-300 rounded-2xl outline-none text-gray-700 placeholder-gray-500 text-sm shadow-md overflow-x-auto"
 						disabled={isLoading}
 					/>
 				</div>

@@ -7,7 +7,7 @@ export const WormLoading = () => {
 						transform: translateY(0);
 					}
 					50% {
-						transform: translateY(-12px);
+						transform: translateY(-8px);
 					}
 				}
 				.big-bounce {

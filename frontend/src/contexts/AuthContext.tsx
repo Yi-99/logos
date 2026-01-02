@@ -3,6 +3,7 @@ import { User, AuthState } from '@/types';
 import supabase from '../lib/supabase';
 
 interface AuthContextType extends AuthState {
+  isLoading: boolean;
   login: (user: User) => void;
   logout: () => void;
   updateUser: (user: Partial<User>) => void;
@@ -23,6 +24,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     loginTime: null,
     sessionDuration: 0
   });
+  const [isLoading, setIsLoading] = useState(true);
 
   // Calculate session duration every minute
   useEffect(() => {
@@ -164,7 +166,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const loginTime = new Date(parsed.loginTime);
         const now = new Date();
         const sessionDuration = Math.floor((now.getTime() - loginTime.getTime()) / (1000 * 60));
-        
+
         setAuthState({
           user: parsed.user,
           isAuthenticated: true,
@@ -176,6 +178,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         localStorage.removeItem('authState');
       }
     }
+    setIsLoading(false);
   }, []);
 
   // Listen for auth state changes (including OAuth callbacks)
@@ -202,6 +205,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   return (
     <AuthContext.Provider value={{
       ...authState,
+      isLoading,
       login,
       logout,
       updateUser,
