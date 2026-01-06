@@ -26,7 +26,7 @@ const HomePage: React.FC = () => {
   const handleStartJourney = (e: React.MouseEvent) => {
     e.preventDefault();
     if (isAuthenticated) {
-      navigate('/philosophers');
+      navigate('/chats');
     } else {
       navigate('/login');
     }

@@ -4,6 +4,7 @@ import { ToastContainer } from 'react-toastify'
 import { AuthProvider } from './contexts/AuthContext'
 import PhilosopherSelectionPage from './pages/PhilosopherSelectionPage'
 import PhilosopherChatPage from './pages/PhilosopherChatPage'
+import ChatListPage from './pages/ChatListPage'
 import VoiceCallPage from './pages/VoiceCallPage'
 import UserSettingsPage from './pages/UserSettingsPage'
 import HomePage from './pages/HomePage'
@@ -29,6 +30,7 @@ function AppContent() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/philosophers" element={<PhilosopherSelectionPage />} />
+          <Route path="/chats" element={<ChatListPage />} />
           <Route path="/chat/new/:philosopherId" element={<PhilosopherChatPage />} />
           <Route path="/chat/:chatId" element={<PhilosopherChatPage />} />
           <Route path="/voice/:philosopherId" element={<VoiceCallPage />} />

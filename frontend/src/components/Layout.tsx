@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowBack, AccountCircle } from '@mui/icons-material';
+import { ArrowBack, AccountCircle, ChatBubbleOutline } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 
 interface LayoutProps {
@@ -58,14 +58,22 @@ const Layout: React.FC<LayoutProps> = ({
         
         {/* User Profile Section */}
         <div className="flex items-center space-x-4">
+          <button
+            onClick={() => navigate('/chats')}
+            className="flex items-center space-x-2 py-2 px-3 text-sm text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
+          >
+            <ChatBubbleOutline sx={{ fontSize: 18 }} />
+            <span>My Chats</span>
+          </button>
+
           {user && (
             <div className="flex items-center space-x-2">
               <AccountCircle sx={{ fontSize: 24, color: 'gray' }} />
               <span className="text-sm text-gray-700">{user.name}</span>
             </div>
           )}
-          
-          <button 
+
+          <button
             onClick={handleSignOut}
             className="py-2 px-3 text-sm text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
           >

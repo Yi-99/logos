@@ -3,23 +3,61 @@ import GetAllPhilosophersResponse from "@/constants/responses/GetAllPhilosophers
 import { toast } from "react-toastify";
 import { Philosopher } from "@/constants/types/Philosopher";
 
-const getAllPhilosophers = async () => {
+// Cache configuration
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+interface CacheEntry<T> {
+	data: T;
+	timestamp: number;
+}
+
+// Cache storage
+let allPhilosophersCache: CacheEntry<GetAllPhilosophersResponse> | null = null;
+const philosopherByIdCache = new Map<string, CacheEntry<Philosopher>>();
+
+const isCacheValid = <T>(cache: CacheEntry<T> | null | undefined): cache is CacheEntry<T> => {
+	if (!cache) return false;
+	return Date.now() - cache.timestamp < CACHE_TTL_MS;
+};
+
+const mapPhilosopherResponse = (data: any): Philosopher => ({
+	id: data.id,
+	name: data.name,
+	subtitle: data.subtitle,
+	description: data.description,
+	quote: data.quote,
+	dates: data.dates,
+	location: data.location,
+	image: data.image,
+	imageClassic: data.image_classic,
+	sortOrder: data.sort_order,
+});
+
+const getAllPhilosophers = async (): Promise<GetAllPhilosophersResponse> => {
+	// Return cached data if valid
+	if (isCacheValid(allPhilosophersCache)) {
+		return allPhilosophersCache.data;
+	}
+
 	try {
 		const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/v1/philosophers`);
 		const getAllPhilosophersResponse: GetAllPhilosophersResponse = {
-			philosophers: response.data.map((philosopher: any) => ({
-				id: philosopher.id,
-				name: philosopher.name,
-				subtitle: philosopher.subtitle,
-				description: philosopher.description,
-				quote: philosopher.quote,
-				dates: philosopher.dates,
-				location: philosopher.location,
-				image: philosopher.image,
-				imageClassic: philosopher.image_classic,
-				sortOrder: philosopher.sort_order,
-			}))
+			philosophers: response.data.map(mapPhilosopherResponse)
 		};
+
+		// Update cache
+		allPhilosophersCache = {
+			data: getAllPhilosophersResponse,
+			timestamp: Date.now(),
+		};
+
+		// Also populate individual philosopher cache
+		getAllPhilosophersResponse.philosophers.forEach((philosopher) => {
+			philosopherByIdCache.set(philosopher.id, {
+				data: philosopher,
+				timestamp: Date.now(),
+			});
+		});
 
 		return getAllPhilosophersResponse;
 	} catch (error: any) {
@@ -37,22 +75,24 @@ const getAllPhilosophers = async () => {
 	}
 };
 
-const getPhilosopherById = async (id: string) => {
+const getPhilosopherById = async (id: string): Promise<Philosopher> => {
+	// Return cached data if valid
+	const cached = philosopherByIdCache.get(id);
+	if (isCacheValid(cached)) {
+		return cached.data;
+	}
+
 	try {
 		const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/v1/philosophers/${id}`);
-		const getPhilosopherByIdResponse: Philosopher = {
-			id: response.data.id,
-			name: response.data.name,
-			subtitle: response.data.subtitle,
-			description: response.data.description,
-			quote: response.data.quote,
-			dates: response.data.dates,
-			location: response.data.location,
-			image: response.data.image,
-			imageClassic: response.data.image_classic,
-			sortOrder: response.data.sort_order,
-		};
-		return getPhilosopherByIdResponse;
+		const philosopher = mapPhilosopherResponse(response.data);
+
+		// Update cache
+		philosopherByIdCache.set(id, {
+			data: philosopher,
+			timestamp: Date.now(),
+		});
+
+		return philosopher;
 	} catch (error: any) {
 		toast.error('Error: ' + error.response?.data?.message || error.message, {
 			position: 'bottom-right',
@@ -61,11 +101,17 @@ const getPhilosopherById = async (id: string) => {
 		});
 		throw error;
 	}
-}
+};
+
+const clearCache = () => {
+	allPhilosophersCache = null;
+	philosopherByIdCache.clear();
+};
 
 const philosopherService = {
 	getAllPhilosophers,
 	getPhilosopherById,
-}
+	clearCache,
+};
 
 export default philosopherService;
