@@ -212,7 +212,7 @@ const ChatListPage: React.FC = () => {
 				</div>
 			</div>
 
-			{/* Chat List */}
+			{/* Chat List */} 
 			<div className="max-w-4xl mx-auto px-4 py-6">
 				{chats.length === 0 ? (
 					<div className="flex flex-col items-center justify-center py-20 text-gray-500">
