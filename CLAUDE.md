@@ -27,6 +27,8 @@ Logos is a full-stack web application that enables users to have AI-powered conv
 
 ## Development Commands
 
+**Python requirement:** >= 3.11
+
 ### Frontend (from `/frontend` directory)
 
 ```bash
@@ -119,30 +121,29 @@ The backend follows a strict 3-tier separation:
 ```
 frontend/src/
 ├── components/          # Reusable UI components
-│   ├── GlobalNavigation.tsx
-│   ├── ChatHistorySidebar.tsx
-│   ├── Chatbar.tsx
-│   └── ProfileDropdown.tsx
 ├── pages/              # Route-level components
-│   ├── HomePage.tsx
-│   ├── LoginPage.tsx
-│   ├── RegisterPage.tsx
-│   ├── ForgotPasswordPage.tsx
-│   ├── PhilosopherSelectionPage.tsx
-│   ├── PhilosopherChatPage.tsx
-│   ├── VoiceCallPage.tsx
-│   └── UserSettingsPage.tsx
-├── contexts/           # React Context providers
-│   └── AuthContext.tsx
+├── contexts/           # React Context providers (AuthContext)
 ├── services/           # API abstraction layer
 │   ├── chat/ChatService.ts
-│   └── philosophers/PhilosopherService.ts
+│   └── philosophers/PhilosopherService.ts  (has 5-min TTL cache)
 ├── lib/               # Third-party service singletons
 │   └── supabase.ts
 └── constants/
     ├── types/         # TypeScript type definitions
     └── responses/     # API response types
 ```
+
+**Frontend Routes** (defined in `App.tsx`):
+- `/` → HomePage, `/login` → LoginPage, `/register` → RegisterPage
+- `/forgot-password` → ForgotPasswordPage
+- `/philosophers` → PhilosopherSelectionPage
+- `/chats` → ChatListPage
+- `/chat/new/:philosopherId` → PhilosopherChatPage (new chat)
+- `/chat/:chatId` → PhilosopherChatPage (existing chat)
+- `/voice/:philosopherId` → VoiceCallPage
+- `/settings` → UserSettingsPage
+
+**Additional frontend details** are in `/frontend/CLAUDE.md`.
 
 ### Singleton Pattern for Database Clients
 
@@ -204,14 +205,14 @@ Configured paths:
 
 ## Environment Variables
 
-### Frontend (`.env` in `/frontend`)
+### Frontend (`.env.local` in `/frontend`, see `.env.local.example`)
 ```
 VITE_SUPABASE_URL=your_supabase_project_url
 VITE_SUPABASE_KEY=your_supabase_anon_key
 VITE_BACKEND_URL=your_backend_api_url
 ```
 
-### Backend (`.env` in `/backend`)
+### Backend (`.env` in `/backend`, see `.env.example`)
 ```
 SUPABASE_URL=your_supabase_project_url
 SUPABASE_KEY=your_supabase_service_role_key
@@ -224,20 +225,24 @@ FRONTEND_URL=your_frontend_url
 All API routes are prefixed with `/api`. Main endpoints:
 
 - `GET /health` - Health check
-- `GET /api/v1/chat/` - Get all chats
+- `GET /api/v1/chat/` - Get all chats (optional `user_id` query param)
 - `GET /api/v1/chat/{chat_id}` - Get specific chat
 - `POST /api/v1/chat/` - Create new chat
+- `DELETE /api/v1/chat/` - Delete chat
 - `GET /api/v1/philosophers/` - Get all philosophers
 - `GET /api/v1/philosophers/{philosopher_id}` - Get specific philosopher
 - `POST /api/v1/philosophers/` - Create philosopher
 - `POST /api/v1/prompt/` - Prompt AI philosopher
+- `POST /api/v1/prompt/transcribe` - Transcribe audio (OpenAI Whisper)
 
 CORS is configured to allow all origins (`allow_origins=["*"]`) with credentials support.
 
 ## AI Integration
 
 The application uses OpenAI's `o4-mini-2025-04-16` model for philosopher conversations:
-- High reasoning effort configuration
+- Uses `openai_client.responses.create()` (not the chat completions API)
+- Uses `input` parameter (not `messages`) and `instructions` for system prompts
+- High reasoning effort configuration (`reasoning={"effort": "high"}`)
 - System prompts are stored per-philosopher in the Supabase database
 - Prompting logic is in `/backend/controllers/prompt_philosopher.py`
 
