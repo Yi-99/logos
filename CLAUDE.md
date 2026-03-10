@@ -18,11 +18,12 @@ Logos is a full-stack web application that enables users to have AI-powered conv
 
 **Backend:**
 - FastAPI 0.115.12
-- Python (managed via venv)
+- Python (managed via uv)
 - Uvicorn 0.34.2 / Gunicorn 23.0.0
 - Supabase 2.15.1 (PostgreSQL-based)
 - OpenAI API 1.76.2 (using o4-mini-2025-04-16 model)
 - Pydantic 2.11.3
+- Docker + docker-compose (containerization)
 
 ## Development Commands
 
@@ -48,31 +49,46 @@ npm run lint
 ### Backend (from `/backend` directory)
 
 ```bash
-# 1. Create and activate virtual environment (first time only)
-python -m venv .venv
-source .venv/bin/activate   # macOS/Linux
-# .venv\Scripts\activate    # Windows
+# 1. Install dependencies (uv creates .venv automatically)
+uv sync
 
-# 2. Install dependencies
-pip install pip-tools
-pip-sync requirements.txt
+# 2. Run development server (choose one)
+uv run fastapi run main:app --reload    # FastAPI CLI (recommended)
+uv run uvicorn main:app --reload        # Uvicorn
 
-# 3. Run development server (choose one)
-fastapi run main:app --reload    # FastAPI CLI (recommended)
-uvicorn main:app --reload        # Uvicorn
-gunicorn main:app --reload       # Gunicorn (production)
+# Add a new dependency
+uv add <package>
 
-# Update dependencies after adding to requirements.in
-pip-compile requirements.in      # Generates requirements.txt
+# Add a dev dependency
+uv add --group dev <package>
+
+# Update lockfile after manual pyproject.toml edits
+uv lock
+```
+
+### Docker (from `/backend` directory)
+
+```bash
+# Build and run
+docker compose up --build
+
+# Run in background
+docker compose up -d
+
+# Rebuild after dependency changes
+docker compose build
+
+# Stop
+docker compose down
 ```
 
 ### Testing
 
 ```bash
 # Backend tests (from /backend)
-pytest                           # Run all tests
-pytest tests/unit                # Unit tests only
-pytest tests/integration         # Integration tests only
+uv run pytest                           # Run all tests
+uv run pytest tests/unit                # Unit tests only
+uv run pytest tests/integration         # Integration tests only
 ```
 
 ## Architecture
@@ -248,5 +264,5 @@ Primary tables:
 
 3. **Dependency Management:**
    - Frontend: Standard `npm install` workflow
-   - Backend: Use `pip-compile` to update `requirements.txt` from `requirements.in`
-   - Backend: Use `pip-sync` to install dependencies (maintains exact versions)
+   - Backend: Use `uv add <package>` to add dependencies (updates `pyproject.toml` + `uv.lock`)
+   - Backend: Use `uv sync` to install dependencies from lockfile
