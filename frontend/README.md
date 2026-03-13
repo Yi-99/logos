@@ -1,6 +1,29 @@
-# React + TypeScript + Vite
+# Logos - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React + TypeScript + Vite application for conversing with AI representations of history's greatest philosophers.
+
+## Environment Variables
+
+Create a `.env` file in the frontend directory with the following variables:
+
+```
+VITE_SUPABASE_URL=your_supabase_url_here
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key_here
+```
+
+## Features
+
+- **Authentication**: Login and register with email/password or Google OAuth
+- **Philosopher Selection**: Choose from various historical philosophers
+- **Multiple Interaction Modes**: Text, speech-to-text, and speech-to-speech
+- **Chat History**: Save and revisit conversations
+- **Responsive Design**: Works on desktop and mobile devices
+
+## Getting Started
+
+1. Install dependencies: `npm install`
+2. Set up environment variables (see above)
+3. Start the development server: `npm run dev`
 
 Currently, two official plugins are available:
 
