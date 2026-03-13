@@ -73,7 +73,7 @@ resource "aws_ssm_parameter" "frontend_url" {
   value = var.frontend_url
 
   tags = {
-    Name = "logos-frontend-url"
+    Name = "${var.app_name}-frontend-url"
   }
 }
 

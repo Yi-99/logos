@@ -55,21 +55,6 @@ const RegisterPage: React.FC = () => {
     }
   };
 
-  const features = [
-    {
-      title: 'Deep Conversations',
-      description: 'Engage with authentic AI representations of history\'s greatest philosophers'
-    },
-    {
-      title: 'Multiple Modes',
-      description: 'Choose text, speech-to-text, or speech-to-speech interactions'
-    },
-    {
-      title: 'Personal History',
-      description: 'Save and revisit your philosophical conversations anytime'
-    }
-  ];
-
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation */}

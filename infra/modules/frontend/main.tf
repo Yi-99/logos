@@ -10,10 +10,10 @@ terraform {
 # --- S3 Bucket ---
 
 resource "aws_s3_bucket" "frontend" {
-  bucket = "logos-frontend-prod"
+  bucket = "${var.app_name}-frontend-prod"
 
   tags = {
-    Name = "logos-frontend"
+    Name = "${var.app_name}-frontend"
   }
 }
 
@@ -29,7 +29,7 @@ resource "aws_s3_bucket_public_access_block" "frontend" {
 # --- CloudFront OAC ---
 
 resource "aws_cloudfront_origin_access_control" "frontend" {
-  name                              = "logos-frontend-oac"
+  name                              = "${var.app_name}-frontend-oac"
   origin_access_control_origin_type = "s3"
   signing_behavior                  = "always"
   signing_protocol                  = "sigv4"
@@ -74,7 +74,7 @@ resource "aws_acm_certificate" "frontend" {
   }
 
   tags = {
-    Name = "logos-frontend-cert"
+    Name = "${var.app_name}-frontend-cert"
   }
 }
 
@@ -163,6 +163,6 @@ resource "aws_cloudfront_distribution" "frontend" {
   }
 
   tags = {
-    Name = "logos-frontend-cdn"
+    Name = "${var.app_name}-frontend-cdn"
   }
 }

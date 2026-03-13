@@ -11,7 +11,7 @@ import Navbar from '../components/Navbar';
 const VoiceCallPage: React.FC = () => {
   const { philosopherId } = useParams<{ philosopherId: string }>();
   const navigate = useNavigate();
-  const [isListening, setIsListening] = useState(true);
+  const [isListening] = useState(true);
   const [isMuted, setIsMuted] = useState(false);
 
   const getPhilosopherInfo = (id: string) => {

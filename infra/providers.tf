@@ -13,6 +13,12 @@ provider "aws" {
   region = var.region
 }
 
+# Frontend S3 bucket in us-west-1
+provider "aws" {
+  alias  = "us_west_1"
+  region = "us-west-1"
+}
+
 # CloudFront requires ACM certificates in us-east-1
 provider "aws" {
   alias  = "us_east_1"

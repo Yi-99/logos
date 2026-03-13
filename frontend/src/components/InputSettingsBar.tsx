@@ -12,9 +12,7 @@ interface InputSettingsBarProps {
 
 const InputSettingsBar: React.FC<InputSettingsBarProps> = ({
 	isSpeechToSpeech,
-	isTextToText, 
-	isSpeechToText,
-	isTextToSpeech,
+	isTextToText,
 	onModeChange
 }) => {
 	const handleModeChange = (mode: 'speechToSpeech' | 'textToText') => {

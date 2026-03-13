@@ -59,3 +59,9 @@ variable "frontend_url" {
   description = "Frontend URL for CORS"
   type        = string
 }
+
+variable "app_name" {
+  description = "App name"
+  type        = string
+  default     = "who"
+}

@@ -21,19 +21,17 @@ data "aws_caller_identity" "current" {}
 
 module "network" {
   source = "./modules/network"
-
   region = var.region
 }
 
 module "frontend" {
   source = "./modules/frontend"
-
   domain_name     = var.domain_name
   app_name        = var.app_name
   route53_zone_id = data.aws_route53_zone.main.zone_id
 
   providers = {
-    aws           = aws
+    aws           = aws.us_west_1
     aws.us_east_1 = aws.us_east_1
   }
 }
@@ -53,6 +51,7 @@ module "backend" {
   supabase_url     = var.supabase_url
   supabase_key     = var.supabase_key
   frontend_url     = "https://${var.app_name}.${var.domain_name}"
+  app_name         = var.app_name
 }
 
 module "dns" {
