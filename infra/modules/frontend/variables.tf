@@ -11,4 +11,5 @@ variable "route53_zone_id" {
 variable "app_name" {
 	description = "App name"
 	type				= string
+	default			= "who"
 }

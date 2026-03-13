@@ -113,7 +113,7 @@ resource "aws_cloudfront_distribution" "frontend" {
   enabled             = true
   is_ipv6_enabled     = true
   default_root_object = "index.html"
-  aliases             = [var.domain_name, "www.${var.domain_name}"]
+  aliases             = [var.domain_name, "${var.app_name}.${var.domain_name}"]
   price_class         = "PriceClass_100"
 
   default_cache_behavior {

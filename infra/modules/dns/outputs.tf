@@ -3,9 +3,9 @@ output "apex_fqdn" {
   value       = aws_route53_record.apex.fqdn
 }
 
-output "www_fqdn" {
-  description = "www subdomain FQDN"
-  value       = aws_route53_record.www.fqdn
+output "app_fqdn" {
+  description = "App subdomain FQDN"
+  value       = aws_route53_record.app.fqdn
 }
 
 output "api_fqdn" {

@@ -32,7 +32,7 @@ app.include_router(philosophers_router, prefix="/api")
 
 @app.get("/")
 async def root():
-	return { "message": "Hello World" }
+	return { "message": "Logos server is up and running" }
 
 @app.get("/health")
 async def health_check():

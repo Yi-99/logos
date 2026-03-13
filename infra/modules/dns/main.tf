@@ -11,10 +11,10 @@ resource "aws_route53_record" "apex" {
   }
 }
 
-# www → CloudFront
-resource "aws_route53_record" "www" {
+# App subdomain → CloudFront
+resource "aws_route53_record" "app" {
   zone_id = var.route53_zone_id
-  name    = "www.${var.domain_name}"
+  name    = "${var.app_name}.${var.domain_name}"
   type    = "A"
 
   alias {

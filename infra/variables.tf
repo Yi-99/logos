@@ -1,7 +1,7 @@
 variable "region" {
   description = "AWS region"
   type        = string
-  default     = "us-east-1"
+  default     = "us-west-1"
 }
 
 variable "domain_name" {
@@ -10,13 +10,19 @@ variable "domain_name" {
   default     = "philo-ai.com"
 }
 
+variable "app_name" {
+  description = "App subdomain name (e.g. 'www' or 'app')"
+  type        = string
+  default     = "who"
+}
+
 variable "ssh_public_key" {
   description = "SSH public key for EC2 access"
   type        = string
 }
 
-variable "ssh_allowed_cidr" {
-  description = "CIDR block allowed to SSH into EC2"
+variable "allowed_cidr" {
+  description = "CIDR block allowed to access EC2 (SSH, HTTP, HTTPS)"
   type        = string
   default     = "0.0.0.0/0"
 }

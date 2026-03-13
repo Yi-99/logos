@@ -164,7 +164,7 @@ resource "aws_security_group" "backend" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = [var.ssh_allowed_cidr]
+    cidr_blocks = [var.allowed_cidr]
   }
 
   # HTTP (for Caddy redirect)
@@ -173,7 +173,7 @@ resource "aws_security_group" "backend" {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = [var.allowed_cidr]
   }
 
   # HTTPS (Caddy)
@@ -182,7 +182,7 @@ resource "aws_security_group" "backend" {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = [var.allowed_cidr]
   }
 
   # Allow all outbound
@@ -224,7 +224,7 @@ resource "aws_instance" "backend" {
   key_name               = aws_key_pair.deployer.key_name
 
   root_block_device {
-    volume_size = 20
+    volume_size = 30
     volume_type = "gp3"
   }
 

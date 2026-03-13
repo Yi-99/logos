@@ -60,4 +60,26 @@ docker run -d \
     -e FRONTEND_URL="$FRONTEND_URL" \
     "${ecr_repo}:latest"
 
+# --- ECR credential refresh (tokens expire every 12h) ---
+cat > /usr/local/bin/ecr-login.sh <<'ECRLOGIN'
+#!/bin/bash
+aws ecr get-login-password --region "${region}" | \
+    docker login --username AWS --password-stdin "${account_id}.dkr.ecr.${region}.amazonaws.com"
+ECRLOGIN
+chmod +x /usr/local/bin/ecr-login.sh
+
+# Refresh ECR token every 6 hours
+echo "0 */6 * * * root /usr/local/bin/ecr-login.sh >> /var/log/ecr-login.log 2>&1" > /etc/cron.d/ecr-login
+
+# --- Watchtower (auto-pull new images every 5 min) ---
+docker run -d \
+    --name watchtower \
+    --restart unless-stopped \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v /root/.docker/config.json:/config.json:ro \
+    containrrr/watchtower \
+    logos-backend \
+    --interval 300 \
+    --cleanup
+
 echo "=== Logos backend setup complete ==="

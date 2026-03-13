@@ -28,8 +28,8 @@ variable "ssh_public_key" {
   type        = string
 }
 
-variable "ssh_allowed_cidr" {
-  description = "CIDR block allowed to SSH"
+variable "allowed_cidr" {
+  description = "CIDR block allowed to access EC2 (SSH, HTTP, HTTPS)"
   type        = string
 }
 

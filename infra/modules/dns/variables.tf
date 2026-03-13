@@ -18,6 +18,12 @@ variable "cloudfront_hosted_zone_id" {
   type        = string
 }
 
+variable "app_name" {
+  description = "App subdomain name"
+  type        = string
+	default     = "who"
+}
+
 variable "backend_eip" {
   description = "Backend Elastic IP address"
   type        = string

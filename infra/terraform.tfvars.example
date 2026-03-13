@@ -1,7 +1,7 @@
-region           = "us-east-1"
+region           = "us-west-1"
 domain_name      = "philo-ai.com"
 ssh_public_key   = "ssh-ed25519 AAAA... your-key-comment"
-ssh_allowed_cidr = "0.0.0.0/0" # Restrict to your IP: "1.2.3.4/32"
+allowed_cidr     = "0.0.0.0/0" # Restrict to your IP: "1.2.3.4/32"
 
 # Secrets — do NOT commit terraform.tfvars to git
 openai_api_key = "sk-..."

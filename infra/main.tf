@@ -29,6 +29,7 @@ module "frontend" {
   source = "./modules/frontend"
 
   domain_name     = var.domain_name
+  app_name        = var.app_name
   route53_zone_id = data.aws_route53_zone.main.zone_id
 
   providers = {
@@ -46,18 +47,19 @@ module "backend" {
   subnet_id        = module.network.public_subnet_id
   vpc_id           = module.network.vpc_id
   ssh_public_key   = var.ssh_public_key
-  ssh_allowed_cidr = var.ssh_allowed_cidr
+  allowed_cidr     = var.allowed_cidr
   account_id       = data.aws_caller_identity.current.account_id
   openai_api_key   = var.openai_api_key
   supabase_url     = var.supabase_url
   supabase_key     = var.supabase_key
-  frontend_url     = "https://${var.domain_name}"
+  frontend_url     = "https://${var.app_name}.${var.domain_name}"
 }
 
 module "dns" {
   source = "./modules/dns"
 
   domain_name                = var.domain_name
+  app_name                   = var.app_name
   route53_zone_id            = data.aws_route53_zone.main.zone_id
   cloudfront_domain_name     = module.frontend.cloudfront_domain_name
   cloudfront_hosted_zone_id  = module.frontend.cloudfront_hosted_zone_id
