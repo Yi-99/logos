@@ -1,9 +1,7 @@
 import os
+import config  # noqa: F401 — loads .env.{APP_ENV}
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from dotenv import load_dotenv
-
-load_dotenv()
 
 
 def get_database_url() -> str:

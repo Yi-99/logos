@@ -1,5 +1,5 @@
 [project]
-name = "logos-backend"
+name = "who-backend"
 version = "1.0.0"
 requires-python = ">=3.11"
 dependencies = [
@@ -8,7 +8,6 @@ dependencies = [
     "openai>=1.76.0",
     "python-dotenv>=1.1.0",
     "uvicorn>=0.34.2",
-    "supabase>=2.15.1",
     "python-multipart>=0.0.22",
     "sqlalchemy>=2.0.48",
     "alembic>=1.18.4",

@@ -1,23 +1,28 @@
-from supabase import create_client, Client
-from dotenv import load_dotenv
-import os
+import uuid
+from fastapi import HTTPException
+from dao import DAOFactory
 
-load_dotenv()
 
-url: str = os.getenv("SUPABASE_URL")
-key: str = os.getenv("SUPABASE_KEY")
-supabase: Client = create_client(
-  supabase_url=url,
-  supabase_key=key
-)
-
-def get_philosopher_by_id(philosopher_id: str):
+def get_philosopher_by_id(dao: DAOFactory, philosopher_id: str):
     """
     Get a philosopher by id
     """
-    result = supabase.table("Philosophers").select("*").eq("id", philosopher_id).execute()
-    
-    if not result.data or len(result.data) == 0:
-        raise ValueError(f"Philosopher with id {philosopher_id} not found")
-    
-    return result.data[0]
+    philosopher = dao.philosophers.get_by_id(uuid.UUID(philosopher_id))
+
+    if not philosopher:
+        raise HTTPException(status_code=404, detail=f"Philosopher with id {philosopher_id} not found")
+
+    return {
+        "id": str(philosopher.id),
+        "name": philosopher.name,
+        "subtitle": philosopher.subtitle,
+        "description": philosopher.description,
+        "quote": philosopher.quote,
+        "dates": philosopher.dates,
+        "location": philosopher.location,
+        "image": philosopher.image,
+        "image_classic": philosopher.image_classic,
+        "config": philosopher.config,
+        "sort_order": philosopher.sort_order,
+        "number_of_prompts": philosopher.number_of_prompts,
+    }

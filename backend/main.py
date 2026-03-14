@@ -1,12 +1,10 @@
 import os
+import config  # noqa: F401 — loads .env.{APP_ENV}
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routes import chat_router
 from routes import prompt_router
 from routes import philosophers_router
-from dotenv import load_dotenv
-
-load_dotenv()
 
 frontend_url = os.getenv("FRONTEND_URL")
 
@@ -43,7 +41,7 @@ async def health_check():
 	return {
 		"status": "healthy",
 		"message": "API is running successfully",
-		"service": "logos-backend",
+		"service": "who-backend",
 		"version": "1.0.0"
 	}
 

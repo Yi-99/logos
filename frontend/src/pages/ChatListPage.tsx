@@ -69,7 +69,7 @@ const ChatListPage: React.FC = () => {
 	};
 
 	const handleNewChat = () => {
-		navigate('/philosophers');
+		navigate('/philosophers/');
 	};
 
 	const handleChatDelete = async (e: React.MouseEvent, chatId: string) => {

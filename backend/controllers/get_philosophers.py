@@ -1,12 +1,25 @@
-import os
-from db import SupabaseService
+from dao import DAOFactory
 
-def get_philosophers():
-	"""
-	Get all advisors
-	"""
-	db_service = SupabaseService()
-	supabase = db_service.get_client()
-	
-	response = supabase.table("Philosophers").select("*").execute()
-	return response.data
+
+def get_philosophers(dao: DAOFactory):
+    """
+    Get all philosophers
+    """
+    philosophers = dao.philosophers.get_all()
+    return [
+        {
+            "id": str(p.id),
+            "name": p.name,
+            "subtitle": p.subtitle,
+            "description": p.description,
+            "quote": p.quote,
+            "dates": p.dates,
+            "location": p.location,
+            "image": p.image,
+            "image_classic": p.image_classic,
+            "config": p.config,
+            "sort_order": p.sort_order,
+            "number_of_prompts": p.number_of_prompts,
+        }
+        for p in philosophers
+    ]

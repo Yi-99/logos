@@ -80,9 +80,9 @@ const LoginPage: React.FC = () => {
 			<div className="h-screen flex flex-col items-center justify-center text-white text-center space-y-6">
 				<p className="text-sm uppercase tracking-[0.4em]">Logos Project</p>
 				<h1 className="text-4xl md:text-5xl font-semibold leading-tight">
-					Reflect, wander, and then sign in to continue the journey.
+					Reflect, wander, and sign in to continue the journey.
 				</h1>
-				<p className="text-lg max-w-2xl">
+				<p className="text-sm max-w-2xl">
 					We push the login deeper into the scroll so you can soak in the art before stepping back inside.
 				</p>
 				<button

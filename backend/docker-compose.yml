@@ -4,13 +4,13 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: logos
-      POSTGRES_PASSWORD: logos
-      POSTGRES_DB: logos
+      POSTGRES_USER: who
+      POSTGRES_PASSWORD: who
+      POSTGRES_DB: who
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U logos"]
+      test: ["CMD-SHELL", "pg_isready -U who"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -20,9 +20,9 @@ services:
     ports:
       - "8000:8000"
     env_file:
-      - .env
+      - .env.local
     environment:
-      DATABASE_URL: postgresql://logos:logos@db:5432/logos
+      DATABASE_URL: postgresql://who:who@db:5432/who
     depends_on:
       db:
         condition: service_healthy
