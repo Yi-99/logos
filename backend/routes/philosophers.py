@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from controllers import get_philosopher_by_id, get_philosophers, create_philosopher
+from controllers import get_philosopher_by_id, get_philosophers, create_philosopher, get_philosopher_image_url
 from models.models import Philosopher
 
 philosophers_router = APIRouter(prefix="/v1/philosophers", tags=["philosophers"])
@@ -16,6 +16,13 @@ def get_philosopher_by_id_route(philosopher_id: str):
 		raise HTTPException(status_code=404, detail=str(e)) from e
 	except Exception as e:
 		raise HTTPException(status_code=500, detail="Internal server error") from e
+
+@philosophers_router.get("/image")
+def get_philosopher_image_route(key: str):
+	try:
+		return get_philosopher_image_url(key)
+	except Exception as e:
+		raise HTTPException(status_code=500, detail="Failed to generate image URL") from e
 
 @philosophers_router.post("/")
 def create_philosopher_route(philosopher: Philosopher):

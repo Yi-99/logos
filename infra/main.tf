@@ -54,6 +54,13 @@ module "backend" {
   app_name         = var.app_name
 }
 
+module "storage" {
+  source = "./modules/storage"
+
+  app_name    = var.app_name
+  environment = "prod"
+}
+
 module "dns" {
   source = "./modules/dns"
 

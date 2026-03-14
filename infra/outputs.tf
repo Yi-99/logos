@@ -37,3 +37,13 @@ output "backend_url" {
   description = "Backend API URL"
   value       = "https://api.${var.domain_name}"
 }
+
+output "portraits_bucket_name" {
+  description = "S3 bucket for philosopher portrait images"
+  value       = module.storage.portraits_bucket_name
+}
+
+output "portraits_bucket_domain" {
+  description = "Domain name for the portraits S3 bucket"
+  value       = module.storage.portraits_bucket_domain
+}

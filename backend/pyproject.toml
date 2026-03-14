@@ -10,6 +10,10 @@ dependencies = [
     "uvicorn>=0.34.2",
     "supabase>=2.15.1",
     "python-multipart>=0.0.22",
+    "sqlalchemy>=2.0.48",
+    "alembic>=1.18.4",
+    "psycopg2-binary>=2.9.11",
+    "boto3>=1.42.68",
 ]
 
 [dependency-groups]

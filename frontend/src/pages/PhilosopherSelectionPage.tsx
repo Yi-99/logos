@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { Philosopher } from '@/constants/types/Philosopher';
 import philosopherService from '../services/philosophers/PhilosopherService';
 import Layout from '../components/Layout';
-import supabase from '../lib/supabase';
 
 const PhilosopherSelectionPage: React.FC = () => {
 	const [philosophers, setPhilosophers] = useState<Philosopher[]>([]);
+	const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
   const navigate = useNavigate();
 
 	useEffect(() => {
@@ -15,6 +15,17 @@ const PhilosopherSelectionPage: React.FC = () => {
 				const response = await philosopherService.getAllPhilosophers();
 				console.log("response:", response);
 				setPhilosophers(response.philosophers.map((philosopher: Philosopher) => philosopher));
+
+				// Fetch S3 image URLs for all philosophers
+				const urls: Record<string, string> = {};
+				await Promise.all(
+					response.philosophers.map(async (philosopher: Philosopher) => {
+						if (philosopher.image) {
+							urls[philosopher.id] = await philosopherService.getPhilosopherImageUrl(philosopher.image);
+						}
+					})
+				);
+				setImageUrls(urls);
 			} catch (error) {
 				console.error('Failed to fetch philosophers:', error);
 			}
@@ -50,7 +61,7 @@ const PhilosopherSelectionPage: React.FC = () => {
                 <div className="w-50 h-50 mx-auto mb-4 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
                   <div className="w-42 h-42 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center">
                     <img
-											src={supabase.storage.from('Portraits').getPublicUrl(philosopher.image.split('/').pop() || '').data.publicUrl}
+											src={imageUrls[philosopher.id] || ''}
 											alt={philosopher.name}
 											className="w-full h-full object-cover rounded-full"
 										/>

@@ -10,15 +10,14 @@ import philosopherService from '../services/philosophers/PhilosopherService';
 import { Philosopher } from '../constants/types/Philosopher';
 import { useAuth } from '../contexts/AuthContext';
 import { WormLoading } from '../components/WormLoading';
-import supabase from '../lib/supabase';
 import { toast } from 'react-toastify';
 
 const ChatListPage: React.FC = () => {
 	const navigate = useNavigate();
 	const { user, isLoading: isAuthLoading } = useAuth();
 	const [chats, setChats] = useState<ChatListItem[]>([]);
-	const [philosophers, setPhilosophers] = useState<Map<string, Philosopher>>(new Map());
 	const [isLoading, setIsLoading] = useState(true);
+	const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
 
 	useEffect(() => {
 		if (!isAuthLoading && !user?.id) {
@@ -39,12 +38,16 @@ const ChatListPage: React.FC = () => {
 
 				setChats(chatList);
 
-				// Create a map of philosopher name to philosopher object
-				const philosopherMap = new Map<string, Philosopher>();
-				philosopherData.philosophers.forEach((p: Philosopher) => {
-					philosopherMap.set(p.name, p);
-				});
-				setPhilosophers(philosopherMap);
+				// Fetch S3 image URLs for all philosophers
+				const urls: Record<string, string> = {};
+				await Promise.all(
+					philosopherData.philosophers.map(async (p: Philosopher) => {
+						if (p.image) {
+							urls[p.name] = await philosopherService.getPhilosopherImageUrl(p.image);
+						}
+					})
+				);
+				setImageUrls(urls);
 			} catch (error) {
 				console.error('Error fetching data:', error);
 			} finally {
@@ -58,11 +61,7 @@ const ChatListPage: React.FC = () => {
 	}, [user?.id]);
 
 	const getPhilosopherImage = (advisorName: string): string => {
-		const philosopher = philosophers.get(advisorName);
-		if (philosopher?.image) {
-			return supabase.storage.from('Portraits').getPublicUrl(philosopher.image.split('/').pop() || '').data.publicUrl;
-		}
-		return '';
+		return imageUrls[advisorName] || '';
 	};
 
 	const handleChatSelect = (chatId: string) => {
