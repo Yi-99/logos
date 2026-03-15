@@ -218,10 +218,7 @@ const PhilosopherChatPage: React.FC = () => {
   const handleNewMessage = (message: ChatMessage) => {
     setMessages(prev => [...prev, message]);
 
-    // If it's a user message, set AI responding state
-    if (message.role === 'user') {
-      setIsAIResponding(true);
-    } else if (message.role === 'assistant') {
+    if (message.role === 'assistant') {
       setIsAIResponding(false);
     }
   };
@@ -360,6 +357,8 @@ const PhilosopherChatPage: React.FC = () => {
 							onNewMessage={handleNewMessage}
 							onChatCreated={handleChatCreated}
 							onListeningChange={setIsListening}
+							onSending={() => setIsAIResponding(true)}
+							onError={() => setIsAIResponding(false)}
 						/>
 					)}
         </div>

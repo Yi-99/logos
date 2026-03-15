@@ -14,6 +14,8 @@ interface ChatbarProps {
 	onNewMessage?: (message: { role: 'user' | 'assistant'; content: string; timestamp: string }) => void;
 	onChatCreated?: (chatId: string) => void;
 	onListeningChange?: (isListening: boolean) => void;
+	onSending?: () => void;
+	onError?: () => void;
 }
 
 const Chatbar: React.FC<ChatbarProps> = ({
@@ -23,6 +25,8 @@ const Chatbar: React.FC<ChatbarProps> = ({
 	onNewMessage,
 	onChatCreated,
 	onListeningChange,
+	onSending,
+	onError,
 }) => {
 	const [inputValue, setInputValue] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
@@ -136,30 +140,29 @@ const Chatbar: React.FC<ChatbarProps> = ({
 
 		if (!advisorName) return;
 
-		const userMessage = {
-			role: 'user' as const,
-			content: inputValue,
-			timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-		};
-
-		// Add user message to chat
-		onNewMessage?.(userMessage);
-
-		// Clear input and set loading
+		// Save input and clear
+		const savedInput = inputValue;
 		setInputValue('');
 		setIsLoading(true);
-
-		console.log("prompting philosopher in Chatbar");
+		onSending?.();
 
 		try {
 			// Send request to backend
 			const response = await chatService.promptAI({
 				user_id: user?.id || '',
-				prompt: inputValue,
+				prompt: savedInput,
 				advisor_name: advisorName,
 				chat_id: currentChatId,
 				history: messages,
 			});
+
+			// Add user message to chat on success
+			const userMessage = {
+				role: 'user' as const,
+				content: savedInput,
+				timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+			};
+			onNewMessage?.(userMessage);
 
 			// Extract the AI response
 			if (response && response.length > 0) {
@@ -186,7 +189,8 @@ const Chatbar: React.FC<ChatbarProps> = ({
 			}
 		} catch (error) {
 			console.error('Error sending message:', error);
-			// You could add error handling here, like showing a toast
+			setInputValue(savedInput);
+			onError?.();
 		} finally {
 			setIsLoading(false);
 		}
