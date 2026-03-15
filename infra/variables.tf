@@ -24,7 +24,6 @@ variable "ssh_public_key" {
 variable "allowed_cidr" {
   description = "CIDR block allowed to access EC2 (SSH, HTTP, HTTPS)"
   type        = string
-  default     = "0.0.0.0/0"
 }
 
 variable "openai_api_key" {
@@ -33,13 +32,13 @@ variable "openai_api_key" {
   sensitive   = true
 }
 
-variable "supabase_url" {
-  description = "Supabase project URL"
+variable "google_client_id" {
+  description = "Google OAuth 2.0 client ID"
   type        = string
 }
 
-variable "supabase_key" {
-  description = "Supabase service role key"
+variable "google_client_secret" {
+  description = "Google OAuth 2.0 client secret"
   type        = string
   sensitive   = true
 }

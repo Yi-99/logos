@@ -14,7 +14,6 @@ import ChatHistorySidebar from '../components/ChatHistorySidebar';
 import { Philosopher } from '../constants/types/Philosopher';
 import philosopherService from '../services/philosophers/PhilosopherService';
 import { toast } from 'react-toastify';
-import supabase from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 
 export interface ChatMessage {
@@ -26,6 +25,7 @@ export interface ChatMessage {
 const PhilosopherChatPage: React.FC = () => {
   let { philosopherId, chatId } = useParams<{ philosopherId?: string; chatId?: string }>();
 	const [philosopher, setPhilosopher] = useState<Philosopher | null>(null);
+	const [philosopherImageUrl, setPhilosopherImageUrl] = useState<string>('');
   const navigate = useNavigate();
   const location = useLocation();
   const isNewChat = location.pathname.includes('/new/');
@@ -79,6 +79,10 @@ const PhilosopherChatPage: React.FC = () => {
 				const philosopherData = await philosopherService.getPhilosopherById(philosopherId);
 				if (!isCancelled) {
 					setPhilosopher(philosopherData);
+					if (philosopherData.image) {
+						const url = await philosopherService.getPhilosopherImageUrl(philosopherData.image);
+						if (!isCancelled) setPhilosopherImageUrl(url);
+					}
 				}
 			} catch (error) {
 				if (!isCancelled) {
@@ -110,6 +114,10 @@ const PhilosopherChatPage: React.FC = () => {
 
 					if (philosopherData) {
 						setPhilosopher(philosopherData);
+						if (philosopherData.image) {
+							const url = await philosopherService.getPhilosopherImageUrl(philosopherData.image);
+							if (!isCancelled) setPhilosopherImageUrl(url);
+						}
 					} else {
 						throw new Error('Philosopher not found');
 					}
@@ -210,10 +218,7 @@ const PhilosopherChatPage: React.FC = () => {
   const handleNewMessage = (message: ChatMessage) => {
     setMessages(prev => [...prev, message]);
 
-    // If it's a user message, set AI responding state
-    if (message.role === 'user') {
-      setIsAIResponding(true);
-    } else if (message.role === 'assistant') {
+    if (message.role === 'assistant') {
       setIsAIResponding(false);
     }
   };
@@ -230,7 +235,7 @@ const PhilosopherChatPage: React.FC = () => {
       <Navbar
         philosopherName={philosopher?.name || ''}
         philosopherSubtitle={philosopher?.subtitle || ''}
-        philosopherImage={supabase.storage.from('Portraits').getPublicUrl(philosopher?.image.split('/').pop() || '').data.publicUrl}
+        philosopherImage={philosopherImageUrl}
         onBackClick={handleBackClick}
         onHistoryClick={handleHistoryClick}
         showHistory={true}
@@ -285,7 +290,7 @@ const PhilosopherChatPage: React.FC = () => {
             {philosopher?.image && 
 							<img 
 								className="h-full w-full rounded-full" 
-								src={supabase.storage.from('Portraits').getPublicUrl(philosopher?.image.split('/').pop() || '').data.publicUrl} 
+								src={philosopherImageUrl} 
 								alt={philosopher?.name || ''}
 							/>
 						}
@@ -352,6 +357,8 @@ const PhilosopherChatPage: React.FC = () => {
 							onNewMessage={handleNewMessage}
 							onChatCreated={handleChatCreated}
 							onListeningChange={setIsListening}
+							onSending={() => setIsAIResponding(true)}
+							onError={() => setIsAIResponding(false)}
 						/>
 					)}
         </div>

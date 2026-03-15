@@ -1,0 +1,106 @@
+version: "3"
+
+dotenv: [".env.local"]
+
+tasks:
+  # ---------------------------------------------------------------------------
+  # Local Postgres (docker)
+  # ---------------------------------------------------------------------------
+
+  db:up:
+    desc: Start local Postgres container
+    cmd: docker compose up -d db
+
+  db:down:
+    desc: Stop local Postgres container
+    cmd: docker compose down db
+
+  db:reset:
+    desc: Destroy Postgres volume and restart (wipes all data)
+    cmds:
+      - docker compose down -v
+      - docker compose up -d db
+
+  db:logs:
+    desc: Tail Postgres logs
+    cmd: docker compose logs -f db
+
+  db:shell:
+    desc: Open psql shell in the running Postgres container
+    cmd: docker compose exec db psql -U who -d who
+
+  # ---------------------------------------------------------------------------
+  # Alembic migrations (usage: task migrate -- [local|test|prod])
+  # ---------------------------------------------------------------------------
+
+  migrate:
+    desc: "Run migrations to head (usage: task migrate -- local|test|prod)"
+    cmd: APP_ENV={{.CLI_ARGS | default "local"}} uv run alembic upgrade head
+
+  migrate:new:
+    desc: "Create a new migration (usage: task migrate:new -- description)"
+    cmd: uv run alembic revision -m "{{.CLI_ARGS}}"
+
+  migrate:history:
+    desc: Show migration history
+    cmd: uv run alembic history --verbose
+
+  # ---------------------------------------------------------------------------
+  # Backend (usage: task dev -- [local|test|prod])
+  # ---------------------------------------------------------------------------
+
+  sync:
+    desc: Install/sync Python dependencies
+    cmd: uv sync
+
+  dev:
+    desc: "Run FastAPI dev server (usage: task dev -- local|test|prod)"
+    cmd: APP_ENV={{.CLI_ARGS | default "local"}} uv run uvicorn main:app --reload
+
+  test:
+    desc: "Run all tests (usage: task test -- local|test|prod)"
+    cmd: APP_ENV={{.CLI_ARGS | default "local"}} uv run pytest
+
+  # ---------------------------------------------------------------------------
+  # Full stack via docker compose
+  # ---------------------------------------------------------------------------
+
+  up:
+    desc: Start Postgres + backend containers
+    cmd: docker compose up -d --build
+
+  down:
+    desc: Stop all containers
+    cmd: docker compose down
+
+  build:
+    desc: Rebuild backend container
+    cmd: docker compose build
+
+  logs:
+    desc: Tail all container logs
+    cmd: docker compose logs -f
+
+  # ---------------------------------------------------------------------------
+  # Seeding
+  # ---------------------------------------------------------------------------
+
+  seed:
+    desc: Seed the database with philosopher data (skips existing)
+    cmd: APP_ENV={{.CLI_ARGS | default "local"}} uv run python -m scripts.seed
+
+  seed:reset:
+    desc: Reset and re-seed philosophers (deletes extras, updates existing)
+    cmd: APP_ENV={{.CLI_ARGS | default "local"}} uv run python -m scripts.seed --reset
+
+  # ---------------------------------------------------------------------------
+  # Combo commands
+  # ---------------------------------------------------------------------------
+
+  bootstrap:
+    desc: "First-time setup: install deps, start DB, run migrations, seed data"
+    cmds:
+      - task: sync
+      - task: db:up
+      - task: migrate
+      - task: seed

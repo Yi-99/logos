@@ -21,7 +21,7 @@ variable "cloudfront_hosted_zone_id" {
 variable "app_name" {
   description = "App subdomain name"
   type        = string
-	default     = "who"
+  default     = "who"
 }
 
 variable "backend_eip" {

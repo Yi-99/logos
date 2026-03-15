@@ -9,7 +9,7 @@ const AuthExample: React.FC = () => {
       id: '123',
       email: 'user@example.com',
       name: 'John Doe',
-      createdAt: new Date().toISOString()
+      lastLoginAt: new Date().toISOString()
     });
   };
 

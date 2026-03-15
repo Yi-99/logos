@@ -1,22 +1,22 @@
-from models.models import Philosopher
-from supabase import create_client, Client
-from dotenv import load_dotenv
-import os
-
-load_dotenv()
-
-url: str = os.getenv("SUPABASE_URL")
-key: str = os.getenv("SUPABASE_KEY")
-
-supabase: Client = create_client(
-  supabase_url=url,
-  supabase_key=key
-)
+from fastapi import HTTPException
+from dao import DAOFactory
+from models.models import Philosopher as PhilosopherRequest
 
 
-def create_philosopher(philosopher: Philosopher):
-  """
-  Create a new philosopher
-  """  
-  result = supabase.table("Philosophers").insert(philosopher.model_dump()).execute()
-  return {"status": 200, "message": "Philosopher created successfully", "data": result.data}
+def create_philosopher(dao: DAOFactory, philosopher: PhilosopherRequest):
+    """
+    Create a new philosopher
+    """
+    try:
+        created = dao.philosophers.create(**philosopher.model_dump())
+        return {
+            "status": 200,
+            "message": "Philosopher created successfully",
+            "data": {
+                "id": str(created.id),
+                "name": created.name,
+            },
+        }
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail="Error creating philosopher") from e

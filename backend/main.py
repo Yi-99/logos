@@ -1,12 +1,11 @@
 import os
+import config  # noqa: F401 — loads .env.{APP_ENV}
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routes import chat_router
 from routes import prompt_router
 from routes import philosophers_router
-from dotenv import load_dotenv
-
-load_dotenv()
+from routes import users_router
 
 frontend_url = os.getenv("FRONTEND_URL")
 
@@ -29,6 +28,7 @@ app.add_middleware(
 app.include_router(chat_router, prefix="/api")
 app.include_router(prompt_router, prefix="/api")
 app.include_router(philosophers_router, prefix="/api")
+app.include_router(users_router, prefix="/api")
 
 @app.get("/")
 async def root():
@@ -43,7 +43,7 @@ async def health_check():
 	return {
 		"status": "healthy",
 		"message": "API is running successfully",
-		"service": "logos-backend",
+		"service": "who-backend",
 		"version": "1.0.0"
 	}
 

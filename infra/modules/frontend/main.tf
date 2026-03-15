@@ -10,10 +10,10 @@ terraform {
 # --- S3 Bucket ---
 
 resource "aws_s3_bucket" "frontend" {
-  bucket = "logos-frontend-prod"
+  bucket = "${var.app_name}-${replace(var.domain_name, ".", "-")}-prod"
 
   tags = {
-    Name = "logos-frontend"
+    Name = "${var.app_name}-frontend"
   }
 }
 
@@ -29,7 +29,7 @@ resource "aws_s3_bucket_public_access_block" "frontend" {
 # --- CloudFront OAC ---
 
 resource "aws_cloudfront_origin_access_control" "frontend" {
-  name                              = "logos-frontend-oac"
+  name                              = "${var.app_name}-frontend-oac"
   origin_access_control_origin_type = "s3"
   signing_behavior                  = "always"
   signing_protocol                  = "sigv4"
@@ -44,8 +44,8 @@ resource "aws_s3_bucket_policy" "frontend" {
     Version = "2012-10-17"
     Statement = [
       {
-        Sid       = "AllowCloudFrontOAC"
-        Effect    = "Allow"
+        Sid    = "AllowCloudFrontOAC"
+        Effect = "Allow"
         Principal = {
           Service = "cloudfront.amazonaws.com"
         }
@@ -64,17 +64,17 @@ resource "aws_s3_bucket_policy" "frontend" {
 # --- ACM Certificate (must be us-east-1 for CloudFront) ---
 
 resource "aws_acm_certificate" "frontend" {
-  provider          = aws.us_east_1
-  domain_name       = var.domain_name
+  provider                  = aws.us_east_1
+  domain_name               = var.domain_name
   subject_alternative_names = ["${var.app_name}.${var.domain_name}"]
-  validation_method = "DNS"
+  validation_method         = "DNS"
 
   lifecycle {
     create_before_destroy = true
   }
 
   tags = {
-    Name = "logos-frontend-cert"
+    Name = "${var.app_name}-frontend-cert"
   }
 }
 
@@ -163,6 +163,6 @@ resource "aws_cloudfront_distribution" "frontend" {
   }
 
   tags = {
-    Name = "logos-frontend-cdn"
+    Name = "${var.app_name}-frontend-cdn"
   }
 }

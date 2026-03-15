@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowBack, Email } from '@mui/icons-material';
+import { Email } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 
 const ForgotPasswordPage: React.FC = () => {

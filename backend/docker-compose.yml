@@ -1,8 +1,34 @@
 services:
+  db:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: who
+      POSTGRES_PASSWORD: who
+      POSTGRES_DB: who
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U who"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   backend:
     build: .
     ports:
       - "8000:8000"
     env_file:
-      - .env
+      - .env.local
+    environment:
+      DATABASE_URL: postgresql://who:who@db:5432/who
+    volumes:
+      - ~/.aws:/root/.aws:ro
+    depends_on:
+      db:
+        condition: service_healthy
     restart: unless-stopped
+
+volumes:
+  pgdata:

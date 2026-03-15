@@ -44,18 +44,13 @@ variable "openai_api_key" {
   sensitive   = true
 }
 
-variable "supabase_url" {
-  description = "Supabase project URL"
-  type        = string
-}
-
-variable "supabase_key" {
-  description = "Supabase service role key"
-  type        = string
-  sensitive   = true
-}
-
 variable "frontend_url" {
   description = "Frontend URL for CORS"
   type        = string
+}
+
+variable "app_name" {
+  description = "App name"
+  type        = string
+  default     = "who"
 }

@@ -5,6 +5,8 @@ from .prompt_philosopher import prompt_philosopher
 from .get_philosopher_by_id import get_philosopher_by_id
 from .get_philosophers import get_philosophers
 from .create_philosopher import create_philosopher
+from .get_philosopher_image import get_philosopher_image_url
+from .sync_user import sync_user
 
 __all__ = [
   "get_chat_by_id",
@@ -14,4 +16,6 @@ __all__ = [
   "get_philosopher_by_id",
   "get_philosophers",
   "create_philosopher",
+  "get_philosopher_image_url",
+  "sync_user",
 ]
