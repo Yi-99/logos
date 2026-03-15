@@ -1,5 +1,5 @@
 import './App.css'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
 import { AuthProvider } from './contexts/AuthContext'
 import PhilosopherSelectionPage from './pages/PhilosopherSelectionPage'
@@ -16,6 +16,12 @@ import GlobalNavigation from './components/GlobalNavigation'
 import ScrollToTop from './components/ScrollToTop'
 import { useAuth } from './contexts/AuthContext'
 
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated } = useAuth();
+  if (!isAuthenticated) return <Navigate to="/" replace />;
+  return <>{children}</>;
+}
+
 function AppContent() {
   const { isAuthenticated } = useAuth();
 
@@ -31,12 +37,12 @@ function AppContent() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/auth/callback" element={<AuthCallbackPage />} />
-          <Route path="/philosophers" element={<PhilosopherSelectionPage />} />
-          <Route path="/chats" element={<ChatListPage />} />
-          <Route path="/chat/new/:philosopherId" element={<PhilosopherChatPage />} />
-          <Route path="/chat/:chatId" element={<PhilosopherChatPage />} />
-          <Route path="/voice/:philosopherId" element={<VoiceCallPage />} />
-          <Route path="/settings" element={<UserSettingsPage />} />
+          <Route path="/philosophers" element={<ProtectedRoute><PhilosopherSelectionPage /></ProtectedRoute>} />
+          <Route path="/chats" element={<ProtectedRoute><ChatListPage /></ProtectedRoute>} />
+          <Route path="/chat/new/:philosopherId" element={<ProtectedRoute><PhilosopherChatPage /></ProtectedRoute>} />
+          <Route path="/chat/:chatId" element={<ProtectedRoute><PhilosopherChatPage /></ProtectedRoute>} />
+          <Route path="/voice/:philosopherId" element={<ProtectedRoute><VoiceCallPage /></ProtectedRoute>} />
+          <Route path="/settings" element={<ProtectedRoute><UserSettingsPage /></ProtectedRoute>} />
         </Routes>
       </div>
     </div>

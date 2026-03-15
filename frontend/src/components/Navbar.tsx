@@ -42,11 +42,13 @@ const Navbar: React.FC<NavbarProps> = ({
         )}
         
         <div className="w-20 h-20 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center">
-          <img
-            className="h-full w-full rounded-full"
-            src={philosopherImage}
-            alt={philosopherName}
-          />
+          {philosopherImage && (
+            <img
+              className="h-full w-full rounded-full"
+              src={philosopherImage}
+              alt={philosopherName}
+            />
+          )}
         </div>
         
         <div>

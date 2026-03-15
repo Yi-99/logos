@@ -148,12 +148,12 @@ const getChatById = async (chatId: string): Promise<GetChatResponse> => {
 const promptAI = async (request: PromptAIRequest) => {
 	console.log('promptAI request:', request);
 	try {
-		const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/v1/prompt`, request);
+		const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/v1/prompt/`, request);
 		const promptAIResponse: PromptAIResponse = response.data;
 
 		return promptAIResponse;
 	} catch (error: any) {
-		toast.error('Error: ' + error.response?.data?.message || error.message, {
+		toast.error(error.response?.data?.detail || error.response?.data?.message || error.message, {
 			position: 'bottom-right',
 			autoClose: 5000,
 			hideProgressBar: false,

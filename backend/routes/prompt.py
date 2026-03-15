@@ -1,7 +1,11 @@
-from fastapi import APIRouter, Depends, UploadFile, File
+import logging
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from openai import RateLimitError, APIError
 from models.models import History, PromptRequest
 from database import get_dao_factory
 from dao import DAOFactory
+
+logger = logging.getLogger(__name__)
 
 prompt_router = APIRouter(prefix="/v1/prompt", tags=["prompt"])
 
@@ -13,14 +17,21 @@ def prompt_philosopher_route(request: PromptRequest, dao: DAOFactory = Depends(g
     """
     from controllers import prompt_philosopher
 
-    return prompt_philosopher(
-        dao,
-        request.user_id,
-        request.prompt,
-        request.advisor_name,
-        request.chat_id,
-        request.history,
-    )
+    try:
+        return prompt_philosopher(
+            dao,
+            request.user_id,
+            request.prompt,
+            request.advisor_name,
+            request.chat_id,
+            request.history,
+        )
+    except RateLimitError as e:
+        logger.error(f"OpenAI rate limit error: {e}")
+        raise HTTPException(status_code=429, detail="AI service is currently unavailable. Please check billing or try again later.")
+    except APIError as e:
+        logger.error(f"OpenAI API error: {e}")
+        raise HTTPException(status_code=502, detail="AI service error. Please try again later.")
 
 
 @prompt_router.post("/transcribe")

@@ -287,10 +287,10 @@ const PhilosopherChatPage: React.FC = () => {
         {/* Central Philosopher Image - Fixed position */}
         <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-0">
           <div className="w-64 h-64 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center opacity-10">
-            {philosopher?.image && 
-							<img 
-								className="h-full w-full rounded-full" 
-								src={philosopherImageUrl} 
+            {philosopherImageUrl &&
+							<img
+								className="h-full w-full rounded-full"
+								src={philosopherImageUrl}
 								alt={philosopher?.name || ''}
 							/>
 						}
