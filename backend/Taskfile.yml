@@ -82,12 +82,25 @@ tasks:
     cmd: docker compose logs -f
 
   # ---------------------------------------------------------------------------
+  # Seeding
+  # ---------------------------------------------------------------------------
+
+  seed:
+    desc: Seed the database with philosopher data (skips existing)
+    cmd: APP_ENV={{.CLI_ARGS | default "local"}} uv run python -m scripts.seed
+
+  seed:reset:
+    desc: Reset and re-seed philosophers (deletes extras, updates existing)
+    cmd: APP_ENV={{.CLI_ARGS | default "local"}} uv run python -m scripts.seed --reset
+
+  # ---------------------------------------------------------------------------
   # Combo commands
   # ---------------------------------------------------------------------------
 
   bootstrap:
-    desc: "First-time setup: install deps, start DB, run migrations"
+    desc: "First-time setup: install deps, start DB, run migrations, seed data"
     cmds:
       - task: sync
       - task: db:up
       - task: migrate
+      - task: seed

@@ -60,11 +60,13 @@ const PhilosopherSelectionPage: React.FC = () => {
                 {/* Philosopher Image */}
                 <div className="w-50 h-50 mx-auto mb-4 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
                   <div className="w-42 h-42 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center">
-                    <img
-											src={imageUrls[philosopher.id] || ''}
-											alt={philosopher.name}
-											className="w-full h-full object-cover rounded-full"
-										/>
+                    {imageUrls[philosopher.id] && (
+                      <img
+                        src={imageUrls[philosopher.id]}
+                        alt={philosopher.name}
+                        className="w-full h-full object-cover rounded-full"
+                      />
+                    )}
                   </div>
                 </div>
 

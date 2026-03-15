@@ -14,9 +14,13 @@ def get_philosophers_route(dao: DAOFactory = Depends(get_dao_factory)):
 
 @philosophers_router.get("/image")
 def get_philosopher_image_route(key: str):
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.info(f"Image route called with key: '{key}'")
     try:
         return get_philosopher_image_url(key)
     except Exception as e:
+        logger.error(f"Image route error for key '{key}': {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Failed to generate image URL") from e
 
 

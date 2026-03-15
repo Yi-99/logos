@@ -23,6 +23,8 @@ services:
       - .env.local
     environment:
       DATABASE_URL: postgresql://who:who@db:5432/who
+    volumes:
+      - ~/.aws:/root/.aws:ro
     depends_on:
       db:
         condition: service_healthy
