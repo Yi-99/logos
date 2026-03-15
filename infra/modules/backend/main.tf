@@ -1,7 +1,7 @@
 # --- ECR Repository ---
 
 resource "aws_ecr_repository" "backend" {
-  name                 = "logos-backend"
+  name                 = "who-backend"
   image_tag_mutability = "MUTABLE"
   force_delete         = true
 
@@ -10,7 +10,7 @@ resource "aws_ecr_repository" "backend" {
   }
 
   tags = {
-    Name = "logos-backend"
+    Name = "who-backend"
   }
 }
 
@@ -38,37 +38,17 @@ resource "aws_ecr_lifecycle_policy" "backend" {
 # --- SSM Parameter Store (Secrets) ---
 
 resource "aws_ssm_parameter" "openai_api_key" {
-  name  = "/logos/OPENAI_API_KEY"
+  name  = "/who/OPENAI_API_KEY"
   type  = "SecureString"
   value = var.openai_api_key
 
   tags = {
-    Name = "logos-openai-api-key"
-  }
-}
-
-resource "aws_ssm_parameter" "supabase_url" {
-  name  = "/logos/SUPABASE_URL"
-  type  = "String"
-  value = var.supabase_url
-
-  tags = {
-    Name = "logos-supabase-url"
-  }
-}
-
-resource "aws_ssm_parameter" "supabase_key" {
-  name  = "/logos/SUPABASE_KEY"
-  type  = "SecureString"
-  value = var.supabase_key
-
-  tags = {
-    Name = "logos-supabase-key"
+    Name = "who-openai-api-key"
   }
 }
 
 resource "aws_ssm_parameter" "frontend_url" {
-  name  = "/logos/FRONTEND_URL"
+  name  = "/who/FRONTEND_URL"
   type  = "String"
   value = var.frontend_url
 
@@ -80,7 +60,7 @@ resource "aws_ssm_parameter" "frontend_url" {
 # --- IAM Role for EC2 ---
 
 resource "aws_iam_role" "ec2" {
-  name = "logos-ec2-role"
+  name = "who-ec2-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -96,12 +76,12 @@ resource "aws_iam_role" "ec2" {
   })
 
   tags = {
-    Name = "logos-ec2-role"
+    Name = "who-ec2-role"
   }
 }
 
 resource "aws_iam_role_policy" "ec2" {
-  name = "logos-ec2-policy"
+  name = "who-ec2-policy"
   role = aws_iam_role.ec2.id
 
   policy = jsonencode({
@@ -133,29 +113,29 @@ resource "aws_iam_role_policy" "ec2" {
           "ssm:GetParameters",
           "ssm:GetParametersByPath"
         ]
-        Resource = "arn:aws:ssm:${var.region}:${var.account_id}:parameter/logos/*"
+        Resource = "arn:aws:ssm:${var.region}:${var.account_id}:parameter/who/*"
       }
     ]
   })
 }
 
 resource "aws_iam_instance_profile" "ec2" {
-  name = "logos-ec2-profile"
+  name = "who-ec2-profile"
   role = aws_iam_role.ec2.name
 }
 
 # --- SSH Key Pair ---
 
 resource "aws_key_pair" "deployer" {
-  key_name   = "logos-deployer"
+  key_name   = "who-deployer"
   public_key = var.ssh_public_key
 }
 
 # --- Security Group ---
 
 resource "aws_security_group" "backend" {
-  name        = "logos-backend-sg"
-  description = "Security group for Logos backend EC2"
+  name        = "who-backend-sg"
+  description = "Security group for Who backend EC2"
   vpc_id      = var.vpc_id
 
   # SSH
@@ -194,7 +174,7 @@ resource "aws_security_group" "backend" {
   }
 
   tags = {
-    Name = "logos-backend-sg"
+    Name = "who-backend-sg"
   }
 }
 
@@ -204,7 +184,7 @@ resource "aws_eip" "backend" {
   domain = "vpc"
 
   tags = {
-    Name = "logos-backend-eip"
+    Name = "who-backend-eip"
   }
 }
 
@@ -236,6 +216,6 @@ resource "aws_instance" "backend" {
   })
 
   tags = {
-    Name = "logos-backend"
+    Name = "who-backend"
   }
 }

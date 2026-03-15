@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowBack, Person, Email, Lock, Visibility, VisibilityOff } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
+import { confirmSignUp } from '@/lib/cognito';
 
 const RegisterPage: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -13,7 +14,10 @@ const RegisterPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { signUp, signInWithGoogle } = useAuth();
+  const [error, setError] = useState('');
+  const [step, setStep] = useState<'register' | 'confirm'>('register');
+  const [confirmationCode, setConfirmationCode] = useState('');
+  const { signUp, signIn, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -25,35 +29,107 @@ const RegisterPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+    setError('');
+
     if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match');
+      setError('Passwords do not match');
       return;
     }
 
     setLoading(true);
-    
+
     try {
       await signUp(formData.email, formData.password, formData.fullName);
-      navigate('/');
-    } catch (error) {
-      console.error('Registration error:', error);
+      setStep('confirm');
+    } catch (err: any) {
+      console.error('Registration error:', err);
+      setError(err.message || 'Failed to create account');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleGoogleSignIn = async () => {
+  const handleConfirm = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
     setLoading(true);
+
     try {
-      await signInWithGoogle();
-      navigate('/');
-    } catch (error) {
-      console.error('Google sign in error:', error);
+      await confirmSignUp(formData.email, confirmationCode);
+      await signIn(formData.email, formData.password);
+      navigate('/chats');
+    } catch (err: any) {
+      console.error('Confirmation error:', err);
+      setError(err.message || 'Invalid verification code');
     } finally {
       setLoading(false);
     }
   };
+
+  const handleGoogleSignIn = () => {
+    signInWithGoogle();
+  };
+
+  if (step === 'confirm') {
+    return (
+      <div className="min-h-screen bg-white">
+        <div className="p-6">
+          <button
+            onClick={() => setStep('register')}
+            className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            <ArrowBack className="mr-2" />
+            Back
+          </button>
+        </div>
+
+        <div className="max-w-4xl mx-auto px-6 py-12">
+          <div className="bg-white rounded-lg shadow-lg p-8 mb-16 max-w-md mx-auto">
+            <div className="text-center mb-8">
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Verify Your Email</h1>
+              <p className="text-gray-600">
+                We sent a 6-digit code to <span className="font-medium text-gray-900">{formData.email}</span>
+              </p>
+            </div>
+
+            <form onSubmit={handleConfirm} className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Verification Code</label>
+                <input
+                  type="text"
+                  value={confirmationCode}
+                  onChange={(e) => setConfirmationCode(e.target.value)}
+                  className="w-full px-4 py-3 text-center text-2xl tracking-[0.5em] border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent bg-gray-50"
+                  placeholder="000000"
+                  maxLength={6}
+                  required
+                  autoFocus
+                />
+              </div>
+
+              {error && (
+                <div className="text-sm text-red-600 bg-red-50 border border-red-200 px-4 py-3 rounded-lg">
+                  {error}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={loading || confirmationCode.length !== 6}
+                className="w-full bg-gray-900 text-white py-3 px-4 rounded-lg font-medium hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? 'Verifying...' : 'Verify & Sign In'}
+              </button>
+
+              <p className="text-sm text-center text-gray-500">
+                Didn't receive the code? Check your spam folder.
+              </p>
+            </form>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -69,7 +145,7 @@ const RegisterPage: React.FC = () => {
         {/* Register Form */}
         <div className="bg-white rounded-lg shadow-lg p-8 mb-16 max-w-md mx-auto">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Join Logos</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Join PhiloAI</h1>
             <p className="text-gray-600">Create an account to start conversations with history's greatest minds</p>
           </div>
 
@@ -171,6 +247,12 @@ const RegisterPage: React.FC = () => {
                 </button>
               </div>
             </div>
+
+            {error && (
+              <div className="text-sm text-red-600 bg-red-50 border border-red-200 px-4 py-3 rounded-lg">
+                {error}
+              </div>
+            )}
 
             {/* Create Account Button */}
             <button

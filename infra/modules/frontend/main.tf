@@ -10,7 +10,7 @@ terraform {
 # --- S3 Bucket ---
 
 resource "aws_s3_bucket" "frontend" {
-  bucket = "${var.app_name}-frontend-prod"
+  bucket = "${var.app_name}-${replace(var.domain_name, ".", "-")}-prod"
 
   tags = {
     Name = "${var.app_name}-frontend"
@@ -44,8 +44,8 @@ resource "aws_s3_bucket_policy" "frontend" {
     Version = "2012-10-17"
     Statement = [
       {
-        Sid       = "AllowCloudFrontOAC"
-        Effect    = "Allow"
+        Sid    = "AllowCloudFrontOAC"
+        Effect = "Allow"
         Principal = {
           Service = "cloudfront.amazonaws.com"
         }
@@ -64,10 +64,10 @@ resource "aws_s3_bucket_policy" "frontend" {
 # --- ACM Certificate (must be us-east-1 for CloudFront) ---
 
 resource "aws_acm_certificate" "frontend" {
-  provider          = aws.us_east_1
-  domain_name       = var.domain_name
+  provider                  = aws.us_east_1
+  domain_name               = var.domain_name
   subject_alternative_names = ["${var.app_name}.${var.domain_name}"]
-  validation_method = "DNS"
+  validation_method         = "DNS"
 
   lifecycle {
     create_before_destroy = true

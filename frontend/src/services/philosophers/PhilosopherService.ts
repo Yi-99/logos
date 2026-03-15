@@ -40,7 +40,7 @@ const getAllPhilosophers = async (): Promise<GetAllPhilosophersResponse> => {
 	}
 
 	try {
-		const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/v1/philosophers`);
+		const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/v1/philosophers/`);
 		const getAllPhilosophersResponse: GetAllPhilosophersResponse = {
 			philosophers: response.data.map(mapPhilosopherResponse)
 		};

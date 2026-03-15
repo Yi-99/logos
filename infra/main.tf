@@ -25,7 +25,7 @@ module "network" {
 }
 
 module "frontend" {
-  source = "./modules/frontend"
+  source          = "./modules/frontend"
   domain_name     = var.domain_name
   app_name        = var.app_name
   route53_zone_id = data.aws_route53_zone.main.zone_id
@@ -39,19 +39,17 @@ module "frontend" {
 module "backend" {
   source = "./modules/backend"
 
-  region           = var.region
-  domain_name      = var.domain_name
-  ami_id           = data.aws_ami.amazon_linux.id
-  subnet_id        = module.network.public_subnet_id
-  vpc_id           = module.network.vpc_id
-  ssh_public_key   = var.ssh_public_key
-  allowed_cidr     = var.allowed_cidr
-  account_id       = data.aws_caller_identity.current.account_id
-  openai_api_key   = var.openai_api_key
-  supabase_url     = var.supabase_url
-  supabase_key     = var.supabase_key
-  frontend_url     = "https://${var.app_name}.${var.domain_name}"
-  app_name         = var.app_name
+  region         = var.region
+  domain_name    = var.domain_name
+  ami_id         = data.aws_ami.amazon_linux.id
+  subnet_id      = module.network.public_subnet_id
+  vpc_id         = module.network.vpc_id
+  ssh_public_key = var.ssh_public_key
+  allowed_cidr   = var.allowed_cidr
+  account_id     = data.aws_caller_identity.current.account_id
+  openai_api_key = var.openai_api_key
+  frontend_url   = "https://${var.app_name}.${var.domain_name}"
+  app_name       = var.app_name
 }
 
 module "storage" {
@@ -61,13 +59,32 @@ module "storage" {
   environment = "prod"
 }
 
+module "auth" {
+  source = "./modules/auth"
+
+  app_name             = var.app_name
+  domain_name          = var.domain_name
+  google_client_id     = var.google_client_id
+  google_client_secret = var.google_client_secret
+
+  callback_urls = [
+    "https://${var.app_name}.${var.domain_name}/auth/callback",
+    "http://localhost:5173/auth/callback",
+  ]
+
+  logout_urls = [
+    "https://${var.app_name}.${var.domain_name}",
+    "http://localhost:5173",
+  ]
+}
+
 module "dns" {
   source = "./modules/dns"
 
-  domain_name                = var.domain_name
-  app_name                   = var.app_name
-  route53_zone_id            = data.aws_route53_zone.main.zone_id
-  cloudfront_domain_name     = module.frontend.cloudfront_domain_name
-  cloudfront_hosted_zone_id  = module.frontend.cloudfront_hosted_zone_id
-  backend_eip                = module.backend.eip_public_ip
+  domain_name               = var.domain_name
+  app_name                  = var.app_name
+  route53_zone_id           = data.aws_route53_zone.main.zone_id
+  cloudfront_domain_name    = module.frontend.cloudfront_domain_name
+  cloudfront_hosted_zone_id = module.frontend.cloudfront_hosted_zone_id
+  backend_eip               = module.backend.eip_public_ip
 }

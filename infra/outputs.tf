@@ -47,3 +47,18 @@ output "portraits_bucket_domain" {
   description = "Domain name for the portraits S3 bucket"
   value       = module.storage.portraits_bucket_domain
 }
+
+output "cognito_user_pool_id" {
+  description = "Cognito User Pool ID"
+  value       = module.auth.user_pool_id
+}
+
+output "cognito_client_id" {
+  description = "Cognito App Client ID (for frontend)"
+  value       = module.auth.client_id
+}
+
+output "cognito_hosted_ui_domain" {
+  description = "Cognito Hosted UI domain"
+  value       = module.auth.hosted_ui_domain
+}
