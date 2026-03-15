@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, AuthState } from '@/types';
 import * as cognito from '@/lib/cognito';
+import userService from '@/services/users/UserService';
 
 interface AuthContextType extends AuthState {
   isLoading: boolean;
@@ -89,6 +90,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const signIn = async (email: string, password: string) => {
     const cognitoUser = await cognito.signIn(email, password);
+    await userService.syncUser({
+      user_id: cognitoUser.id,
+      email: cognitoUser.email,
+      display_name: cognitoUser.name,
+    });
     login({
       id: cognitoUser.id,
       email: cognitoUser.email,
@@ -121,6 +127,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       // First try to get a valid Cognito session
       const cognitoUser = await cognito.getCurrentUser();
       if (cognitoUser) {
+        await userService.syncUser({
+          user_id: cognitoUser.id,
+          email: cognitoUser.email,
+          display_name: cognitoUser.name,
+        });
         login({
           id: cognitoUser.id,
           email: cognitoUser.email,

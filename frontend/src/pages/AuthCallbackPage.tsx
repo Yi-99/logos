@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { handleOAuthCallback } from '@/lib/cognito';
+import userService from '@/services/users/UserService';
 
 const AuthCallbackPage: React.FC = () => {
   const navigate = useNavigate();
@@ -18,7 +19,12 @@ const AuthCallbackPage: React.FC = () => {
     }
 
     handleOAuthCallback(code)
-      .then((user) => {
+      .then(async (user) => {
+        await userService.syncUser({
+          user_id: user.id,
+          email: user.email,
+          display_name: user.name,
+        });
         login({
           id: user.id,
           email: user.email,

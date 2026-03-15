@@ -12,6 +12,14 @@ def get_philosophers_route(dao: DAOFactory = Depends(get_dao_factory)):
     return get_philosophers(dao)
 
 
+@philosophers_router.get("/image")
+def get_philosopher_image_route(key: str):
+    try:
+        return get_philosopher_image_url(key)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to generate image URL") from e
+
+
 @philosophers_router.get("/{philosopher_id}")
 def get_philosopher_by_id_route(philosopher_id: str, dao: DAOFactory = Depends(get_dao_factory)):
     try:
@@ -20,14 +28,6 @@ def get_philosopher_by_id_route(philosopher_id: str, dao: DAOFactory = Depends(g
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail="Internal server error") from e
-
-
-@philosophers_router.get("/image")
-def get_philosopher_image_route(key: str):
-    try:
-        return get_philosopher_image_url(key)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail="Failed to generate image URL") from e
 
 
 @philosophers_router.post("/")
