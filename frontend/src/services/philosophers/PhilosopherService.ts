@@ -30,6 +30,7 @@ const mapPhilosopherResponse = (data: any): Philosopher => ({
 	location: data.location,
 	image: data.image,
 	imageClassic: data.image_classic,
+	metaphysicsCategory: data.metaphysics_category,
 	sortOrder: data.sort_order,
 });
 

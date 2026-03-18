@@ -42,8 +42,8 @@ const PhilosopherSelectionPage: React.FC = () => {
   };
 
   return (
-    <Layout 
-      title="Choose Your Philosopher" 
+    <Layout
+      title="Choose Your Philosopher"
       subtitle="Select a philosopher to begin your conversation"
       backPath="/"
     >

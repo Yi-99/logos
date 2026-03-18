@@ -16,6 +16,7 @@ from models import Philosopher
 PHILOSOPHERS = [
     {
         "name": "Socrates",
+        "metaphysics_category": "Classical Greek",
         "subtitle": "Father of Western Philosophy",
         "description": "Socrates was a classical Greek philosopher credited as the founder of Western philosophy and among the first moral philosophers of the ethical tradition of thought.",
         "quote": "The unexamined life is not worth living.",
@@ -51,6 +52,7 @@ You: "An excellent question, my friend — and one I have spent many years pursu
     },
     {
         "name": "Plato",
+        "metaphysics_category": "Classical Greek",
         "subtitle": "Philosopher of the Forms",
         "description": "Plato was an ancient Greek philosopher, student of Socrates, and founder of the Academy in Athens — the first institution of higher learning in the Western world.",
         "quote": "The measure of a man is what he does with power.",
@@ -86,6 +88,7 @@ You: "Justice, my dear friend, is not merely giving each person what they are ow
     },
     {
         "name": "Aristotle",
+        "metaphysics_category": "Classical Greek",
         "subtitle": "The First Scientist",
         "description": "Aristotle was a Greek philosopher and polymath who founded the Lyceum and made pioneering contributions to logic, metaphysics, ethics, biology, and political theory.",
         "quote": "We are what we repeatedly do. Excellence, then, is not an act, but a habit.",
@@ -121,6 +124,7 @@ You: "Justice, as I discuss in the Nicomachean Ethics, is the virtue that concer
     },
     {
         "name": "Confucius",
+        "metaphysics_category": "Eastern",
         "subtitle": "Sage of the East",
         "description": "Confucius was a Chinese philosopher and politician whose teachings on ethics, family loyalty, and social harmony profoundly shaped East Asian thought and culture for over two millennia.",
         "quote": "It does not matter how slowly you go as long as you do not stop.",
@@ -155,6 +159,7 @@ You: "In my teachings, I speak less of justice as an abstract principle and more
     },
     {
         "name": "Marcus Aurelius",
+        "metaphysics_category": "Stoic Roman",
         "subtitle": "The Philosopher King",
         "description": "Marcus Aurelius was a Roman emperor and Stoic philosopher, author of 'Meditations,' a series of personal writings on Stoic philosophy that remain deeply influential today.",
         "quote": "You have power over your mind — not outside events. Realize this, and you will find strength.",
@@ -190,6 +195,7 @@ You: "Justice, I wrote in my Meditations, is the source from which all the other
     },
     {
         "name": "Nietzsche",
+        "metaphysics_category": "Modern Continental",
         "subtitle": "The Ubermensch Philosopher",
         "description": "Friedrich Nietzsche was a German philosopher known for his radical critiques of morality, religion, and culture, and his concepts of the will to power and the Übermensch.",
         "quote": "He who has a why to live can bear almost any how.",
@@ -225,6 +231,7 @@ You: "Justice? Let us first ask: whose justice? In my Genealogy of Morals, I sho
     },
     {
         "name": "Buddha",
+        "metaphysics_category": "Eastern",
         "subtitle": "The Awakened One",
         "description": "Siddhartha Gautama, known as the Buddha, was an ancient Indian philosopher and spiritual teacher who founded Buddhism. His teachings on suffering, impermanence, and the path to enlightenment have shaped billions of lives.",
         "quote": "Peace comes from within. Do not seek it without.",
@@ -260,6 +267,7 @@ You: "Friend, I would say that justice, in its deepest sense, is inseparable fro
     },
     {
         "name": "Lao Tzu",
+        "metaphysics_category": "Eastern",
         "subtitle": "Founder of Taoism",
         "description": "Lao Tzu was an ancient Chinese philosopher and writer, the reputed author of the Tao Te Ching, and the founder of philosophical Taoism.",
         "quote": "The journey of a thousand miles begins with a single step.",
@@ -295,6 +303,7 @@ You: "When the great Tao is forgotten, people speak of justice and righteousness
     },
     {
         "name": "René Descartes",
+        "metaphysics_category": "Modern Continental",
         "subtitle": "Father of Modern Philosophy",
         "description": "René Descartes was a French philosopher, mathematician, and scientist, widely regarded as the father of modern Western philosophy. His method of systematic doubt laid the foundation for rationalism.",
         "quote": "I think, therefore I am.",
@@ -329,6 +338,7 @@ You: "To address this question properly, we must proceed methodically, as I outl
     },
     {
         "name": "Jean-Paul Sartre",
+        "metaphysics_category": "Modern Continental",
         "subtitle": "Champion of Radical Freedom",
         "description": "Jean-Paul Sartre was a French existentialist philosopher, playwright, and novelist. He argued that existence precedes essence and that humans are condemned to be free.",
         "quote": "Man is condemned to be free; because once thrown into the world, he is responsible for everything he does.",
@@ -364,6 +374,7 @@ You: "Justice? Let me be direct. There is no cosmic judge, no divine law written
     },
     {
         "name": "Jesus",
+        "metaphysics_category": "Theistic Medieval",
         "subtitle": "Teacher of Love and Compassion",
         "description": "Jesus of Nazareth was a first-century Jewish teacher and philosopher whose moral teachings on love, forgiveness, and compassion became the foundation of Christian thought and profoundly influenced Western ethics.",
         "quote": "Love your neighbor as yourself.",
@@ -399,6 +410,7 @@ You: "I tell you, justice and mercy are not enemies — they are companions. Whe
     },
     {
         "name": "Thomas Aquinas",
+        "metaphysics_category": "Theistic Medieval",
         "subtitle": "The Angelic Doctor",
         "description": "Thomas Aquinas was an Italian Dominican friar and philosopher-theologian who synthesized Aristotelian philosophy with Christian theology, producing one of the most comprehensive philosophical systems in Western thought.",
         "quote": "To one who has faith, no explanation is necessary. To one without faith, no explanation is possible.",

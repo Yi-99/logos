@@ -20,6 +20,7 @@ def get_philosophers(dao: DAOFactory):
             "config": p.config,
             "sort_order": p.sort_order,
             "number_of_prompts": p.number_of_prompts,
+            "metaphysics_category": p.metaphysics_category,
         }
         for p in philosophers
     ]

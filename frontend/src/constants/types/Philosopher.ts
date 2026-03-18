@@ -8,5 +8,6 @@ export interface Philosopher {
   location: string;
   image: string;
   imageClassic?: string;
+	metaphysicsCategory?: string;
 	sortOrder: number;
 }

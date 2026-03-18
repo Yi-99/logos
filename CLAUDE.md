@@ -20,10 +20,12 @@ Logos is a full-stack web application that enables users to have AI-powered conv
 - FastAPI 0.115.12
 - Python (managed via uv)
 - Uvicorn 0.34.2 / Gunicorn 23.0.0
-- Supabase 2.15.1 (PostgreSQL-based)
-- OpenAI API 1.76.2 (using o4-mini-2025-04-16 model)
-- Pydantic 2.11.3
+- SQLAlchemy 2.x + Alembic (ORM + migrations)
+- PostgreSQL (local via Docker, pgvector for RAG embeddings)
+- OpenAI API (o4-mini-2025-04-16 for chat, text-embedding-3-small for RAG)
+- Pydantic 2.x
 - Docker + docker-compose (containerization)
+- go-task (Taskfile.yml for dev commands)
 
 ## Development Commands
 
@@ -50,71 +52,75 @@ npm run lint
 
 ### Backend (from `/backend` directory)
 
+Uses [go-task](https://taskfile.dev/) — see `Taskfile.yml` for all commands.
+
 ```bash
-# 1. Install dependencies (uv creates .venv automatically)
-uv sync
+# First-time setup
+task bootstrap          # install deps, start DB, run migrations, seed
 
-# 2. Run development server (choose one)
-uv run fastapi run main:app --reload    # FastAPI CLI (recommended)
-uv run uvicorn main:app --reload        # Uvicorn
+# Daily development
+task dev                # start DB + migrate + seed + uvicorn --reload
 
-# Add a new dependency
-uv add <package>
+# Migrations (Alembic)
+task migrate            # run to head
+task migrate:new -- "description"   # autogenerate new migration
 
-# Add a dev dependency
-uv add --group dev <package>
+# Database
+task db:up / db:down    # start/stop local Postgres
+task db:reset           # wipe and restart
+task db:shell           # psql shell
 
-# Update lockfile after manual pyproject.toml edits
-uv lock
+# Seeding
+task seed               # seed philosopher data
+task seed:reset         # reset and re-seed
+
+# Data scripts
+task ingest             # ingest philosopher texts into vector DB
+```
+
+```bash
+# Dependency management
+uv sync                 # install from lockfile
+uv add <package>        # add dependency
+uv add --group dev <package>  # add dev dependency
 ```
 
 ### Docker (from `/backend` directory)
 
 ```bash
-# Build and run
-docker compose up --build
-
-# Run in background
-docker compose up -d
-
-# Rebuild after dependency changes
-docker compose build
-
-# Stop
-docker compose down
+task up                 # start Postgres + backend containers
+task down               # stop all
+task build              # rebuild backend container
 ```
 
 ### Testing
 
 ```bash
-# Backend tests (from /backend)
-uv run pytest                           # Run all tests
+task test                               # Run all tests
 uv run pytest tests/unit                # Unit tests only
 uv run pytest tests/integration         # Integration tests only
+uv run pytest tests/unit/test_foo.py -k "test_bar"  # Single test
 ```
 
 ## Architecture
 
 ### Backend: Layered Architecture
 
-The backend follows a strict 3-tier separation:
+The backend follows a strict layered separation. **See `/backend/CLAUDE.md` for full details.**
 
-1. **Routes** (`/backend/routes/`) - API endpoint definitions
-   - `chat.py` - Chat endpoints (prefix: `/api/v1/chat`)
-   - `philosophers.py` - Philosopher endpoints (prefix: `/api/v1/philosophers`)
-   - `prompt.py` - AI prompting endpoints (prefix: `/api/v1/prompt`)
-   - All routers are included in `main.py` with `/api` prefix
+```
+routes/          → FastAPI routers (endpoint definitions, prefix /api/v1/*)
+controllers/     → Business logic (orchestrates DAOs, OpenAI, services)
+dao/             → Data Access Objects (all DB queries via SQLAlchemy)
+models/          → SQLAlchemy ORM models + Pydantic request/response models
+services/        → Domain services (PromptBuilder, RetrievalService, token counting)
+```
 
-2. **Controllers** (`/backend/controllers/`) - Business logic
-   - `create_chat.py`, `get_chat_by_id.py`, `get_chats.py`
-   - `prompt_philosopher.py` - Handles OpenAI API interaction
-   - `get_philosopher_by_id.py`, `get_philosophers.py`, `create_philosopher.py`
-   - Controllers orchestrate external service calls (OpenAI, Supabase)
-
-3. **Models** (`/backend/models/models.py`) - Pydantic data validation
-   - `History`, `PromptRequest`, `Philosopher`, `Chat`
-
-**Key Pattern:** Routes define endpoints → Controllers implement logic → Models validate data
+**Key patterns:**
+- `DAOFactory` is injected via FastAPI dependency — creates DAO instances bound to a single session
+- All DAOs extend `BaseDAO` with generic CRUD
+- Pydantic models (`models/models.py`) validate HTTP payloads; SQLAlchemy models (`models/*.py`) map to DB tables
+- Environment selected via `APP_ENV` env var, loads `.env.{APP_ENV}` via `config.py`
 
 ### Frontend: Component-Based Architecture
 
@@ -145,37 +151,11 @@ frontend/src/
 
 **Additional frontend details** are in `/frontend/CLAUDE.md`.
 
-### Singleton Pattern for Database Clients
+### Database Access
 
-**Critical:** Both frontend and backend use singleton pattern for Supabase clients to ensure single instances:
+**Backend:** Uses SQLAlchemy + `DAOFactory` pattern (not Supabase client). DB sessions are managed via FastAPI dependencies in `database.py`. Never create sessions manually in controllers.
 
-**Backend** (`/backend/db.py`):
-```python
-class SupabaseService:
-    _instance = None
-
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super(SupabaseService, cls).__new__(cls)
-            # Initialize Supabase client
-        return cls._instance
-```
-
-**Frontend** (`/frontend/src/lib/supabase.ts`):
-```typescript
-class SupabaseService {
-  private static instance: SupabaseService;
-
-  public static getInstance(): SupabaseService {
-    if (!SupabaseService.instance) {
-      SupabaseService.instance = new SupabaseService();
-    }
-    return SupabaseService.instance;
-  }
-}
-```
-
-Always use the singleton instance, never create new Supabase clients directly.
+**Frontend:** Uses Supabase singleton (`/frontend/src/lib/supabase.ts`) for auth. Always use `SupabaseService.getInstance()`, never create new clients directly.
 
 ### Path Aliases (Frontend)
 
@@ -212,12 +192,13 @@ VITE_SUPABASE_KEY=your_supabase_anon_key
 VITE_BACKEND_URL=your_backend_api_url
 ```
 
-### Backend (`.env` in `/backend`, see `.env.example`)
+### Backend (`.env.{APP_ENV}` in `/backend`, e.g. `.env.local`)
 ```
-SUPABASE_URL=your_supabase_project_url
-SUPABASE_KEY=your_supabase_service_role_key
+DATABASE_URL=postgresql://...
 OPENAI_API_KEY=your_openai_api_key
 FRONTEND_URL=your_frontend_url
+AWS_REGION=us-west-1
+S3_BUCKET_NAME=your_bucket
 ```
 
 ## API Structure
@@ -243,15 +224,20 @@ The application uses OpenAI's `o4-mini-2025-04-16` model for philosopher convers
 - Uses `openai_client.responses.create()` (not the chat completions API)
 - Uses `input` parameter (not `messages`) and `instructions` for system prompts
 - High reasoning effort configuration (`reasoning={"effort": "high"}`)
-- System prompts are stored per-philosopher in the Supabase database
+- System prompts are stored per-philosopher in the `philosophers.config` column
+- RAG pipeline: user queries are embedded via `text-embedding-3-small`, matched against pgvector philosopher document chunks, and injected into the system prompt
+- `PromptBuilder` manages token budgets (128K context) across system prompt, RAG, history, and response
+- Auto-summarization triggers after 40 messages per chat
 - Prompting logic is in `/backend/controllers/prompt_philosopher.py`
 
-## Database Schema (Supabase)
+## Database Schema (PostgreSQL)
 
-Primary tables:
-- `Philosopher` - Stores philosopher configurations and system prompts
-- `Chat` - Stores chat history and messages
-- Authentication managed by Supabase Auth
+Primary tables (SQLAlchemy models in `/backend/models/`):
+- `users` - Synced from Supabase Auth
+- `philosophers` - Philosopher configurations, system prompts, metadata
+- `chats` - Chat sessions (linked to user + philosopher)
+- `messages` - Individual messages within chats (role, content, token_count, metadata)
+- `philosopher_documents` - RAG document chunks with pgvector embeddings
 
 ## Code Conventions
 
@@ -262,10 +248,10 @@ Primary tables:
    - Services abstract all API calls (don't call axios directly from components)
 
 2. **Backend:**
-   - Follow layered architecture: routes → controllers → models
-   - Use Pydantic models for all request/response validation
+   - Follow layered architecture: routes → controllers → DAO → models
+   - Use Pydantic models for request/response validation, SQLAlchemy models for DB
    - Controllers handle business logic, routes only define endpoints
-   - Use the SupabaseService singleton from `db.py`, never create new clients
+   - Use `DAOFactory` via FastAPI dependency injection for all DB access
 
 3. **Dependency Management:**
    - Frontend: Standard `npm install` workflow

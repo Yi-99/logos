@@ -18,6 +18,7 @@ class Philosopher(Base):
     quote: Mapped[str | None] = mapped_column(Text, nullable=True)
     dates: Mapped[str] = mapped_column(String, nullable=False)
     location: Mapped[str | None] = mapped_column(String, nullable=True)
+    metaphysics_category: Mapped[str | None] = mapped_column(String, nullable=True)
     image: Mapped[str] = mapped_column(String, nullable=False)
     image_classic: Mapped[str | None] = mapped_column(String, nullable=True)
     config: Mapped[str] = mapped_column(Text, nullable=False)

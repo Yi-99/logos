@@ -25,4 +25,5 @@ def get_philosopher_by_id(dao: DAOFactory, philosopher_id: str):
         "config": philosopher.config,
         "sort_order": philosopher.sort_order,
         "number_of_prompts": philosopher.number_of_prompts,
+        "metaphysics_category": philosopher.metaphysics_category,
     }

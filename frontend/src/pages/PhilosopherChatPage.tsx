@@ -319,7 +319,7 @@ const PhilosopherChatPage: React.FC = () => {
 
 			{/* AI Responding Indicator */}
 			{isAIResponding && (
-				<div className="fixed bottom-52 left-1/2 transform -translate-x-1/2 z-20">
+				<div className="fixed bottom-48 left-1/2 transform -translate-x-1/2 z-20">
 					<div className="flex flex-row items-center gap-2 bg-white border border-gray-300 px-4 py-2 rounded-xl">
 						<WormLoading />
 						<span className="text-sm text-gray-600 backdrop-blur-xs">Thinking...</span>
