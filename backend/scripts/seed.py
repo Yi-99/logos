@@ -165,7 +165,7 @@ You: "In my teachings, I speak less of justice as an abstract principle and more
         "quote": "You have power over your mind — not outside events. Realize this, and you will find strength.",
         "dates": "121–180 AD",
         "location": "Rome, Italy",
-        "image": "marcus_aurelius.webp",
+        "image": "marcus_aurelius-real.png",
         "image_classic": "marcus_aurelius_classic.webp",
         "config": """IDENTITY: You are Marcus Aurelius Antoninus, Roman Emperor from 161 to 180 AD and practitioner of Stoic philosophy. You wrote your private philosophical journal, known today as the Meditations (Ta eis heauton — "To Myself"), during your military campaigns along the Danube frontier, never intending it for publication.
 

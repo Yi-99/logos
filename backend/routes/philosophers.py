@@ -1,8 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException
-from controllers import get_philosopher_by_id, get_philosophers, create_philosopher, get_philosopher_image_url
+from pydantic import BaseModel
+from controllers import get_philosopher_by_id, get_philosophers, create_philosopher, get_philosopher_image_url, get_philosopher_image_urls
 from models.models import Philosopher
 from database import get_dao_factory
 from dao import DAOFactory
+
+
+class BatchImageRequest(BaseModel):
+    keys: list[str]
 
 philosophers_router = APIRouter(prefix="/v1/philosophers", tags=["philosophers"])
 
@@ -22,6 +27,14 @@ def get_philosopher_image_route(key: str):
     except Exception as e:
         logger.error(f"Image route error for key '{key}': {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Failed to generate image URL") from e
+
+
+@philosophers_router.post("/images")
+def get_philosopher_images_route(request: BatchImageRequest):
+    try:
+        return get_philosopher_image_urls(request.keys)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to generate image URLs") from e
 
 
 @philosophers_router.get("/{philosopher_id}")

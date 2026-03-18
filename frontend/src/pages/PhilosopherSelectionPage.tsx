@@ -13,18 +13,22 @@ const PhilosopherSelectionPage: React.FC = () => {
 		const fetchPhilosophers = async () => {
 			try {
 				const response = await philosopherService.getAllPhilosophers();
-				console.log("response:", response);
-				setPhilosophers(response.philosophers.map((philosopher: Philosopher) => philosopher));
+				setPhilosophers(response.philosophers);
 
-				// Fetch S3 image URLs for all philosophers
+				// Fetch all S3 image URLs in a single batch request
+				const imageKeys = response.philosophers
+					.filter((p: Philosopher) => p.image)
+					.map((p: Philosopher) => p.image);
+				const batchUrls = await philosopherService.getPhilosopherImageUrls(imageKeys);
+
+				// Map filename-keyed URLs to philosopher ID-keyed URLs
 				const urls: Record<string, string> = {};
-				await Promise.all(
-					response.philosophers.map(async (philosopher: Philosopher) => {
-						if (philosopher.image) {
-							urls[philosopher.id] = await philosopherService.getPhilosopherImageUrl(philosopher.image);
-						}
-					})
-				);
+				response.philosophers.forEach((p: Philosopher) => {
+					const filename = p.image?.split('/').pop() || p.image;
+					if (filename && batchUrls[filename]) {
+						urls[p.id] = batchUrls[filename];
+					}
+				});
 				setImageUrls(urls);
 			} catch (error) {
 				console.error('Failed to fetch philosophers:', error);
@@ -45,7 +49,7 @@ const PhilosopherSelectionPage: React.FC = () => {
     <Layout
       title="Choose Your Philosopher"
       subtitle="Select a philosopher to begin your conversation"
-      backPath="/"
+      showBackButton={false}
     >
       <div className="p-8">
         <div className="max-w-6xl mx-auto">

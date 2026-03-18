@@ -11,6 +11,7 @@ import { Philosopher } from '../constants/types/Philosopher';
 import { useAuth } from '../contexts/AuthContext';
 import { WormLoading } from '../components/WormLoading';
 import { toast } from 'react-toastify';
+import Layout from '../components/Layout';
 
 const ChatListPage: React.FC = () => {
 	const navigate = useNavigate();
@@ -38,15 +39,20 @@ const ChatListPage: React.FC = () => {
 
 				setChats(chatList);
 
-				// Fetch S3 image URLs for all philosophers
+				// Fetch all S3 image URLs in a single batch request
+				const imageKeys = philosopherData.philosophers
+					.filter((p: Philosopher) => p.image)
+					.map((p: Philosopher) => p.image);
+				const batchUrls = await philosopherService.getPhilosopherImageUrls(imageKeys);
+
+				// Map filename-keyed URLs to philosopher name-keyed URLs
 				const urls: Record<string, string> = {};
-				await Promise.all(
-					philosopherData.philosophers.map(async (p: Philosopher) => {
-						if (p.image) {
-							urls[p.name] = await philosopherService.getPhilosopherImageUrl(p.image);
-						}
-					})
-				);
+				philosopherData.philosophers.forEach((p: Philosopher) => {
+					const filename = p.image?.split('/').pop() || p.image;
+					if (filename && batchUrls[filename]) {
+						urls[p.name] = batchUrls[filename];
+					}
+				});
 				setImageUrls(urls);
 			} catch (error) {
 				console.error('Error fetching data:', error);
@@ -162,7 +168,10 @@ const ChatListPage: React.FC = () => {
 	}
 
 	return (
-		<div className="min-h-screen bg-gray-50">
+		<Layout
+			title="Your Conversations"
+			showBackButton={false}
+		>
 			{/* Floating Stats Island */}
 			<div className="fixed right-6 top-1/2 -translate-y-1/2 z-20 bg-white shadow-lg border border-gray-200 rounded-2xl px-4 py-3">
 				<div className="flex flex-col items-center space-y-2">
@@ -170,7 +179,7 @@ const ChatListPage: React.FC = () => {
 					<span className="text-xs font-medium text-gray-600">Stats</span>
 
 					<div className="w-8 h-0.5 bg-gray-200 rounded-full" />
-					
+
 					<span className="text-lg font-bold text-gray-800">{stats.totalChats}</span>
 					<span className="text-xs text-gray-500">chats</span>
 
@@ -181,25 +190,7 @@ const ChatListPage: React.FC = () => {
 				</div>
 			</div>
 
-			{/* Header */}
-			<div className="bg-white border-b border-gray-200 sticky top-0 z-10">
-				<div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
-					<div className="flex items-center space-x-4">
-						<div className="flex items-center space-x-2">
-							<ChatBubbleOutlineIcon className="text-gray-600" />
-							<h1 className="text-xl font-semibold text-gray-800">Your Conversations</h1>
-						</div>
-					</div>
-					<button
-						onClick={handleNewChat}
-						className="flex items-center space-x-2 bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
-					>
-						<AddIcon sx={{ fontSize: 20 }} />
-					</button>
-				</div>
-			</div>
-
-			{/* Chat List */} 
+			{/* Chat List */}
 			<div className="max-w-4xl mx-auto px-4 py-6">
 				{chats.length === 0 ? (
 					<div className="flex flex-col items-center justify-center py-20 text-gray-500">
@@ -275,7 +266,7 @@ const ChatListPage: React.FC = () => {
 					</div>
 				)}
 			</div>
-		</div>
+		</Layout>
 	);
 };
 

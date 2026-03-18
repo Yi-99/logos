@@ -18,3 +18,18 @@ def get_philosopher_image_url(image_key: str) -> dict:
     except Exception as e:
         logger.error(f"Failed to generate presigned URL for key '{image_key}': {e}", exc_info=True)
         raise
+
+
+def get_philosopher_image_urls(image_keys: list[str]) -> dict:
+    """
+    Generate presigned S3 URLs for multiple philosopher images in one call.
+    """
+    s3_service = S3Service()
+    urls = {}
+    for key in image_keys:
+        try:
+            urls[key] = s3_service.generate_presigned_url(key)
+        except Exception as e:
+            logger.error(f"Failed to generate presigned URL for key '{key}': {e}")
+            urls[key] = None
+    return {"urls": urls}
