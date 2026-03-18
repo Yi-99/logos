@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends
+import uuid
+from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel
 from controllers import get_chat_by_id, get_chats, create_chat
 from controllers.delete_chat import delete_chat
@@ -31,6 +32,28 @@ def get_chat_route(user_id: str = None, dao: DAOFactory = Depends(get_dao_factor
 @chat_router.get("/{chat_id}")
 def get_chat_by_id_route(chat_id: str, dao: DAOFactory = Depends(get_dao_factory)):
     return get_chat_by_id(dao, chat_id)
+
+
+@chat_router.get("/{chat_id}/messages")
+def get_chat_messages_route(
+    chat_id: str,
+    limit: int = Query(default=None, ge=1, le=500),
+    dao: DAOFactory = Depends(get_dao_factory),
+):
+    """Returns messages for a chat, ordered by created_at ascending."""
+    messages = dao.messages.get_by_chat_id(uuid.UUID(chat_id), limit=limit)
+    return [
+        {
+            "id": str(m.id),
+            "chat_id": str(m.chat_id),
+            "role": m.role,
+            "content": m.content,
+            "token_count": m.token_count,
+            "metadata": m.metadata_,
+            "created_at": m.created_at.isoformat() if hasattr(m.created_at, 'isoformat') else str(m.created_at),
+        }
+        for m in messages
+    ]
 
 
 @chat_router.post("/")

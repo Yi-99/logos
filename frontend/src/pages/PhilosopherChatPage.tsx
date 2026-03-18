@@ -96,13 +96,16 @@ const PhilosopherChatPage: React.FC = () => {
 		const handleExistingChat = async () => {
 			if (!chatId) {
 				toast.error('Chat ID is required');
-				navigate('/philosophers');
+				navigate('/chats');
 				return;
 			}
 
 			try {
-				// Fetch chat details
-				const chat = await chatService.getChatById(chatId);
+				// Fetch chat details and messages in parallel
+				const [chat, messageList] = await Promise.all([
+					chatService.getChatById(chatId),
+					chatService.getMessages(chatId),
+				]);
 				if (!isCancelled) {
 					setCurrentChatId(chatId);
 
@@ -122,25 +125,21 @@ const PhilosopherChatPage: React.FC = () => {
 						throw new Error('Philosopher not found');
 					}
 
-					if (chat.content) {
-						const content = JSON.parse(chat.content)
-						for (const message of content) {
-							const newMessage = {
-								role: message.role,
-								content: message.content,
-								timestamp: message.timestamp,
-							}
-							setMessages(prev => [...prev, newMessage])
-						}
-					} else {
-						throw new Error('Chat content is null or undefined')
+					// Load messages from the messages endpoint
+					if (messageList.length > 0) {
+						const loadedMessages: ChatMessage[] = messageList.map(msg => ({
+							role: msg.role as 'user' | 'assistant',
+							content: msg.content,
+							timestamp: new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+						}));
+						setMessages(loadedMessages);
 					}
 				}
 			} catch (error) {
 				if (!isCancelled) {
 					console.error('Error loading chat:', error);
 					toast.error('Failed to load chat');
-					navigate('/philosophers');
+					navigate('/chats');
 				}
 			}
 		};
@@ -287,10 +286,10 @@ const PhilosopherChatPage: React.FC = () => {
         {/* Central Philosopher Image - Fixed position */}
         <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-0">
           <div className="w-64 h-64 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center opacity-10">
-            {philosopher?.image && 
-							<img 
-								className="h-full w-full rounded-full" 
-								src={philosopherImageUrl} 
+            {philosopherImageUrl &&
+							<img
+								className="h-full w-full rounded-full"
+								src={philosopherImageUrl}
 								alt={philosopher?.name || ''}
 							/>
 						}
@@ -352,7 +351,6 @@ const PhilosopherChatPage: React.FC = () => {
 					{isTextToText && philosopher?.name && (
 						<Chatbar
 							advisorName={philosopher.name}
-							messages={messages}
 							chatId={currentChatId}
 							onNewMessage={handleNewMessage}
 							onChatCreated={handleChatCreated}

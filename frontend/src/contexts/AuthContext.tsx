@@ -151,6 +151,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           const now = new Date();
           const sessionDuration = Math.floor((now.getTime() - loginTime.getTime()) / (1000 * 60));
 
+          // Sync user to backend in case they don't exist yet
+          if (parsed.user?.id && parsed.user?.email) {
+            await userService.syncUser({
+              user_id: parsed.user.id,
+              email: parsed.user.email,
+              display_name: parsed.user.name,
+            });
+          }
+
           setAuthState({
             user: parsed.user,
             isAuthenticated: true,

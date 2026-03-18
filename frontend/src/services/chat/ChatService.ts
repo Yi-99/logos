@@ -10,16 +10,23 @@ export interface PromptAIRequest {
 	prompt: string;
 	advisor_name: string;
 	chat_id: string | undefined;
-	history?: History[];
 }
 
-export interface ChatResponse {
+export interface MessageResponse {
+	id: string;
+	chat_id: string;
+	role: string;
+	content: string;
+	token_count: number | null;
+	metadata: Record<string, any> | null;
+	created_at: string;
+}
+
+export interface PromptAIResponse {
 	chat_id: string;
 	advisor_name: string;
-	content: string;
+	message: MessageResponse;
 }
-
-export type PromptAIResponse = ChatResponse[];
 
 export interface CreateChatRequest {
 	user_id: string;
@@ -36,15 +43,17 @@ export interface GetChatResponse {
 	id: string;
 	advisor_name: string;
 	created_at: string;
-	content?: string;
+	last_accessed_at: string;
 }
 
 export interface ChatListItem {
 	id: string;
 	user_id: string;
 	advisor_name: string;
-	content?: string;
+	message_count: number;
+	last_message: { role: string; content: string } | null;
 	created_at: string;
+	last_accessed_at: string;
 }
 
 export interface DeleteChatRequest {
@@ -145,13 +154,36 @@ const getChatById = async (chatId: string): Promise<GetChatResponse> => {
 	}
 };
 
-const promptAI = async (request: PromptAIRequest) => {
+const getMessages = async (chatId: string, limit?: number): Promise<MessageResponse[]> => {
+	try {
+		const params: Record<string, any> = {};
+		if (limit) params.limit = limit;
+
+		const response = await axios.get(
+			`${import.meta.env.VITE_BACKEND_URL}/api/v1/chat/${chatId}/messages`,
+			{ params }
+		);
+		return response.data;
+	} catch (error: any) {
+		toast.error('Error fetching messages: ' + (error.response?.data?.detail || error.message), {
+			position: 'bottom-right',
+			autoClose: 5000,
+			hideProgressBar: false,
+			closeOnClick: true,
+			pauseOnHover: true,
+			draggable: false,
+			progress: undefined,
+			theme: 'light',
+		});
+		throw error;
+	}
+};
+
+const promptAI = async (request: PromptAIRequest): Promise<PromptAIResponse> => {
 	console.log('promptAI request:', request);
 	try {
 		const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/v1/prompt`, request);
-		const promptAIResponse: PromptAIResponse = response.data;
-
-		return promptAIResponse;
+		return response.data;
 	} catch (error: any) {
 		toast.error('Error: ' + error.response?.data?.message || error.message, {
 			position: 'bottom-right',
@@ -206,6 +238,7 @@ const chatService = {
 	createChat,
 	deleteChat,
 	getChatById,
+	getMessages,
 	promptAI,
 	transcribeAudio,
 }

@@ -39,7 +39,7 @@ tasks:
 
   migrate:new:
     desc: "Create a new migration (usage: task migrate:new -- description)"
-    cmd: uv run alembic revision -m "{{.CLI_ARGS}}"
+    cmd: uv run alembic revision --autogenerate -m "{{.CLI_ARGS}}"
 
   migrate:history:
     desc: Show migration history
@@ -54,8 +54,12 @@ tasks:
     cmd: uv sync
 
   dev:
-    desc: "Run FastAPI dev server (usage: task dev -- local|test|prod)"
-    cmd: APP_ENV={{.CLI_ARGS | default "local"}} uv run uvicorn main:app --reload
+    desc: "Start DB, run migrations, seed, then run FastAPI dev server"
+    cmds:
+      - task: db:up
+      - task: migrate
+      - task: seed
+      - APP_ENV={{.CLI_ARGS | default "local"}} uv run uvicorn main:app --reload
 
   test:
     desc: "Run all tests (usage: task test -- local|test|prod)"
@@ -92,6 +96,22 @@ tasks:
   seed:reset:
     desc: Reset and re-seed philosophers (deletes extras, updates existing)
     cmd: APP_ENV={{.CLI_ARGS | default "local"}} uv run python -m scripts.seed --reset
+
+  # ---------------------------------------------------------------------------
+  # Combo commands
+  # ---------------------------------------------------------------------------
+
+  # ---------------------------------------------------------------------------
+  # Data scripts
+  # ---------------------------------------------------------------------------
+
+  migrate:content:
+    desc: Migrate existing chat content JSONB to messages table
+    cmd: APP_ENV={{.CLI_ARGS | default "local"}} uv run python -m scripts.migrate_chat_content
+
+  ingest:
+    desc: "Ingest philosopher source texts into vector DB (usage: task ingest -- [--philosopher 'Name'] [--reset])"
+    cmd: APP_ENV={{.CLI_ARGS | default "local"}} uv run python -m scripts.ingest_documents
 
   # ---------------------------------------------------------------------------
   # Combo commands

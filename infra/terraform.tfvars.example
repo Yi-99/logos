@@ -5,5 +5,3 @@ allowed_cidr     = "0.0.0.0/0" # Restrict to your IP: "1.2.3.4/32"
 
 # Secrets — do NOT commit terraform.tfvars to git
 openai_api_key = "sk-..."
-supabase_url   = "https://xxxxx.supabase.co"
-supabase_key   = "eyJ..."

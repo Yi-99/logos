@@ -5,11 +5,9 @@ import SendIcon from '@mui/icons-material/Send'
 import chatService from '../services/chat/ChatService'
 import { useAuth } from '../contexts/AuthContext';
 import { toast } from 'react-toastify';
-import { ChatMessage } from '@/pages/PhilosopherChatPage'
 
 interface ChatbarProps {
 	advisorName: string;
-	messages?: ChatMessage[];
 	chatId?: string;
 	onNewMessage?: (message: { role: 'user' | 'assistant'; content: string; timestamp: string }) => void;
 	onChatCreated?: (chatId: string) => void;
@@ -20,7 +18,6 @@ interface ChatbarProps {
 
 const Chatbar: React.FC<ChatbarProps> = ({
 	advisorName,
-	messages,
 	chatId,
 	onNewMessage,
 	onChatCreated,
@@ -147,16 +144,7 @@ const Chatbar: React.FC<ChatbarProps> = ({
 		onSending?.();
 
 		try {
-			// Send request to backend
-			const response = await chatService.promptAI({
-				user_id: user?.id || '',
-				prompt: savedInput,
-				advisor_name: advisorName,
-				chat_id: currentChatId,
-				history: messages,
-			});
-
-			// Add user message to chat on success
+			// Add user message to chat immediately
 			const userMessage = {
 				role: 'user' as const,
 				content: savedInput,
@@ -164,28 +152,28 @@ const Chatbar: React.FC<ChatbarProps> = ({
 			};
 			onNewMessage?.(userMessage);
 
-			// Extract the AI response
-			if (response && response.length > 0) {
-				const chatData = response[0];
+			// Send request to backend (no history needed — backend loads from DB)
+			const response = await chatService.promptAI({
+				user_id: user?.id || '',
+				prompt: savedInput,
+				advisor_name: advisorName,
+				chat_id: currentChatId,
+			});
 
-				// Update chat ID if this was a new chat
-				if (chatData.chat_id && !currentChatId) {
-					setCurrentChatId(chatData.chat_id);
-					onChatCreated?.(chatData.chat_id);
-				}
+			// Update chat ID if this was a new chat
+			if (response.chat_id && !currentChatId) {
+				setCurrentChatId(response.chat_id);
+				onChatCreated?.(response.chat_id);
+			}
 
-				if (chatData.content && Array.isArray(chatData.content)) {
-					const lastMessage = chatData.content[chatData.content.length - 1];
-
-					if (lastMessage && lastMessage.role === 'assistant') {
-						const assistantMessage = {
-							role: 'assistant' as const,
-							content: lastMessage.content,
-							timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-						};
-						onNewMessage?.(assistantMessage);
-					}
-				}
+			// Add assistant response
+			if (response.message && response.message.role === 'assistant') {
+				const assistantMessage = {
+					role: 'assistant' as const,
+					content: response.message.content,
+					timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+				};
+				onNewMessage?.(assistantMessage);
 			}
 		} catch (error) {
 			console.error('Error sending message:', error);
@@ -219,7 +207,7 @@ const Chatbar: React.FC<ChatbarProps> = ({
 						disabled={isLoading}
 					/>
 				</div>
-				
+
 				{/* Microphone Button */}
 				<button
 					onClick={handleMicClick}
@@ -235,12 +223,12 @@ const Chatbar: React.FC<ChatbarProps> = ({
 				>
 					{isListening ? <MicOffIcon sx={{ fontSize: 20 }} /> : <MicIcon sx={{ fontSize: 20 }} />}
 				</button>
-				
+
 				{/* Send Button */}
-				<button 
+				<button
 					onClick={handleSendMessage}
 					disabled={isLoading || !inputValue.trim()}
-					className="w-12 h-12 text-gray-700 bg-white border border-gray-300 rounded-xl flex items-center justify-center 
+					className="w-12 h-12 text-gray-700 bg-white border border-gray-300 rounded-xl flex items-center justify-center
 					hover:bg-black hover:text-white hover:shadow-md hover:shadow-gray-700 hover:border-black transition-colors shadow-md disabled:opacity-50"
 				>
 					<SendIcon sx={{ fontSize: 20 }} />

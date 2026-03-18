@@ -1,7 +1,10 @@
 import os
+import logging
 import config  # noqa: F401 — loads .env.{APP_ENV}
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
+
+logger = logging.getLogger(__name__)
 
 
 def get_database_url() -> str:
@@ -13,6 +16,13 @@ def get_database_url() -> str:
 
 engine = create_engine(get_database_url(), pool_pre_ping=True)
 SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
+
+try:
+    with engine.connect() as conn:
+        conn.execute(text("SELECT 1"))
+    logger.info("Database connected successfully")
+except Exception as e:
+    logger.error(f"Database connection failed: {e}")
 
 
 def get_db():

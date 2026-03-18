@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, UploadFile, File
-from models.models import History, PromptRequest
+from models.models import PromptRequest
 from database import get_dao_factory
 from dao import DAOFactory
 
@@ -19,7 +19,6 @@ def prompt_philosopher_route(request: PromptRequest, dao: DAOFactory = Depends(g
         request.prompt,
         request.advisor_name,
         request.chat_id,
-        request.history,
     )
 
 

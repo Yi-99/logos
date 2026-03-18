@@ -16,7 +16,6 @@ def get_chat_by_id(dao: DAOFactory, chat_id: str):
             "id": str(chat.id),
             "user_id": str(chat.user_id),
             "advisor_name": chat.advisor_name,
-            "content": chat.content,
             "created_at": chat.created_at.isoformat(),
             "last_accessed_at": chat.last_accessed_at.isoformat(),
         }

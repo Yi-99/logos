@@ -103,34 +103,22 @@ const ChatListPage: React.FC = () => {
 		return date.toLocaleDateString();
 	};
 
-	const getLastMessage = (content: string | undefined): string => {
-		if (!content) return 'No messages yet';
-		try {
-			const messages = JSON.parse(content);
-			if (messages.length > 0) {
-				const lastMsg = messages[messages.length - 1];
-				return lastMsg.content?.substring(0, 100) + (lastMsg.content?.length > 100 ? '...' : '') || 'No content';
-			}
-		} catch {
-			return 'No messages yet';
+	const getLastMessage = (chat: ChatListItem): string => {
+		if (chat.last_message) {
+			const content = chat.last_message.content;
+			return content.substring(0, 100) + (content.length > 100 ? '...' : '');
 		}
 		return 'No messages yet';
 	};
 
-	const getMessageCount = (content: string | undefined): number => {
-		if (!content) return 0;
-		try {
-			const messages = JSON.parse(content);
-			return messages.length;
-		} catch {
-			return 0;
-		}
+	const getMessageCount = (chat: ChatListItem): number => {
+		return chat.message_count ?? 0;
 	};
 
 	// Calculate chat statistics
 	const stats = useMemo(() => {
 		const totalChats = chats.length;
-		const totalMessages = chats.reduce((acc, chat) => acc + getMessageCount(chat.content), 0);
+		const totalMessages = chats.reduce((acc, chat) => acc + getMessageCount(chat), 0);
 
 		// Count chats per philosopher
 		const philosopherCounts: Record<string, number> = {};
@@ -272,12 +260,12 @@ const ChatListPage: React.FC = () => {
 										</div>
 
 										<p className="text-sm text-gray-600 line-clamp-2 mb-2">
-											{getLastMessage(chat.content)}
+											{getLastMessage(chat)}
 										</p>
 
 										<div className="flex items-center">
 											<span className="text-xs text-gray-500">
-												{getMessageCount(chat.content)} messages
+												{getMessageCount(chat)} messages
 											</span>
 										</div>
 									</div>

@@ -3,6 +3,8 @@ from sqlalchemy.orm import Session
 from dao.user_dao import UserDAO
 from dao.philosopher_dao import PhilosopherDAO
 from dao.chat_dao import ChatDAO
+from dao.message_dao import MessageDAO
+from dao.philosopher_document_dao import PhilosopherDocumentDAO
 
 
 class DAOFactory:
@@ -22,3 +24,11 @@ class DAOFactory:
     @property
     def chats(self) -> ChatDAO:
         return ChatDAO(self._session)
+
+    @property
+    def messages(self) -> MessageDAO:
+        return MessageDAO(self._session)
+
+    @property
+    def philosopher_documents(self) -> PhilosopherDocumentDAO:
+        return PhilosopherDocumentDAO(self._session)
