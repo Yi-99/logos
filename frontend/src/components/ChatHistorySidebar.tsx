@@ -113,8 +113,8 @@ const ChatHistorySidebar: React.FC<ChatHistorySidebarProps> = ({
                   onClick={() => onChatSelect(chat.id)}
                   className={`p-3 rounded-lg cursor-pointer transition-colors border ${
                     currentChatId === chat.id
-                      ? 'bg-blue-50 border-blue-200'
-                      : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+                      ? 'bg-gray-50 border-primary/75'
+                      : 'bg-gray-50 hover:border-primary/25 hover:bg-gray-200'
                   }`}
                 >
                   <div className="flex items-start space-x-3">
