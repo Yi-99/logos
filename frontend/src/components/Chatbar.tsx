@@ -1,15 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react'
 import MicIcon from '@mui/icons-material/Mic'
-import MicOffIcon from '@mui/icons-material/MicOff'
+import StopIcon from '@mui/icons-material/Stop'
 import SendIcon from '@mui/icons-material/Send'
+import CircularProgress from '@mui/material/CircularProgress'
 import chatService from '../services/chat/ChatService'
 import { useAuth } from '../contexts/AuthContext';
-import { toast } from 'react-toastify';
 
 interface ChatbarProps {
 	advisorName: string;
 	chatId?: string;
 	onNewMessage?: (message: { role: 'user' | 'assistant'; content: string; timestamp: string }) => void;
+	onStreamDelta?: (content: string) => void;
+	onRemoveLastMessage?: () => void;
 	onChatCreated?: (chatId: string) => void;
 	onListeningChange?: (isListening: boolean) => void;
 	onSending?: () => void;
@@ -20,6 +22,8 @@ const Chatbar: React.FC<ChatbarProps> = ({
 	advisorName,
 	chatId,
 	onNewMessage,
+	onStreamDelta,
+	onRemoveLastMessage,
 	onChatCreated,
 	onListeningChange,
 	onSending,
@@ -93,25 +97,11 @@ const Chatbar: React.FC<ChatbarProps> = ({
 			setIsListening(true);
 
 			if (!hasShownMicInfo) {
-				toast.success('Recording... Click again to stop and transcribe.', {
-					position: 'bottom-right',
-					autoClose: 2000,
-				});
+				console.log('Recording... Click again to stop and transcribe.');
 				setHasShownMicInfo(true);
 			}
 		} catch (error: any) {
 			console.error('Error starting recording:', error);
-			if (error.name === 'NotAllowedError') {
-				toast.error('Microphone access denied. Please allow microphone access in your browser settings.', {
-					position: 'bottom-right',
-					autoClose: 5000,
-				});
-			} else {
-				toast.error(`Error starting recording: ${error.message}`, {
-					position: 'bottom-right',
-					autoClose: 5000,
-				});
-			}
 		}
 	};
 
@@ -152,31 +142,45 @@ const Chatbar: React.FC<ChatbarProps> = ({
 			};
 			onNewMessage?.(userMessage);
 
-			// Send request to backend (no history needed — backend loads from DB)
-			const response = await chatService.promptAI({
-				user_id: user?.id || '',
-				prompt: savedInput,
-				advisor_name: advisorName,
-				chat_id: currentChatId,
-			});
+			// Add an empty assistant message that will be filled by streaming deltas
+			const assistantMessage = {
+				role: 'assistant' as const,
+				content: '',
+				timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+			};
+			onNewMessage?.(assistantMessage);
 
-			// Update chat ID if this was a new chat
-			if (response.chat_id && !currentChatId) {
-				setCurrentChatId(response.chat_id);
-				onChatCreated?.(response.chat_id);
-			}
-
-			// Add assistant response
-			if (response.message && response.message.role === 'assistant') {
-				const assistantMessage = {
-					role: 'assistant' as const,
-					content: response.message.content,
-					timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-				};
-				onNewMessage?.(assistantMessage);
-			}
+			// Stream response from backend
+			await chatService.promptAIStream(
+				{
+					user_id: user?.id || '',
+					prompt: savedInput,
+					advisor_name: advisorName,
+					chat_id: currentChatId,
+				},
+				{
+					onMeta: (data) => {
+						if (data.chat_id && !currentChatId) {
+							setCurrentChatId(data.chat_id);
+							onChatCreated?.(data.chat_id);
+						}
+					},
+					onDelta: (content) => {
+						onStreamDelta?.(content);
+					},
+					onDone: () => {
+						// Stream complete — message is already built up via deltas
+					},
+					onError: (detail) => {
+						console.error('Stream error:', detail);
+						onRemoveLastMessage?.();
+						onError?.();
+					},
+				}
+			);
 		} catch (error) {
 			console.error('Error sending message:', error);
+			onRemoveLastMessage?.();
 			setInputValue(savedInput);
 			onError?.();
 		} finally {
@@ -184,26 +188,41 @@ const Chatbar: React.FC<ChatbarProps> = ({
 		}
 	};
 
-	const handleKeyPress = (e: React.KeyboardEvent) => {
+	const handleKeyDown = (e: React.KeyboardEvent) => {
 		if (e.key === 'Enter' && !e.shiftKey) {
 			e.preventDefault();
 			handleSendMessage();
 		}
 	};
 
+	const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+	const adjustTextareaHeight = () => {
+		const textarea = textareaRef.current;
+		if (textarea) {
+			textarea.style.height = 'auto';
+			textarea.style.height = `${Math.min(textarea.scrollHeight, 160)}px`;
+		}
+	};
+
+	useEffect(() => {
+		adjustTextareaHeight();
+	}, [inputValue]);
+
 	return (
 		<div className="flex flex-col items-center w-full gap-4">
 			{/* Main Chat Input Area */}
-			<div className="flex flex-row items-center justify-center w-full max-w-2xl gap-2">
+			<div className="flex flex-row items-center justify-center w-full max-w-4xl gap-2">
 				{/* Text Input Field */}
 				<div className="flex-1 relative">
-					<input
-						type="text"
+					<textarea
+						ref={textareaRef}
 						value={inputValue}
 						onChange={(e) => setInputValue(e.target.value)}
-						onKeyPress={handleKeyPress}
+						onKeyDown={handleKeyDown}
 						placeholder="Share your thoughts with the philosopher..."
-						className="w-full px-4 py-3 bg-white border border-gray-300 rounded-2xl outline-none text-gray-700 placeholder-gray-500 text-sm shadow-md overflow-x-auto"
+						className="w-full px-4 py-3 mt-1 bg-white border border-gray-300 rounded-2xl outline-none text-gray-700 placeholder-gray-500 text-sm shadow-md resize-none overflow-y-hidden"
+						rows={1}
 						disabled={isLoading}
 					/>
 				</div>
@@ -215,13 +234,13 @@ const Chatbar: React.FC<ChatbarProps> = ({
 						isListening
 							? 'bg-red-500 text-white border-red-500 animate-pulse'
 							: isTranscribing
-							? 'bg-yellow-500 text-white border-yellow-500'
+							? 'bg-white border border-gray-300'
 							: 'text-gray-700 bg-white border border-gray-300 hover:bg-black hover:text-white hover:shadow-md hover:shadow-gray-700 hover:border-black'
 					}`}
 					disabled={isLoading || isTranscribing}
 					title={isListening ? 'Stop recording' : isTranscribing ? 'Transcribing...' : 'Start voice input'}
 				>
-					{isListening ? <MicOffIcon sx={{ fontSize: 20 }} /> : <MicIcon sx={{ fontSize: 20 }} />}
+					{isListening ? <StopIcon sx={{ fontSize: 20 }} /> : isTranscribing ? <CircularProgress size={20} sx={{ color: 'black' }} /> : <MicIcon sx={{ fontSize: 20 }} />}
 				</button>
 
 				{/* Send Button */}

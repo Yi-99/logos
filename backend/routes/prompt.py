@@ -1,7 +1,10 @@
 from fastapi import APIRouter, Depends, UploadFile, File
+from fastapi.responses import StreamingResponse
 from models.models import PromptRequest
 from database import get_dao_factory
 from dao import DAOFactory
+from controllers.prompt_philosopher import prompt_philosopher_stream
+
 
 prompt_router = APIRouter(prefix="/v1/prompt", tags=["prompt"])
 
@@ -9,16 +12,21 @@ prompt_router = APIRouter(prefix="/v1/prompt", tags=["prompt"])
 @prompt_router.post("/")
 def prompt_philosopher_route(request: PromptRequest, dao: DAOFactory = Depends(get_dao_factory)):
     """
-    Prompts the AI as an advisor
+    Prompts the AI as an advisor, streaming the response via SSE.
     """
-    from controllers import prompt_philosopher
-
-    return prompt_philosopher(
-        dao,
-        request.user_id,
-        request.prompt,
-        request.advisor_name,
-        request.chat_id,
+    return StreamingResponse(
+        prompt_philosopher_stream(
+            dao,
+            request.user_id,
+            request.prompt,
+            request.advisor_name,
+            request.chat_id,
+        ),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no",
+        },
     )
 
 

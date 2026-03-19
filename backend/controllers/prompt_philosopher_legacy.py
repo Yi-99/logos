@@ -1,34 +1,31 @@
 import os
-import json
 import uuid
-from collections.abc import Generator
 from openai import OpenAI
+from fastapi import HTTPException
 from dao import DAOFactory
 from services.token_counter import count_tokens
 from services.prompt_builder import PromptBuilder
 from services.retrieval_service import RetrievalService
 
 
-def _sse_event(event: str, data: dict) -> str:
-    """Format a Server-Sent Event."""
-    return f"event: {event}\ndata: {json.dumps(data)}\n\n"
+def _extract_response_text(response) -> str:
+    """Extract the assistant text from an OpenAI Responses API response."""
+    for item in response.output:
+        if item.type == "message":
+            for block in item.content:
+                if block.type == "output_text":
+                    return block.text
+    raise ValueError("No text content found in OpenAI response")
 
 
-def prompt_philosopher_stream(
+def prompt_philosopher(
     dao: DAOFactory,
     user_id: str,
     prompt: str,
     advisor_name: str,
     chat_id: str = None,
-) -> Generator[str, None, None]:
-    """Streams the AI Philosopher response via SSE events.
-
-    Events:
-        meta   — {"chat_id": "...", "advisor_name": "..."}
-        delta  — {"content": "chunk..."}
-        done   — {"message": {id, role, content, token_count, metadata, created_at}}
-        error  — {"detail": "..."}
-    """
+):
+    """Prompts the AI Philosopher (non-streaming, legacy v0 endpoint)."""
 
     # Create a new chat if chat_id is not provided
     if not chat_id:
@@ -41,11 +38,7 @@ def prompt_philosopher_stream(
         except Exception as e:
             import traceback
             traceback.print_exc()
-            yield _sse_event("error", {"detail": f"Error creating chat: {e}"})
-            return
-
-    # Send meta event immediately so frontend knows the chat_id
-    yield _sse_event("meta", {"chat_id": chat_id, "advisor_name": advisor_name})
+            raise HTTPException(status_code=500, detail=f"Error creating chat: {e}") from e
 
     openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
@@ -53,25 +46,23 @@ def prompt_philosopher_stream(
     try:
         philosopher_config = dao.philosophers.get_config_by_name(advisor_name)
         if not philosopher_config:
-            yield _sse_event("error", {"detail": "Philosopher config NOT found!"})
-            return
+            raise HTTPException(status_code=400, detail="Philosopher config NOT found!")
 
         philosopher = dao.philosophers.get_by_name(advisor_name)
         philosopher_id = str(philosopher.id) if philosopher else None
+    except HTTPException:
+        raise
     except Exception as e:
         print(e)
-        yield _sse_event("error", {"detail": "Error fetching philosopher config"})
-        return
+        raise HTTPException(status_code=500, detail="Error fetching philosopher config") from e
 
     # Load existing messages from DB
     try:
         db_messages = dao.messages.get_by_chat_id(uuid.UUID(chat_id))
         history = [{"role": m.role, "content": m.content} for m in db_messages]
-        message_count = len(db_messages)
     except Exception as e:
         print(e)
         history = []
-        message_count = 0
 
     # Save user message to messages table
     try:
@@ -82,12 +73,10 @@ def prompt_philosopher_stream(
             content=prompt,
             token_count=user_token_count,
         )
-        message_count += 1
     except Exception as e:
         import traceback
         traceback.print_exc()
-        yield _sse_event("error", {"detail": f"Error saving user message: {e}"})
-        return
+        raise HTTPException(status_code=500, detail=f"Error saving user message: {e}") from e
 
     # Build prompt using PromptBuilder with RAG
     retrieval_service = RetrievalService(dao.philosopher_documents, openai_client)
@@ -110,28 +99,19 @@ def prompt_philosopher_stream(
         input_messages = history + [{"role": "user", "content": prompt}]
         rag_sources = None
 
-    # Call OpenAI with streaming
+    # Call OpenAI (non-streaming)
     try:
-        stream = openai_client.responses.create(
+        response = openai_client.responses.create(
             model="o4-mini-2025-04-16",
             input=input_messages,
             instructions=instructions,
-            reasoning={"effort": "medium"},
-            stream=True,
+            reasoning={"effort": "high"},
         )
-
-        full_response = []
-        for event in stream:
-            if event.type == "response.output_text.delta":
-                full_response.append(event.delta)
-                yield _sse_event("delta", {"content": event.delta})
-
-        response_text = "".join(full_response)
+        response_text = _extract_response_text(response)
     except Exception as e:
         import traceback
         traceback.print_exc()
-        yield _sse_event("error", {"detail": f"Error calling OpenAI: {e}"})
-        return
+        raise HTTPException(status_code=500, detail=f"Error calling OpenAI: {e}") from e
 
     # Save assistant message
     try:
@@ -148,20 +128,19 @@ def prompt_philosopher_stream(
 
         dao.philosophers.increment_prompts(advisor_name)
 
-        # Check if we should trigger summarization (use count we already tracked)
-        message_count += 1  # +1 for the assistant message we just saved
-        if prompt_builder.should_summarize(message_count) and not chat_summary:
-            all_messages = dao.messages.get_by_chat_id(uuid.UUID(chat_id))
+        # Check if we should trigger summarization
+        all_messages = dao.messages.get_by_chat_id(uuid.UUID(chat_id))
+        if prompt_builder.should_summarize(len(all_messages)) and not chat_summary:
             _generate_summary(openai_client, dao, chat_id, all_messages, prompt_builder)
 
     except Exception as e:
         import traceback
         traceback.print_exc()
-        yield _sse_event("error", {"detail": f"Error saving chat history: {e}"})
-        return
+        raise HTTPException(status_code=500, detail=f"Error saving chat history: {e}") from e
 
-    # Send final done event with message metadata
-    yield _sse_event("done", {
+    return {
+        "chat_id": chat_id,
+        "advisor_name": advisor_name,
         "message": {
             "id": str(assistant_message.id),
             "role": "assistant",
@@ -172,7 +151,7 @@ def prompt_philosopher_stream(
                 if hasattr(assistant_message.created_at, 'isoformat')
                 else str(assistant_message.created_at),
         },
-    })
+    }
 
 
 def _generate_summary(openai_client, dao, chat_id, messages, prompt_builder):
@@ -186,24 +165,13 @@ def _generate_summary(openai_client, dao, chat_id, messages, prompt_builder):
             input=summary_prompt,
             instructions="You are a helpful assistant that summarizes conversations concisely.",
         )
+        summary_text = _extract_response_text(summary_response)
 
-        # Extract text from non-streaming response
-        summary_text = None
-        for item in summary_response.output:
-            if item.type == "message":
-                for block in item.content:
-                    if block.type == "output_text":
-                        summary_text = block.text
-                        break
-                if summary_text:
-                    break
-
-        if summary_text:
-            last_summarized = messages[29]
-            dao.chats.update(
-                uuid.UUID(chat_id),
-                summary=summary_text,
-                summary_through_message_id=last_summarized.id,
-            )
+        last_summarized = messages[29]
+        dao.chats.update(
+            uuid.UUID(chat_id),
+            summary=summary_text,
+            summary_through_message_id=last_summarized.id,
+        )
     except Exception as e:
         print(f"Summary generation failed (non-fatal): {e}")

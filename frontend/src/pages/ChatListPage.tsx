@@ -121,6 +121,10 @@ const ChatListPage: React.FC = () => {
 		return chat.message_count ?? 0;
 	};
 
+	const handleAddChat = (): void => {
+		navigate('/philosophers')
+	}
+
 	// Calculate chat statistics
 	const stats = useMemo(() => {
 		const totalChats = chats.length;
@@ -263,6 +267,12 @@ const ChatListPage: React.FC = () => {
 								</div>
 							</div>
 						))}
+						<div
+							onClick={handleAddChat}
+							className="group flex row justify-center bg-white p-4 rounded-xl cursor-pointer border hover:bg-[#1E2938] border-gray-200 hover:border-gray-200 hover:shadow-md transition-all duration-200"
+						>
+							<AddIcon sx={{ fontSize: 72 }} className="text-gray-400 group-hover:text-white" />
+						</div>
 					</div>
 				)}
 			</div>

@@ -48,7 +48,7 @@ const PhilosopherChatPage: React.FC = () => {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, isAIResponding]);
 
 	useEffect(() => {
 		// Wait for auth to finish loading before checking
@@ -217,9 +217,33 @@ const PhilosopherChatPage: React.FC = () => {
   const handleNewMessage = (message: ChatMessage) => {
     setMessages(prev => [...prev, message]);
 
+    // When we receive the empty assistant placeholder, hide the "Thinking..." indicator
     if (message.role === 'assistant') {
       setIsAIResponding(false);
     }
+  };
+
+  const handleRemoveLastMessage = () => {
+    setMessages(prev => {
+      if (prev.length > 0 && prev[prev.length - 1].role === 'assistant') {
+        return prev.slice(0, -1);
+      }
+      return prev;
+    });
+  };
+
+  const handleStreamDelta = (content: string) => {
+    setMessages(prev => {
+      const updated = [...prev];
+      const lastMsg = updated[updated.length - 1];
+      if (lastMsg && lastMsg.role === 'assistant') {
+        updated[updated.length - 1] = {
+          ...lastMsg,
+          content: lastMsg.content + content,
+        };
+      }
+      return updated;
+    });
   };
 
   const handleChatCreated = (newChatId: string) => {
@@ -353,6 +377,8 @@ const PhilosopherChatPage: React.FC = () => {
 							advisorName={philosopher.name}
 							chatId={currentChatId}
 							onNewMessage={handleNewMessage}
+							onStreamDelta={handleStreamDelta}
+							onRemoveLastMessage={handleRemoveLastMessage}
 							onChatCreated={handleChatCreated}
 							onListeningChange={setIsListening}
 							onSending={() => setIsAIResponding(true)}

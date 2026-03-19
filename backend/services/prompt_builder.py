@@ -9,6 +9,16 @@ RAG_BUDGET = 2_000
 RESPONSE_RESERVE = 16_000
 HISTORY_BUDGET = MAX_CONTEXT_TOKENS - SYSTEM_PROMPT_BUDGET - RAG_BUDGET - RESPONSE_RESERVE
 
+CONVERSATION_STYLE_DIRECTIVE = """
+CONVERSATION RULES (OVERRIDE ALL OTHER STYLE GUIDELINES):
+- Keep every response to 4 sentences maximum. No exceptions.
+- You are having a conversation, not giving a lecture. Be warm, natural, and engaging.
+- Ask follow-up questions, react to what the user says, and build on the dialogue — do not monologue.
+- Speak like you would to a friend at a dinner table, not a student in a lecture hall.
+- Avoid listing, enumerating, or cataloguing ideas. Weave your thoughts into natural speech.
+- If a topic is deep, explore it across multiple exchanges rather than dumping everything at once.
+"""
+
 # Summarization threshold: when history exceeds this many messages, summarize older ones
 SUMMARIZATION_THRESHOLD = 40
 
@@ -36,8 +46,8 @@ class PromptBuilder:
             - input_messages: list of message dicts for the OpenAI input parameter
             - rag_sources: list of source references for metadata, or None
         """
-        # 1. Build system prompt
-        instructions = philosopher_config
+        # 1. Build system prompt with conversational style directive
+        instructions = f"{philosopher_config}\n{CONVERSATION_STYLE_DIRECTIVE}"
 
         # 2. RAG retrieval
         rag_sources = None

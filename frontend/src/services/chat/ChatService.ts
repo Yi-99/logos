@@ -179,22 +179,71 @@ const getMessages = async (chatId: string, limit?: number): Promise<MessageRespo
 	}
 };
 
-const promptAI = async (request: PromptAIRequest): Promise<PromptAIResponse> => {
-	console.log('promptAI request:', request);
+export interface PromptAIStreamCallbacks {
+	onMeta: (data: { chat_id: string; advisor_name: string }) => void;
+	onDelta: (content: string) => void;
+	onDone: (data: { message: MessageResponse }) => void;
+	onError: (detail: string) => void;
+}
+
+const promptAIStream = async (request: PromptAIRequest, callbacks: PromptAIStreamCallbacks): Promise<void> => {
 	try {
-		const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/v1/prompt`, request);
-		return response.data;
-	} catch (error: any) {
-		toast.error('Error: ' + error.response?.data?.message || error.message, {
-			position: 'bottom-right',
-			autoClose: 5000,
-			hideProgressBar: false,
-			closeOnClick: true,
-			pauseOnHover: true,
-			draggable: false,
-			progress: undefined,
-			theme: 'light',
+		const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/prompt`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify(request),
 		});
+
+		if (!response.ok || !response.body) {
+			throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+		}
+
+		const reader = response.body.getReader();
+		const decoder = new TextDecoder();
+		let buffer = '';
+		let receivedDone = false;
+
+		while (true) {
+			const { done, value } = await reader.read();
+			if (done) break;
+
+			buffer += decoder.decode(value, { stream: true });
+			const lines = buffer.split('\n');
+			// Keep the last partial line in the buffer
+			buffer = lines.pop() || '';
+
+			let currentEvent = '';
+			for (const line of lines) {
+				if (line.startsWith('event: ')) {
+					currentEvent = line.slice(7);
+				} else if (line.startsWith('data: ') && currentEvent) {
+					const data = JSON.parse(line.slice(6));
+					switch (currentEvent) {
+						case 'meta':
+							callbacks.onMeta(data);
+							break;
+						case 'delta':
+							callbacks.onDelta(data.content);
+							break;
+						case 'done':
+							receivedDone = true;
+							callbacks.onDone(data);
+							break;
+						case 'error':
+							callbacks.onError(data.detail);
+							return;
+					}
+					currentEvent = '';
+				}
+			}
+		}
+
+		// Stream ended without a done event — connection was lost
+		if (!receivedDone) {
+			callbacks.onError('Connection lost — response may be incomplete');
+		}
+	} catch (error: any) {
+		callbacks.onError(error.message || 'Stream failed');
 		throw error;
 	}
 };
@@ -233,6 +282,25 @@ const transcribeAudio = async (audioBlob: Blob): Promise<TranscribeResponse> => 
 	}
 };
 
+const promptAI = async (request: PromptAIRequest): Promise<PromptAIResponse> => {
+	try {
+		const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/v0/prompt`, request);
+		return response.data;
+	} catch (error: any) {
+		toast.error('Error: ' + (error.response?.data?.detail || error.message), {
+			position: 'bottom-right',
+			autoClose: 5000,
+			hideProgressBar: false,
+			closeOnClick: true,
+			pauseOnHover: true,
+			draggable: false,
+			progress: undefined,
+			theme: 'light',
+		});
+		throw error;
+	}
+};
+
 const chatService = {
 	getChats,
 	createChat,
@@ -240,6 +308,7 @@ const chatService = {
 	getChatById,
 	getMessages,
 	promptAI,
+	promptAIStream,
 	transcribeAudio,
 }
 
