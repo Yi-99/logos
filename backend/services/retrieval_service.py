@@ -5,6 +5,7 @@ from openai import OpenAI
 
 from dao.philosopher_document_dao import PhilosopherDocumentDAO
 from services.token_counter import count_tokens
+from constants import OPENAI_EMBEDDING_MODEL
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +20,7 @@ class RetrievalService:
     def embed_text(self, text: str) -> list[float]:
         """Generate embedding for a text string using OpenAI text-embedding-3-small."""
         response = self.openai_client.embeddings.create(
-            model="text-embedding-3-small",
+            model=OPENAI_EMBEDDING_MODEL,
             input=text,
         )
         return response.data[0].embedding

@@ -20,6 +20,7 @@ from openai import OpenAI
 from database import SessionLocal
 from models.philosopher import Philosopher
 from models.philosopher_document import PhilosopherDocument
+from constants import OPENAI_EMBEDDING_MODEL
 
 CHUNK_SIZE = 500  # target tokens per chunk (approximate by words / 0.75)
 CHUNK_OVERLAP = 50
@@ -63,7 +64,7 @@ def embed_texts(client: OpenAI, texts: list[str]) -> list[list[float]]:
     for i in range(0, len(texts), 100):
         batch = texts[i:i + 100]
         response = client.embeddings.create(
-            model="text-embedding-3-small",
+            model=OPENAI_EMBEDDING_MODEL,
             input=batch,
         )
         all_embeddings.extend([d.embedding for d in response.data])

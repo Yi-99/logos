@@ -271,7 +271,7 @@ const ChatListPage: React.FC = () => {
 							onClick={handleAddChat}
 							className="group flex row justify-center bg-white p-4 rounded-xl cursor-pointer border hover:bg-[#1E2938] border-gray-200 hover:border-gray-200 hover:shadow-md transition-all duration-200"
 						>
-							<AddIcon sx={{ fontSize: 72 }} className="text-gray-400 group-hover:text-white" />
+							<AddIcon sx={{ fontSize: 64 }} className="text-gray-400 group-hover:text-white" />
 						</div>
 					</div>
 				)}

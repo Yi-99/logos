@@ -7,6 +7,7 @@ from dao import DAOFactory
 from services.token_counter import count_tokens
 from services.prompt_builder import PromptBuilder
 from services.retrieval_service import RetrievalService
+from constants import OPENAI_CHAT_MODEL
 
 
 def _sse_event(event: str, data: dict) -> str:
@@ -113,7 +114,7 @@ def prompt_philosopher_stream(
     # Call OpenAI with streaming
     try:
         stream = openai_client.responses.create(
-            model="o4-mini-2025-04-16",
+            model=OPENAI_CHAT_MODEL,
             input=input_messages,
             instructions=instructions,
             reasoning={"effort": "medium"},
@@ -182,7 +183,7 @@ def _generate_summary(openai_client, dao, chat_id, messages, prompt_builder):
         summary_prompt = prompt_builder.generate_summary_prompt(msg_dicts[:30])
 
         summary_response = openai_client.responses.create(
-            model="o4-mini-2025-04-16",
+            model=OPENAI_CHAT_MODEL,
             input=summary_prompt,
             instructions="You are a helpful assistant that summarizes conversations concisely.",
         )

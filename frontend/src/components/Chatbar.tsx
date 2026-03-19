@@ -221,7 +221,7 @@ const Chatbar: React.FC<ChatbarProps> = ({
 						onChange={(e) => setInputValue(e.target.value)}
 						onKeyDown={handleKeyDown}
 						placeholder="Share your thoughts with the philosopher..."
-						className="w-full px-4 py-3 mt-1 bg-white border border-gray-300 rounded-2xl outline-none text-gray-700 placeholder-gray-500 text-sm shadow-md resize-none overflow-y-hidden"
+						className="w-full px-4 py-3 mt-1 bg-white border border-gray-300 rounded-2xl outline-none text-gray-700 placeholder-gray-300 text-sm shadow-md resize-none overflow-y-hidden"
 						rows={1}
 						disabled={isLoading}
 					/>
