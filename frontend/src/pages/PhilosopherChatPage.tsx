@@ -192,7 +192,6 @@ const PhilosopherChatPage: React.FC = () => {
   const handleChatSelect = (chatId: string) => {
     // Navigate to the selected chat
     navigate(`/chat/${chatId}`);
-    setIsSidebarOpen(false);
   };
 
 
