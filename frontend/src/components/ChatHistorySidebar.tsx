@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import chatService, { ChatListItem } from '../services/chat/ChatService';
+import chatService from '../services/chat/ChatService';
 import { useAuth } from '../contexts/AuthContext';
 import philosopherService from '@/services/philosophers/PhilosopherService';
 
@@ -77,103 +76,92 @@ const ChatHistorySidebar: React.FC<ChatHistorySidebarProps> = ({
   return (
     <>
       {/* Sidebar */}
-      <div 
-        className={`fixed top-0 left-0 h-full w-80 bg-white shadow-xl transform transition-transform duration-300 ease-in-out z-[70] ${
+      <div
+        className={`fixed top-0 left-0 h-full w-80 bg-[#0e0e0e] border-r border-[#484848]/15 shadow-2xl transform transition-transform duration-300 ease-in-out z-[70] ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
-          <div className="flex items-center space-x-2">
-            <ChatBubbleOutlineIcon className="text-gray-600" />
-            <h2 className="text-lg font-semibold text-gray-800">Chat History</h2>
+        <div className="flex items-center justify-between p-6 border-b border-[#484848]/15">
+          <div className="flex flex-col space-y-1">
+            <span className="text-lg font-['Newsreader'] text-[#e7e5e5] italic">Recent Dialogues</span>
+            <span className="font-['Inter'] text-[10px] uppercase tracking-widest text-[#acabaa]">Chat Archive</span>
           </div>
           <button
             onClick={onClose}
-            className="py-2 px-3 hover:bg-gray-100 rounded-md transition-colors"
+            className="py-2 px-3 text-[#acabaa] hover:text-[#e7e5e5] hover:bg-[#191a1a] rounded-md transition-colors duration-500"
           >
-            <CloseIcon sx={{ fontSize: 20, fontWeight: 'bold' }} />
+            <CloseIcon sx={{ fontSize: 20 }} />
           </button>
         </div>
 
         {/* Chat List */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto ink-scroll">
           {chatHistories.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-64 text-gray-500">
-              <ChatBubbleOutlineIcon sx={{ fontSize: 48 }} className="mb-4" />
-              <p className="text-center">No chat history yet</p>
-              <p className="text-sm text-center">Start a conversation to see it here</p>
+            <div className="flex flex-col items-center justify-center h-64 text-[#767575]">
+              <ChatBubbleOutlineIcon sx={{ fontSize: 48 }} className="mb-4 opacity-30" />
+              <p className="text-center font-['Newsreader'] italic text-[#acabaa]">No dialogues yet</p>
+              <p className="text-sm text-center font-['Inter'] text-[#767575] mt-1">Begin a conversation to see it here</p>
             </div>
           ) : (
-            <div className="p-4 space-y-3">
+            <nav className="p-4 space-y-2">
               {chatHistories.map((chat) => (
-                <div
+                <a
                   key={chat.id}
                   onClick={() => onChatSelect(chat.id)}
-                  className={`p-3 rounded-lg cursor-pointer transition-colors border ${
+                  className={`flex items-center space-x-3 px-3 py-3 rounded-md cursor-pointer transition-all duration-400 ${
                     currentChatId === chat.id
-                      ? 'bg-gray-50 border-primary/75'
-                      : 'bg-gray-50 hover:border-primary/25 hover:bg-gray-200'
+                      ? 'text-[#e7e5e5] bg-[#191a1a]'
+                      : 'text-[#acabaa] hover:bg-[#131313] hover:text-[#e7e5e5]'
                   }`}
                 >
-                  <div className="flex items-start space-x-3">
-                    {/* Philosopher Avatar */}
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br border border-gray-300 flex items-center justify-center flex-shrink-0">
-                      {chat.philosopherImage ? (
-												<img 
-													className="w-8 h-8 rounded-full object-cover" 
-													src={chat.philosopherImage} 
-													alt={chat.philosopherName}
-													onError={(e) => {
-														const target = e.target as HTMLImageElement;
-														target.style.display = 'none';
-														target.nextElementSibling?.classList.remove('hidden');
-													}}
-												/>
-											) : (
-												<div
-													className="w-8 h-8 rounded-full object-cover text-xs"
-												>
-													{chat.philosopherName}
-												</div>
-											)}
-                      <span className="text-sm font-bold text-amber-700 hidden">
-                        {chat.philosopherName.charAt(0)}
+                  {/* Philosopher Avatar */}
+                  <div className="w-8 h-8 rounded-full overflow-hidden bg-[#191a1a] flex-shrink-0">
+                    {chat.philosopherImage ? (
+                      <img
+                        className="w-full h-full object-cover grayscale opacity-80"
+                        src={chat.philosopherImage}
+                        alt={chat.philosopherName}
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          target.nextElementSibling?.classList.remove('hidden');
+                        }}
+                      />
+                    ) : null}
+                    <span className={`text-xs font-medium text-[#acabaa] flex items-center justify-center w-full h-full ${chat.philosopherImage ? 'hidden' : ''}`}>
+                      {chat.philosopherName.charAt(0)}
+                    </span>
+                  </div>
+
+                  {/* Chat Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-sm font-['Newsreader'] truncate">
+                        {chat.philosopherName}
+                      </span>
+                      {currentChatId === chat.id && (
+                        <span className="text-[9px] font-['Inter'] uppercase tracking-wider text-[#c6c6c6] bg-[#252626] px-2 py-0.5 rounded">
+                          Active
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-[11px] font-['Inter'] text-[#767575] line-clamp-2">
+                      {chat.lastMessage}
+                    </p>
+                    <div className="flex items-center space-x-2 mt-1">
+                      <span className="text-[10px] font-['Inter'] text-[#484848]">
+                        {chat.timestamp}
+                      </span>
+                      <span className="text-[10px] font-['Inter'] text-[#484848]">
+                        {chat.messageCount} entries
                       </span>
                     </div>
-
-                    {/* Chat Info */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-1">
-                        <h3 className="text-sm font-medium text-gray-900 truncate">
-                          {chat.philosopherName}
-                        </h3>
-                        <div className="flex items-center space-x-1 text-xs text-gray-500">
-                          <AccessTimeIcon sx={{ fontSize: 12 }} />
-                          <span>{chat.timestamp}</span>
-                        </div>
-                      </div>
-                      
-                      <p className="text-xs text-gray-600 line-clamp-2 mb-2">
-                        {chat.lastMessage}
-                      </p>
-                      
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-gray-500">
-                          {chat.messageCount} messages
-                        </span>
-                        {currentChatId === chat.id && (
-                          <span className="text-xs bg-[#1E2938] text-white px-2 py-1 rounded-full">
-                            Current
-                          </span>
-                        )}
-                      </div>
-                    </div>
                   </div>
-                </div>
+                </a>
               ))}
-            </div>
+            </nav>
           )}
         </div>
       </div>

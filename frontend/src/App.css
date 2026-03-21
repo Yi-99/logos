@@ -7,20 +7,31 @@
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 2px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+  background: #48484826;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+  background: #484848;
+}
+
+/* Ink Archive scrollbar variant */
+.ink-scroll::-webkit-scrollbar {
+  width: 2px;
+}
+.ink-scroll::-webkit-scrollbar-thumb {
+  background: #48484826;
+}
+.ink-scroll:hover::-webkit-scrollbar-thumb {
+  background: #484848;
 }
 
 /* Chat message animations */
