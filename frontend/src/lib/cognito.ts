@@ -25,7 +25,7 @@ export interface CognitoAuthUser {
   name: string;
 }
 
-function parseCognitoUser(session: CognitoUserSession, cognitoUser: CognitoUser): Promise<CognitoAuthUser> {
+function parseCognitoUser(_session: CognitoUserSession, cognitoUser: CognitoUser): Promise<CognitoAuthUser> {
   return new Promise((resolve, reject) => {
     cognitoUser.getUserAttributes((err, attributes) => {
       if (err) return reject(err);
