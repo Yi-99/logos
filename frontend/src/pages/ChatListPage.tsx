@@ -1,24 +1,23 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
-import AddIcon from '@mui/icons-material/Add';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import DeleteIcon from '@mui/icons-material/Delete';
-import BarChartIcon from '@mui/icons-material/BarChart';
 import chatService, { ChatListItem } from '../services/chat/ChatService';
 import philosopherService from '../services/philosophers/PhilosopherService';
 import { Philosopher } from '../constants/types/Philosopher';
 import { useAuth } from '../contexts/AuthContext';
 import { WormLoading } from '../components/WormLoading';
-import { toast } from 'react-toastify';
-import Layout from '../components/Layout';
+import Navbar from '../components/Navbar';
+import AddIcon from '@mui/icons-material/Add';
+import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 
 const ChatListPage: React.FC = () => {
 	const navigate = useNavigate();
 	const { user, isLoading: isAuthLoading } = useAuth();
 	const [chats, setChats] = useState<ChatListItem[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
-	const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
+	const [, setImageUrls] = useState<Record<string, string>>({});
+	const [currentPage, setCurrentPage] = useState(1);
+	const chatsPerPage = 6;
 
 	useEffect(() => {
 		if (!isAuthLoading && !user?.id) {
@@ -31,7 +30,6 @@ const ChatListPage: React.FC = () => {
 			if (!user?.id) return;
 
 			try {
-				// Fetch chats and philosophers in parallel
 				const [chatList, philosopherData] = await Promise.all([
 					chatService.getChats(user.id),
 					philosopherService.getAllPhilosophers()
@@ -39,13 +37,11 @@ const ChatListPage: React.FC = () => {
 
 				setChats(chatList);
 
-				// Fetch all S3 image URLs in a single batch request
 				const imageKeys = philosopherData.philosophers
 					.filter((p: Philosopher) => p.image)
 					.map((p: Philosopher) => p.image);
 				const batchUrls = await philosopherService.getPhilosopherImageUrls(imageKeys);
 
-				// Map filename-keyed URLs to philosopher name-keyed URLs
 				const urls: Record<string, string> = {};
 				philosopherData.philosophers.forEach((p: Philosopher) => {
 					const filename = p.image?.split('/').pop() || p.image;
@@ -66,10 +62,6 @@ const ChatListPage: React.FC = () => {
 		}
 	}, [user?.id]);
 
-	const getPhilosopherImage = (advisorName: string): string => {
-		return imageUrls[advisorName] || '';
-	};
-
 	const handleChatSelect = (chatId: string) => {
 		navigate(`/chat/${chatId}`);
 	};
@@ -78,41 +70,20 @@ const ChatListPage: React.FC = () => {
 		navigate('/philosophers/');
 	};
 
-	const handleChatDelete = async (e: React.MouseEvent, chatId: string) => {
-		e.stopPropagation(); // Prevent navigation to chat
-
-		try {
-			await chatService.deleteChat({ chatId });
-			// Remove from local state
-			setChats(prevChats => prevChats.filter(chat => chat.id !== chatId));
-			toast.success('Chat deleted successfully', {
-				position: 'bottom-right',
-				autoClose: 3000,
-			});
-		} catch (error) {
-			console.error('Error deleting chat:', error);
-		}
+	const formatDate = (timestamp: string) => {
+		const date = new Date(timestamp);
+		return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 	};
 
-	const formatTimestamp = (timestamp: string) => {
+	const formatShortDate = (timestamp: string) => {
 		const date = new Date(timestamp);
-		const now = new Date();
-		const diffMs = now.getTime() - date.getTime();
-		const diffMins = Math.floor(diffMs / 60000);
-		const diffHours = Math.floor(diffMins / 60);
-		const diffDays = Math.floor(diffHours / 24);
-
-		if (diffMins < 1) return 'Just now';
-		if (diffMins < 60) return `${diffMins} min ago`;
-		if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
-		if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
-		return date.toLocaleDateString();
+		return date.toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
 	};
 
 	const getLastMessage = (chat: ChatListItem): string => {
 		if (chat.last_message) {
 			const content = chat.last_message.content;
-			return content.substring(0, 100) + (content.length > 100 ? '...' : '');
+			return content.substring(0, 150) + (content.length > 150 ? '...' : '');
 		}
 		return 'No messages yet';
 	};
@@ -121,162 +92,176 @@ const ChatListPage: React.FC = () => {
 		return chat.message_count ?? 0;
 	};
 
-	const handleAddChat = (): void => {
-		navigate('/philosophers')
-	}
-
-	// Calculate chat statistics
 	const stats = useMemo(() => {
 		const totalChats = chats.length;
 		const totalMessages = chats.reduce((acc, chat) => acc + getMessageCount(chat), 0);
-
-		// Count chats per philosopher
 		const philosopherCounts: Record<string, number> = {};
 		chats.forEach(chat => {
 			philosopherCounts[chat.advisor_name] = (philosopherCounts[chat.advisor_name] || 0) + 1;
 		});
-
-		// Find most active philosopher
-		let mostActivePhilosopher = 'None';
-		let maxChats = 0;
-		Object.entries(philosopherCounts).forEach(([name, count]) => {
-			if (count > maxChats) {
-				mostActivePhilosopher = name;
-				maxChats = count;
-			}
-		});
-
-		// Calculate average messages per chat
-		const avgMessagesPerChat = totalChats > 0 ? Math.round(totalMessages / totalChats) : 0;
-
-		// Get unique philosophers count
 		const uniquePhilosophers = Object.keys(philosopherCounts).length;
 
-		return {
-			totalChats,
-			totalMessages,
-			mostActivePhilosopher,
-			mostActiveChats: maxChats,
-			avgMessagesPerChat,
-			uniquePhilosophers,
-			philosopherCounts,
-		};
+		return { totalChats, totalMessages, uniquePhilosophers };
 	}, [chats]);
+
+	const totalPages = Math.max(1, Math.ceil(chats.length / chatsPerPage));
+	const paginatedChats = chats.slice(
+		(currentPage - 1) * chatsPerPage,
+		currentPage * chatsPerPage
+	);
 
 	if (isAuthLoading || isLoading) {
 		return (
-			<div className="h-screen bg-white flex items-center justify-center">
+			<div className="h-screen ink-dot-grid flex items-center justify-center">
 				<WormLoading />
 			</div>
 		);
 	}
 
 	return (
-		<Layout
-			title="Your Conversations"
-			showBackButton={false}
-		>
-			{/* Floating Stats Island */}
-			<div className="fixed right-6 top-1/2 -translate-y-1/2 z-20 bg-white shadow-lg border border-gray-200 rounded-2xl px-4 py-3">
-				<div className="flex flex-col items-center space-y-2">
-					<BarChartIcon sx={{ fontSize: 24 }} className="text-gray-600" />
-					<span className="text-xs font-medium text-gray-600">Stats</span>
+		<div className="min-h-screen ink-dot-grid flex flex-col">
+			<Navbar
+				title="who"
+				titleHref="/"
+				subtitle="Previous Inquiries"
+				showChatsButton={false}
+				fixed={true}
+			/>
 
-					<div className="w-8 h-0.5 bg-gray-200 rounded-full" />
-
-					<span className="text-lg font-bold text-gray-800">{stats.totalChats}</span>
-					<span className="text-xs text-gray-500">chats</span>
-
-					<div className="w-8 h-0.5 bg-gray-200 rounded-full" />
-
-					<span className="text-lg font-bold text-gray-800">{stats.uniquePhilosophers}</span>
-					<span className="text-xs text-gray-500">advisors</span>
+			{/* Content Area */}
+			<section className="flex-1 px-6 py-12 md:px-20 lg:px-32 max-w-7xl mx-auto w-full pt-24">
+				{/* Hero Header (Asymmetric Layout) */}
+				<div className="mb-20 grid grid-cols-1 md:grid-cols-7 gap-8 items-end">
+					<div className="md:col-span-4">
+						<span className="font-sans text-xs tracking-[0.2em] text-ink-on-surface-variant uppercase mb-4 block">
+							The Private Collection
+						</span>
+						<h2 className="text-5xl md:text-7xl font-serif font-light tracking-tighter text-ink-on-surface leading-tight">
+							Scholarly <br /> <span className="italic text-ink-primary">Perspectives</span>
+						</h2>
+					</div>
+					<div className="md:col-span-3 text-ink-on-surface-variant font-serif text-lg italic leading-relaxed md:pb-2">
+						"The unexamined life is not worth living." A digital repository of your philosophical explorations through time.
+					</div>
 				</div>
-			</div>
 
-			{/* Chat List */}
-			<div className="max-w-4xl mx-auto px-4 py-6">
 				{chats.length === 0 ? (
-					<div className="flex flex-col items-center justify-center py-20 text-gray-500">
-						<ChatBubbleOutlineIcon sx={{ fontSize: 64 }} className="mb-4 text-gray-300" />
-						<p className="text-lg font-medium mb-2">No conversations yet</p>
-						<p className="text-sm text-center mb-6">Start a conversation with a philosopher to see it here</p>
+					/* Empty state */
+					<div className="flex flex-col items-center justify-center py-20">
+						<ChatBubbleOutlineIcon sx={{ fontSize: 64 }} className="text-ink-outline-variant mb-6 opacity-30" />
+						<p className="text-2xl font-serif italic text-ink-on-surface-variant mb-2">No inquiries yet</p>
+						<p className="text-sm font-sans text-ink-outline mb-8">Begin a dialogue with a philosopher to see it here</p>
 						<button
 							onClick={handleNewChat}
-							className="flex items-center space-x-2 bg-gray-800 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors"
+							className="px-8 py-4 bg-ink-primary text-ink-on-primary font-serif italic text-lg rounded-md hover:opacity-90 transition-opacity active:scale-[0.98]"
 						>
-							<AddIcon sx={{ fontSize: 20 }} />
-							<span>Start a Conversation</span>
+							Begin New Inquiry
 						</button>
 					</div>
 				) : (
-					<div className="space-y-3">
-						{chats.map((chat) => (
-							<div
-								key={chat.id}
-								onClick={() => handleChatSelect(chat.id)}
-								className="bg-white p-4 rounded-xl cursor-pointer transition-all border border-gray-200 hover:border-gray-300 hover:shadow-md"
-							>
-								<div className="flex items-start space-x-4">
-									{/* Philosopher Avatar */}
-									<div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center flex-shrink-0 overflow-hidden">
-										{getPhilosopherImage(chat.advisor_name) ? (
-											<img
-												className="h-full w-full rounded-full object-cover"
-												src={getPhilosopherImage(chat.advisor_name)}
-												alt={chat.advisor_name}
-											/>
-										) : (
-											<span className="text-lg font-bold text-amber-700">
-												{chat.advisor_name?.charAt(0) || '?'}
-											</span>
-										)}
-									</div>
+					/* Inquiries Grid (Bento Style) */
+					<div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+						{paginatedChats.map((chat, index) => {
+							const isWide = index % 3 === 0;
+							const colSpan = isWide ? 'md:col-span-8' : 'md:col-span-4';
+							const bgClass = index % 4 === 0
+								? 'bg-ink-surface hover:bg-ink-surface-high'
+								: index % 4 === 1
+								? 'bg-ink-surface-low hover:bg-ink-surface border border-ink-outline-variant/5'
+								: index % 4 === 2
+								? 'bg-ink-surface hover:bg-ink-surface-high border border-ink-outline-variant/5'
+								: 'bg-ink-surface-high hover:bg-ink-surface-highest';
 
-									{/* Chat Info */}
-									<div className="flex-1 min-w-0">
-										<div className="flex items-center justify-between mb-1">
-											<h3 className="text-base font-medium text-gray-900">
+							return (
+								<div
+									key={chat.id}
+									onClick={() => handleChatSelect(chat.id)}
+									className={`${colSpan} ${bgClass} transition-all duration-500 cursor-pointer p-8 relative overflow-hidden group`}
+								>
+									<div className="flex justify-between items-start mb-6 gap-4">
+										<div>
+											<h3 className="text-2xl md:text-3xl font-serif text-ink-on-surface mb-1">
 												{chat.advisor_name}
 											</h3>
-
-											<div className="flex flex-row items-center justify-center gap-2">
-												<div className="flex items-center space-x-1 text-xs text-gray-500">
-													<AccessTimeIcon sx={{ fontSize: 14 }} />
-													<span>{formatTimestamp(chat.created_at)}</span>
-												</div>
-												<button
-													className="flex items-center justify-center border border-gray-200 rounded-md p-2 hover:border-red-300 hover:bg-red-50 transition-colors"
-													onClick={(e) => handleChatDelete(e, chat.id)}
-												>
-													<DeleteIcon sx={{ fontSize: 18 }} className="text-gray-400 hover:text-red-500" />
-												</button>
-											</div>
+											<p className="font-sans text-xs text-ink-on-surface-variant tracking-widest uppercase italic">
+												{getMessageCount(chat)} exchanges
+											</p>
 										</div>
-
-										<p className="text-sm text-gray-600 line-clamp-2 mb-2">
-											{getLastMessage(chat)}
-										</p>
-
-										<div className="flex items-center">
-											<span className="text-xs text-gray-500">
-												{getMessageCount(chat)} messages
-											</span>
+										<div className="flex items-center gap-3">
+											<time className="font-sans text-xs text-ink-on-surface-variant">
+												{isWide ? formatDate(chat.created_at) : formatShortDate(chat.created_at)}
+											</time>
+											{/* <button
+												className="opacity-0 group-hover:opacity-100 p-1.5 rounded hover:bg-red-500/10 transition-all duration-300"
+												onClick={(e) => handleChatDelete(e, chat.id)}
+												title="Delete"
+											>
+												<DeleteIcon sx={{ fontSize: 16 }} className="text-ink-outline hover:text-red-500" />
+											</button> */}
 										</div>
 									</div>
+
+									<p className={`font-serif text-ink-on-surface-variant leading-relaxed mb-8 group-hover:text-ink-on-surface transition-colors duration-500 ${
+										isWide ? 'text-xl max-w-2xl' : 'text-lg line-clamp-3'
+									}`}>
+										"{getLastMessage(chat)}"
+									</p>
+
+									<div className="flex items-center gap-4">
+										<AutoStoriesIcon sx={{ fontSize: 24 }} />
+										<div className="h-px flex-1 bg-ink-outline-variant/20"></div>
+										<span className="font-sans text-xs uppercase tracking-widest text-ink-primary hover:text-ink-on-surface transition-colors">
+											Continue dialogue
+										</span>
+									</div>
 								</div>
-							</div>
-						))}
+							);
+						})}
+
+						{/* New Inquiry Card */}
 						<div
-							onClick={handleAddChat}
-							className="group flex row justify-center bg-white p-4 rounded-xl cursor-pointer border hover:bg-[#1E2938] border-gray-200 hover:border-gray-200 hover:shadow-md transition-all duration-200"
+							onClick={handleNewChat}
+							className="md:col-span-4 bg-ink-surface-low hover:bg-ink-surface border border-dashed border-ink-outline-variant/20 hover:border-ink-primary/30 transition-all duration-500 cursor-pointer p-8 flex flex-col items-center justify-center min-h-[200px] group"
 						>
-							<AddIcon sx={{ fontSize: 64 }} className="text-gray-400 group-hover:text-white" />
+							<AddIcon sx={{ fontSize: 48 }} />
+							<span className="font-sans text-xs tracking-widest text-ink-on-surface-variant uppercase group-hover:text-ink-on-surface transition-colors">
+								New Inquiry
+							</span>
+						</div>
+
+						{/* Pagination / Footer */}
+						<div className="md:col-span-12 mt-12 flex flex-col md:flex-row items-center justify-between border-t border-ink-outline-variant/10 pt-8">
+							<p className="font-sans text-xs tracking-[0.25em] text-ink-on-surface-variant uppercase mb-4 md:mb-0">
+								Page {String(currentPage).padStart(2, '0')} of {String(totalPages).padStart(2, '0')} — {stats.totalChats} dialogue{stats.totalChats !== 1 ? 's' : ''} — {stats.uniquePhilosophers} philosopher{stats.uniquePhilosophers !== 1 ? 's' : ''} — {stats.totalMessages} exchange{stats.totalMessages !== 1 ? 's' : ''}
+							</p>
+							<div className="flex gap-8">
+								{currentPage - 1 != 0 && <button
+									onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+									disabled={currentPage === 1}
+									className="font-sans text-xs tracking-widest uppercase text-ink-on-surface-variant hover:text-ink-primary transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+								>
+									Previous
+								</button>}
+								{currentPage + 1 > paginatedChats.length && <button
+									onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+									disabled={currentPage === totalPages}
+									className="font-sans text-xs tracking-widest uppercase text-ink-on-surface-variant hover:text-ink-primary transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+								>
+									Next
+								</button>}
+							</div>
 						</div>
 					</div>
 				)}
-			</div>
-		</Layout>
+			</section>
+
+			{/* Footer */}
+			<footer className="mt-auto py-8 px-6 text-center opacity-30">
+				<p className="font-sans text-2xs tracking-[0.5em] uppercase text-ink-on-surface-variant">
+					who: Logos Project
+				</p>
+			</footer>
+		</div>
 	);
 };
 

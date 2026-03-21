@@ -1,74 +1,120 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import HistoryIcon from '@mui/icons-material/History';
+import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
+import Tooltip from '@mui/material/Tooltip';
 import ProfileDropdown from './ProfileDropdown';
 import ThemeToggle from './ThemeToggle';
 
 interface NavbarProps {
-  philosopherName: string;
-  philosopherSubtitle: string;
-  philosopherImage: string;
-  onBackClick: () => void;
+  // Title mode (selection/chat list pages)
+  title?: string;
+  titleHref?: string;
+  subtitle?: string;
+
+  // Philosopher mode (chat page)
+  philosopherName?: string;
+  philosopherSubtitle?: string;
+  philosopherImage?: string;
+  onBackClick?: () => void;
   showHistory?: boolean;
   onHistoryClick?: () => void;
+
+  // Shared
   showProfile?: boolean;
+  showChatsButton?: boolean;
+  fixed?: boolean;
 }
 
 const Navbar: React.FC<NavbarProps> = ({
+  title,
+  titleHref = '/',
+  subtitle,
   philosopherName,
   philosopherSubtitle,
   philosopherImage,
   onBackClick,
-  showHistory = true,
+  showHistory = false,
   onHistoryClick,
-  showProfile = false
+  showProfile = true,
+  showChatsButton = true,
+  fixed = false,
 }) => {
+  const navigate = useNavigate();
+
+  const isTitleMode = !!title;
+
   return (
-    <div className="flex items-center justify-between px-6 md:px-12 py-5 bg-ink-bg/80 backdrop-blur-xl border-b border-ink-outline-variant/15 z-10">
-      <div className="flex items-center space-x-4">
-        <button
-          onClick={onBackClick}
-          className="py-2 px-3 text-ink-on-surface-variant hover:text-ink-on-surface hover:bg-ink-surface rounded-xl transition-colors duration-500"
-        >
-          <ArrowBackIcon sx={{ fontSize: 20 }} />
-        </button>
+    <header className={`${fixed ? 'fixed top-0 w-full z-50' : ''} flex items-center justify-between px-8 py-4 bg-ink-bg/80 backdrop-blur-xl border-b border-ink-outline-variant/15 z-10`}>
+      <div className="flex items-center gap-8">
+        {isTitleMode ? (
+          <>
+            <a href={titleHref} className="text-2xl font-serif text-ink-on-surface italic hover:opacity-80 transition-opacity">
+              {title}
+            </a>
+            {subtitle && (
+              <span className="font-sans text-2xs uppercase tracking-[0.2em] text-ink-outline">{subtitle}</span>
+            )}
+          </>
+        ) : (
+          <div className="flex items-center space-x-4">
+            {onBackClick && (
+              <button
+                onClick={onBackClick}
+                className="py-2 px-3 text-ink-on-surface-variant hover:text-ink-on-surface hover:bg-ink-surface rounded-xl transition-colors duration-500"
+              >
+                <ArrowBackIcon sx={{ fontSize: 20 }} />
+              </button>
+            )}
 
-        {showHistory && (
-          <button
-            onClick={onHistoryClick}
-            className="py-2 px-3 text-ink-on-surface-variant hover:text-ink-on-surface hover:bg-ink-surface rounded-xl transition-colors duration-500"
-          >
-            <HistoryIcon sx={{ fontSize: 20 }} />
-          </button>
-        )}
+            {showHistory && (
+              <button
+                onClick={onHistoryClick}
+                className="py-2 px-3 text-ink-on-surface-variant hover:text-ink-on-surface hover:bg-ink-surface rounded-xl transition-colors duration-500"
+              >
+                <HistoryIcon sx={{ fontSize: 20 }} />
+              </button>
+            )}
 
-        <div className="h-4 w-[1px] bg-ink-outline-variant/30"></div>
+            <div className="h-4 w-[1px] bg-ink-outline-variant/30"></div>
 
-        <div className="flex items-center space-x-4">
-          {philosopherImage && (
-            <div className="w-10 h-10 rounded-full overflow-hidden bg-ink-surface">
-              <img
-                className="h-full w-full rounded-full object-cover"
-                src={philosopherImage}
-                alt={philosopherName}
-              />
+            <div className="flex items-center space-x-4">
+              {philosopherImage && (
+                <div className="w-10 h-10 rounded-full overflow-hidden bg-ink-surface">
+                  <img
+                    className="h-full w-full rounded-full object-cover"
+                    src={philosopherImage}
+                    alt={philosopherName}
+                  />
+                </div>
+              )}
+              <div>
+                <h1 className="text-xl font-serif text-ink-on-surface italic tracking-tight">{philosopherName}</h1>
+                <span className="font-sans text-2xs uppercase tracking-[0.2em] text-ink-outline">{philosopherSubtitle || 'Session active'}</span>
+              </div>
             </div>
-          )}
-          <div>
-            <h1 className="text-xl font-serif text-ink-on-surface italic tracking-tight">{philosopherName}</h1>
-            <span className="font-sans text-2xs uppercase tracking-[0.2em] text-ink-outline">{philosopherSubtitle || 'Session active'}</span>
           </div>
-        </div>
+        )}
       </div>
 
-      {/* Right side controls */}
       {showProfile && (
         <div className="flex items-center gap-3">
+          {showChatsButton && (
+            <Tooltip title="My chats" arrow placement="bottom">
+              <button
+                onClick={() => navigate('/chats')}
+                className="w-9 h-9 rounded-full flex items-center justify-center text-ink-on-surface-variant hover:text-ink-on-surface hover:bg-ink-surface transition-all duration-300"
+              >
+                <ChatBubbleOutlineIcon sx={{ fontSize: 20 }} />
+              </button>
+            </Tooltip>
+          )}
           <ThemeToggle />
           <ProfileDropdown />
         </div>
       )}
-    </div>
+    </header>
   );
 };
 
