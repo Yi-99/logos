@@ -2,6 +2,7 @@ import React from 'react';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import HistoryIcon from '@mui/icons-material/History';
 import ProfileDropdown from './ProfileDropdown';
+import ThemeToggle from './ThemeToggle';
 
 interface NavbarProps {
   philosopherName: string;
@@ -23,47 +24,49 @@ const Navbar: React.FC<NavbarProps> = ({
   showProfile = false
 }) => {
   return (
-    <div className="flex items-center justify-between p-4 border-b border-gray-100">
+    <div className="flex items-center justify-between px-6 md:px-12 py-5 bg-ink-bg/80 backdrop-blur-xl border-b border-ink-outline-variant/15 z-10">
       <div className="flex items-center space-x-4">
         <button
           onClick={onBackClick}
-          className="py-2 px-3 hover:bg-gray-100 rounded-xl transition-colors"
+          className="py-2 px-3 text-ink-on-surface-variant hover:text-ink-on-surface hover:bg-ink-surface rounded-xl transition-colors duration-500"
         >
           <ArrowBackIcon sx={{ fontSize: 20 }} />
         </button>
-        
+
         {showHistory && (
-          <button 
+          <button
             onClick={onHistoryClick}
-            className="py-2 px-3 hover:bg-gray-100 rounded-xl transition-colors"
+            className="py-2 px-3 text-ink-on-surface-variant hover:text-ink-on-surface hover:bg-ink-surface rounded-xl transition-colors duration-500"
           >
             <HistoryIcon sx={{ fontSize: 20 }} />
           </button>
         )}
-        
-        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center">
-          {philosopherImage ? (
-            <img
-              className="h-full w-full rounded-full"
-              src={philosopherImage}
-              alt={philosopherName}
-            />
-          ) : (
-            <span className="text-2xl font-bold text-amber-700">
-              {philosopherName?.charAt(0) || '?'}
-            </span>
+
+        <div className="h-4 w-[1px] bg-ink-outline-variant/30"></div>
+
+        <div className="flex items-center space-x-4">
+          {philosopherImage && (
+            <div className="w-10 h-10 rounded-full overflow-hidden bg-ink-surface">
+              <img
+                className="h-full w-full rounded-full object-cover"
+                src={philosopherImage}
+                alt={philosopherName}
+              />
+            </div>
           )}
-        </div>
-        
-        <div>
-          <h1 className="font-bold text-lg">{philosopherName}</h1>
-          <p className="text-sm text-gray-600">{philosopherSubtitle}</p>
+          <div>
+            <h1 className="text-xl font-serif text-ink-on-surface italic tracking-tight">{philosopherName}</h1>
+            <span className="font-sans text-2xs uppercase tracking-[0.2em] text-ink-outline">{philosopherSubtitle || 'Session active'}</span>
+          </div>
         </div>
       </div>
-      
-      {/* Profile Dropdown */}
+
+      {/* Right side controls */}
       {showProfile && (
-        <ProfileDropdown />
+        <div className="flex items-center gap-3">
+          <ThemeToggle />
+          <ProfileDropdown />
+        </div>
       )}
     </div>
   );

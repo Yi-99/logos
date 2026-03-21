@@ -39,7 +39,6 @@ const Chatbar: React.FC<ChatbarProps> = ({
 	const mediaRecorderRef = useRef<MediaRecorder | null>(null);
 	const audioChunksRef = useRef<Blob[]>([]);
 
-	// Cleanup MediaRecorder on unmount
 	useEffect(() => {
 		return () => {
 			if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
@@ -48,7 +47,6 @@ const Chatbar: React.FC<ChatbarProps> = ({
 		};
 	}, []);
 
-	// Notify parent when listening state changes
 	useEffect(() => {
 		onListeningChange?.(isListening);
 	}, [isListening, onListeningChange]);
@@ -56,27 +54,16 @@ const Chatbar: React.FC<ChatbarProps> = ({
 	const startRecording = async () => {
 		try {
 			const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-
 			const mediaRecorder = new MediaRecorder(stream, {
 				mimeType: MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4'
 			});
-
 			audioChunksRef.current = [];
-
 			mediaRecorder.ondataavailable = (event) => {
-				if (event.data.size > 0) {
-					audioChunksRef.current.push(event.data);
-				}
+				if (event.data.size > 0) audioChunksRef.current.push(event.data);
 			};
-
 			mediaRecorder.onstop = async () => {
-				// Stop all tracks to release the microphone
 				stream.getTracks().forEach(track => track.stop());
-
-				const audioBlob = new Blob(audioChunksRef.current, {
-					type: mediaRecorder.mimeType
-				});
-
+				const audioBlob = new Blob(audioChunksRef.current, { type: mediaRecorder.mimeType });
 				if (audioBlob.size > 0) {
 					setIsTranscribing(true);
 					try {
@@ -91,11 +78,9 @@ const Chatbar: React.FC<ChatbarProps> = ({
 					}
 				}
 			};
-
 			mediaRecorderRef.current = mediaRecorder;
 			mediaRecorder.start();
 			setIsListening(true);
-
 			if (!hasShownMicInfo) {
 				console.log('Recording... Click again to stop and transcribe.');
 				setHasShownMicInfo(true);
@@ -114,27 +99,19 @@ const Chatbar: React.FC<ChatbarProps> = ({
 
 	const handleMicClick = () => {
 		if (isTranscribing) return;
-
-		if (isListening) {
-			stopRecording();
-		} else {
-			startRecording();
-		}
+		if (isListening) { stopRecording(); } else { startRecording(); }
 	};
 
 	const handleSendMessage = async () => {
 		if (!inputValue.trim() || isLoading) return;
-
 		if (!advisorName) return;
 
-		// Save input and clear
 		const savedInput = inputValue;
 		setInputValue('');
 		setIsLoading(true);
 		onSending?.();
 
 		try {
-			// Add user message to chat immediately
 			const userMessage = {
 				role: 'user' as const,
 				content: savedInput,
@@ -142,7 +119,6 @@ const Chatbar: React.FC<ChatbarProps> = ({
 			};
 			onNewMessage?.(userMessage);
 
-			// Add an empty assistant message that will be filled by streaming deltas
 			const assistantMessage = {
 				role: 'assistant' as const,
 				content: '',
@@ -150,7 +126,6 @@ const Chatbar: React.FC<ChatbarProps> = ({
 			};
 			onNewMessage?.(assistantMessage);
 
-			// Stream response from backend
 			await chatService.promptAIStream(
 				{
 					user_id: user?.id || '',
@@ -165,12 +140,8 @@ const Chatbar: React.FC<ChatbarProps> = ({
 							onChatCreated?.(data.chat_id);
 						}
 					},
-					onDelta: (content) => {
-						onStreamDelta?.(content);
-					},
-					onDone: () => {
-						// Stream complete — message is already built up via deltas
-					},
+					onDelta: (content) => { onStreamDelta?.(content); },
+					onDone: () => {},
 					onError: (detail) => {
 						console.error('Stream error:', detail);
 						onRemoveLastMessage?.();
@@ -211,9 +182,7 @@ const Chatbar: React.FC<ChatbarProps> = ({
 
 	return (
 		<div className="flex flex-col items-center w-full gap-4">
-			{/* Main Chat Input Area */}
 			<div className="flex flex-row items-center justify-center w-full max-w-4xl gap-2">
-				{/* Text Input Field */}
 				<div className="flex-1 relative">
 					<textarea
 						ref={textareaRef}
@@ -221,34 +190,32 @@ const Chatbar: React.FC<ChatbarProps> = ({
 						onChange={(e) => setInputValue(e.target.value)}
 						onKeyDown={handleKeyDown}
 						placeholder="Share your thoughts with the philosopher..."
-						className="w-full px-4 py-3 mt-1 bg-white border border-gray-300 rounded-2xl outline-none text-gray-700 placeholder-gray-300 text-sm shadow-md resize-none overflow-y-hidden"
+						className="w-full px-4 py-3 mt-1 bg-ink-bg border border-ink-outline-variant rounded-2xl outline-none text-ink-on-surface placeholder-ink-outline text-sm shadow-md resize-none overflow-y-hidden"
 						rows={1}
 						disabled={isLoading}
 					/>
 				</div>
 
-				{/* Microphone Button */}
 				<button
 					onClick={handleMicClick}
 					className={`w-12 h-12 rounded-xl flex items-center justify-center transition-colors shadow-md disabled:opacity-50 ${
 						isListening
 							? 'bg-red-500 text-white border-red-500 animate-pulse'
 							: isTranscribing
-							? 'bg-white border border-gray-300'
-							: 'text-gray-700 bg-white border border-gray-300 hover:bg-black hover:text-white hover:shadow-md hover:shadow-gray-700 hover:border-black'
+							? 'bg-ink-bg border border-ink-outline-variant'
+							: 'text-ink-on-surface bg-ink-bg border border-ink-outline-variant hover:bg-ink-primary hover:text-ink-on-primary hover:border-ink-primary'
 					}`}
 					disabled={isLoading || isTranscribing}
 					title={isListening ? 'Stop recording' : isTranscribing ? 'Transcribing...' : 'Start voice input'}
 				>
-					{isListening ? <StopIcon sx={{ fontSize: 20 }} /> : isTranscribing ? <CircularProgress size={20} sx={{ color: 'black' }} /> : <MicIcon sx={{ fontSize: 20 }} />}
+					{isListening ? <StopIcon sx={{ fontSize: 20 }} /> : isTranscribing ? <CircularProgress size={20} sx={{ color: 'var(--ink-on-surface)' }} /> : <MicIcon sx={{ fontSize: 20 }} />}
 				</button>
 
-				{/* Send Button */}
 				<button
 					onClick={handleSendMessage}
 					disabled={isLoading || !inputValue.trim()}
-					className="w-12 h-12 text-gray-700 bg-white border border-gray-300 rounded-xl flex items-center justify-center
-					hover:bg-black hover:text-white hover:shadow-md hover:shadow-gray-700 hover:border-black transition-colors shadow-md disabled:opacity-50"
+					className="w-12 h-12 text-ink-on-surface bg-ink-bg border border-ink-outline-variant rounded-xl flex items-center justify-center
+					hover:bg-ink-primary hover:text-ink-on-primary hover:border-ink-primary transition-colors shadow-md disabled:opacity-50"
 				>
 					<SendIcon sx={{ fontSize: 20 }} />
 				</button>

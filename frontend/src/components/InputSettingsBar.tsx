@@ -4,7 +4,7 @@ import MicNoneIcon from '@mui/icons-material/MicNone';
 
 interface InputSettingsBarProps {
 	isSpeechToSpeech: boolean;
-	isTextToText: boolean; 
+	isTextToText: boolean;
 	isSpeechToText: boolean;
 	isTextToSpeech: boolean;
 	onModeChange?: (mode: 'speechToSpeech' | 'textToText') => void;
@@ -20,11 +20,11 @@ const InputSettingsBar: React.FC<InputSettingsBarProps> = ({
 	};
 
 	return (
-		<div className="flex flex-row justify-between items-center rounded-[3rem] px-3 py-3 border border-gray-200 w-fit gap-2 shadow-md">
+		<div className="flex flex-row justify-between items-center rounded-[3rem] px-3 py-3 border border-ink-outline-variant/20 w-fit gap-2 bg-ink-surface">
 			<button
 				onClick={() => handleModeChange('textToText')}
-				className={`p-2 hover:cursor-pointer rounded-full transition-colors ${
-					isTextToText ? 'bg-black text-white' : 'hover:bg-gray-200'
+				className={`p-2 hover:cursor-pointer rounded-full transition-colors duration-300 ${
+					isTextToText ? 'bg-ink-primary text-ink-on-primary' : 'text-ink-on-surface-variant hover:bg-ink-surface-highest hover:text-ink-on-surface'
 				}`}
 				title="Text to Text"
 			>
@@ -32,8 +32,8 @@ const InputSettingsBar: React.FC<InputSettingsBarProps> = ({
 			</button>
 			<button
 				onClick={() => handleModeChange('speechToSpeech')}
-				className={`p-2 hover:cursor-pointer rounded-full transition-colors ${
-					isSpeechToSpeech ? 'bg-black text-white' : 'hover:bg-gray-200'
+				className={`p-2 hover:cursor-pointer rounded-full transition-colors duration-300 ${
+					isSpeechToSpeech ? 'bg-ink-primary text-ink-on-primary' : 'text-ink-on-surface-variant hover:bg-ink-surface-highest hover:text-ink-on-surface'
 				}`}
 				title="Speech to Speech"
 			>
