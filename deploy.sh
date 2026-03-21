@@ -57,8 +57,6 @@ restart_backend() {
 
         echo "-> Fetching secrets from SSM..."
         OPENAI_API_KEY=$(aws ssm get-parameter --name /logos/OPENAI_API_KEY --with-decryption --query Parameter.Value --output text --region "$REGION")
-        SUPABASE_URL=$(aws ssm get-parameter --name /logos/SUPABASE_URL --with-decryption --query Parameter.Value --output text --region "$REGION")
-        SUPABASE_KEY=$(aws ssm get-parameter --name /logos/SUPABASE_KEY --with-decryption --query Parameter.Value --output text --region "$REGION")
         FRONTEND_URL=$(aws ssm get-parameter --name /logos/FRONTEND_URL --with-decryption --query Parameter.Value --output text --region "$REGION")
 
         echo "-> Authenticating with ECR..."
@@ -77,8 +75,6 @@ restart_backend() {
             --restart unless-stopped \
             -p 8000:8000 \
             -e OPENAI_API_KEY="$OPENAI_API_KEY" \
-            -e SUPABASE_URL="$SUPABASE_URL" \
-            -e SUPABASE_KEY="$SUPABASE_KEY" \
             -e FRONTEND_URL="$FRONTEND_URL" \
             "${ECR_REPO}:latest"
 

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Logos is a full-stack web application that enables users to have AI-powered conversations with historical philosophers. The project uses a React + TypeScript frontend with a FastAPI Python backend, both connected to Supabase for authentication and data persistence.
+Logos is a full-stack web application that enables users to have AI-powered conversations with historical philosophers. The project uses a React + TypeScript frontend with a FastAPI Python backend.
 
 ## Technology Stack
 
@@ -13,7 +13,6 @@ Logos is a full-stack web application that enables users to have AI-powered conv
 - Vite 6.3.1 (build tool)
 - Material-UI 7.0.2 + Tailwind CSS 4.1.4
 - React Router DOM 7.5.3
-- Supabase Auth (@supabase/supabase-js 2.57.4)
 - Axios 1.9.0
 
 **Backend:**
@@ -133,7 +132,6 @@ frontend/src/
 │   ├── chat/ChatService.ts
 │   └── philosophers/PhilosopherService.ts  (has 5-min TTL cache)
 ├── lib/               # Third-party service singletons
-│   └── supabase.ts
 └── constants/
     ├── types/         # TypeScript type definitions
     └── responses/     # API response types
@@ -153,9 +151,7 @@ frontend/src/
 
 ### Database Access
 
-**Backend:** Uses SQLAlchemy + `DAOFactory` pattern (not Supabase client). DB sessions are managed via FastAPI dependencies in `database.py`. Never create sessions manually in controllers.
-
-**Frontend:** Uses Supabase singleton (`/frontend/src/lib/supabase.ts`) for auth. Always use `SupabaseService.getInstance()`, never create new clients directly.
+**Backend:** Uses SQLAlchemy + `DAOFactory` pattern. DB sessions are managed via FastAPI dependencies in `database.py`. Never create sessions manually in controllers.
 
 ### Path Aliases (Frontend)
 
@@ -179,16 +175,11 @@ Configured paths:
 **Frontend:** Uses `AuthContext` (`/frontend/src/contexts/AuthContext.tsx`)
 - Provides: `signIn`, `signUp`, `signOut`, `resetPassword`
 - Persists session to localStorage
-- Integrates with Supabase Auth
-
-**Backend:** Supabase handles authentication; backend uses service role key
 
 ## Environment Variables
 
 ### Frontend (`.env.local` in `/frontend`, see `.env.local.example`)
 ```
-VITE_SUPABASE_URL=your_supabase_project_url
-VITE_SUPABASE_KEY=your_supabase_anon_key
 VITE_BACKEND_URL=your_backend_api_url
 ```
 
@@ -233,7 +224,7 @@ The application uses OpenAI's `o4-mini-2025-04-16` model for philosopher convers
 ## Database Schema (PostgreSQL)
 
 Primary tables (SQLAlchemy models in `/backend/models/`):
-- `users` - Synced from Supabase Auth
+- `users` - User accounts
 - `philosophers` - Philosopher configurations, system prompts, metadata
 - `chats` - Chat sessions (linked to user + philosopher)
 - `messages` - Individual messages within chats (role, content, token_count, metadata)

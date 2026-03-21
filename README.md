@@ -97,8 +97,6 @@ Build and upload to S3:
 cd frontend
 
 VITE_BACKEND_URL=https://api.philo-ai.com \
-VITE_SUPABASE_URL=<your-supabase-url> \
-VITE_SUPABASE_KEY=<your-supabase-anon-key> \
   npm run build
 
 aws s3 sync dist/ s3://logos-frontend-prod --delete

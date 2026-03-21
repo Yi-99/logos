@@ -78,7 +78,7 @@ services/        → Domain services (prompt building, RAG retrieval, token coun
 
 ### Database
 
-- **ORM:** SQLAlchemy 2.x with mapped columns (not Supabase client)
+- **ORM:** SQLAlchemy 2.x with mapped columns
 - **Migrations:** Alembic (versions in `alembic/versions/`)
 - **Session management:** `database.py` creates engine + `SessionLocal`; `get_db()` and `get_dao_factory()` are FastAPI dependencies
 - **Models** inherit from `models.base.Base` (SQLAlchemy `DeclarativeBase`)

@@ -36,8 +36,6 @@ get_ssm() {
 }
 
 OPENAI_API_KEY=$(get_ssm "/logos/OPENAI_API_KEY")
-SUPABASE_URL=$(get_ssm "/logos/SUPABASE_URL")
-SUPABASE_KEY=$(get_ssm "/logos/SUPABASE_KEY")
 FRONTEND_URL=$(get_ssm "/logos/FRONTEND_URL")
 
 # --- Authenticate to ECR and pull image ---
@@ -55,8 +53,6 @@ docker run -d \
     --restart unless-stopped \
     -p 8000:8000 \
     -e OPENAI_API_KEY="$OPENAI_API_KEY" \
-    -e SUPABASE_URL="$SUPABASE_URL" \
-    -e SUPABASE_KEY="$SUPABASE_KEY" \
     -e FRONTEND_URL="$FRONTEND_URL" \
     "${ecr_repo}:latest"
 

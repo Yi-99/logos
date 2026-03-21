@@ -27,7 +27,7 @@ Unauthenticated users see `GlobalNavigation`; authenticated users do not (chat p
 
 ### Authentication
 
-`src/contexts/AuthContext.tsx` exports `AuthProvider` and `useAuth()` hook. Auth state is dual-stored: Supabase session + localStorage (for fast hydration on reload). The provider listens for Supabase `onAuthStateChange` events including OAuth callbacks.
+`src/contexts/AuthContext.tsx` exports `AuthProvider` and `useAuth()` hook. Auth state is stored in localStorage for fast hydration on reload.
 
 ### Services Layer
 
@@ -37,14 +37,6 @@ API calls are centralized in `src/services/` — never call axios directly from 
 - `PhilosopherService.ts` — philosopher data with in-memory caching (5-min TTL)
 
 All services use `import.meta.env.VITE_BACKEND_URL` as the API base URL.
-
-### Supabase Singleton
-
-`src/lib/supabase.ts` exports a singleton instance. Always import from here:
-```typescript
-import supabase from '@/lib/supabase';
-```
-Never create new Supabase clients.
 
 ### Path Aliases
 
@@ -62,8 +54,6 @@ Material-UI + Tailwind CSS 4 + Radix UI primitives. Tailwind is loaded via Vite 
 
 Required in `.env`:
 ```
-VITE_SUPABASE_URL
-VITE_SUPABASE_KEY
 VITE_BACKEND_URL
 ```
 
