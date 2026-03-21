@@ -78,7 +78,7 @@ const LoginPage: React.FC = () => {
 
 		<div className="max-w-4xl mx-auto px-6 py-12">
 			<div className="h-screen flex flex-col items-center justify-center text-white text-center space-y-6">
-				<p className="text-sm uppercase tracking-[0.4em]">Logos Project</p>
+				<p className="text-sm uppercase tracking-[0.4em]">who: logos project</p>
 				<h1 className="text-4xl md:text-5xl font-semibold leading-tight">
 					Reflect, wander, and sign in to continue the journey.
 				</h1>

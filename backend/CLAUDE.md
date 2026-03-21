@@ -97,8 +97,9 @@ Flow: `routes/prompt.py` → `controllers/prompt_philosopher.py` → `PromptBuil
 
 1. **PromptBuilder** (`services/prompt_builder.py`) manages token budgets across system prompt, RAG context, and conversation history (128K context window)
 2. **RetrievalService** (`services/retrieval_service.py`) embeds queries via OpenAI `text-embedding-3-small` and searches pgvector for relevant philosopher document chunks
-3. **OpenAI Responses API** — uses `openai_client.responses.create()` with `input` (not `messages`) and `instructions` (not `system`). Model: `o4-mini-2025-04-16`
+3. **OpenAI Responses API** — uses `openai_client.responses.create()` with `input` (not `messages`) and `instructions` (not `system`). Model constants are centralized in `constants.py` (`OPENAI_CHAT_MODEL`, `OPENAI_EMBEDDING_MODEL`)
 4. **Auto-summarization** triggers after 40 messages to manage long conversations
+5. **Legacy prompt route** (`routes/prompt_legacy.py`, `/api/v0/prompt`) — older prompting path; current route is `/api/v1/prompt`
 
 ### External Services
 
@@ -112,3 +113,5 @@ Flow: `routes/prompt.py` → `controllers/prompt_philosopher.py` → `PromptBuil
 - Pydantic models for request/response validation, SQLAlchemy models for DB
 - Environment loading happens via `import config` at module level
 - All task runner commands go through `Taskfile.yml` (uses [go-task](https://taskfile.dev/))
+- Model IDs live in `constants.py` — update there, not in individual controllers
+- API routes are versioned: current is `/api/v1/*`, legacy prompt is `/api/v0/prompt`

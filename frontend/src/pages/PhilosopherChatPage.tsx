@@ -201,7 +201,7 @@ const PhilosopherChatPage: React.FC = () => {
     setIsTextToText(false);
     setIsSpeechToText(false);
     setIsTextToSpeech(false);
-    
+
     // Set the selected mode to true
     switch (mode) {
       case 'speechToSpeech':
@@ -278,27 +278,35 @@ const PhilosopherChatPage: React.FC = () => {
         onClick={isSidebarOpen ? handleSidebarClose : undefined}
       >
         {/* Chat Messages */}
-        <div className="absolute inset-0 p-4 flex flex-col justify-start items-center z-10 overflow-auto">
-          <div className="w-full max-w-4xl space-y-6">
+        <div className="absolute inset-0 overflow-y-auto ink-scroll px-6 md:px-24 py-12 z-10">
+          <div className="max-w-3xl mx-auto space-y-16">
             {messages.map((message, index) => (
-              <div
-                key={index}
-                className={`chat-message flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
-                <div
-                  className={`max-w-xs lg:max-w-2xl px-4 py-3 rounded-2xl ${
-                    message.role === 'user'
-                      ? 'bg-ink-primary text-ink-on-primary'
-                      : 'bg-ink-surface-low text-ink-on-surface border border-ink-outline-variant/20'
-                  }`}
-                >
-                  <p className="text-sm leading-relaxed">{message.content}</p>
-                  <p className={`text-xs mt-2 ${
-                    message.role === 'user' ? 'text-ink-on-primary/60' : 'text-ink-on-surface-variant'
-                  }`}>
-                    {message.timestamp}
-                  </p>
-                </div>
+              <div key={index} className="chat-message">
+                {message.role === 'user' ? (
+                  /* User Message */
+                  <div className="flex flex-col items-end space-y-4 ml-auto max-w-2xl">
+                    <div className="flex items-center space-x-2 opacity-50">
+                      <span className="text-2xs font-sans text-ink-outline">{message.timestamp} •</span>
+                      <span className="text-2xs font-sans uppercase tracking-widest text-ink-primary">You</span>
+                    </div>
+                    <div className="text-lg leading-relaxed text-ink-on-surface bg-ink-surface-low p-6 border border-ink-outline-variant/5 font-serif">
+                      {message.content}
+                    </div>
+                  </div>
+                ) : (
+                  /* Assistant Message */
+                  <div className="flex flex-col space-y-4 max-w-2xl">
+                    <div className="flex items-center space-x-2 opacity-50">
+                      <span className="text-2xs font-sans uppercase tracking-widest text-ink-on-surface-variant">
+                        {philosopher?.name || 'Archive Intelligence'}
+                      </span>
+                      <span className="text-2xs font-sans text-ink-outline">• {message.timestamp}</span>
+                    </div>
+                    <div className="text-lg md:text-xl leading-relaxed text-ink-on-surface-variant italic font-serif">
+                      {message.content}
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
             {/* Scroll anchor */}

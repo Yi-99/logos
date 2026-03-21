@@ -6,8 +6,7 @@ import HubIcon from '@mui/icons-material/Hub';
 import Tooltip from '@mui/material/Tooltip';
 import philosopherService from '../services/philosophers/PhilosopherService';
 import PhilosopherClusterMap from '../components/PhilosopherClusterMap';
-import ProfileDropdown from '../components/ProfileDropdown';
-import ThemeToggle from '../components/ThemeToggle';
+import Navbar from '../components/Navbar';
 
 type ViewMode = 'list' | 'graph';
 
@@ -91,18 +90,13 @@ const PhilosopherSelectionPage: React.FC = () => {
   );
 
   const selectionNavbar = (
-    <header className="fixed top-0 w-full z-50 bg-ink-bg/80 backdrop-blur-xl border-b border-ink-outline-variant/15">
-      <div className="flex items-center justify-between px-8 py-4">
-        <div className="flex items-center gap-8">
-          <a href="/" className="text-2xl font-serif text-ink-on-surface italic hover:opacity-80 transition-opacity">who</a>
-          <span className="font-sans text-2xs uppercase tracking-[0.2em] text-ink-outline">Philosophical Inquiry</span>
-        </div>
-        <div className="flex items-center gap-4">
-          <ThemeToggle />
-          <ProfileDropdown />
-        </div>
-      </div>
-    </header>
+    <Navbar
+      title="who"
+      titleHref="/"
+      subtitle="Philosophical Inquiry"
+      showChatsButton={true}
+      fixed={true}
+    />
   );
 
   if (isGraphView) {

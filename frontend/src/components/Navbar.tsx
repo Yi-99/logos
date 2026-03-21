@@ -49,6 +49,7 @@ const Navbar: React.FC<NavbarProps> = ({
     <header className={`${fixed ? 'fixed top-0 w-full z-50' : ''} flex items-center justify-between px-8 py-4 bg-ink-bg/80 backdrop-blur-xl border-b border-ink-outline-variant/15 z-10`}>
       <div className="flex items-center gap-8">
         {isTitleMode ? (
+          /* Title mode */
           <>
             <a href={titleHref} className="text-2xl font-serif text-ink-on-surface italic hover:opacity-80 transition-opacity">
               {title}
@@ -58,6 +59,7 @@ const Navbar: React.FC<NavbarProps> = ({
             )}
           </>
         ) : (
+          /* Philosopher mode */
           <div className="flex items-center space-x-4">
             {onBackClick && (
               <button

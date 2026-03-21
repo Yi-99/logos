@@ -1,7 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(uv run:*)"
+      "Bash(uv run:*)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:contribution.usercontent.google.com)",
+      "WebFetch(domain:lh3.googleusercontent.com)",
+      "Bash(npm run:*)"
     ]
   }
 }
