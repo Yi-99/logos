@@ -1,4 +1,4 @@
-import axios from "axios";
+import api from "@/lib/api";
 import GetAllPhilosophersResponse from "@/constants/responses/GetAllPhilosophers";
 import { toast } from "react-toastify";
 import { Philosopher } from "@/constants/types/Philosopher";
@@ -42,7 +42,7 @@ const getAllPhilosophers = async (): Promise<GetAllPhilosophersResponse> => {
 	}
 
 	try {
-		const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/v1/philosophers/`);
+		const response = await api.get(`${import.meta.env.VITE_BACKEND_URL}/api/v1/philosophers/`);
 		const getAllPhilosophersResponse: GetAllPhilosophersResponse = {
 			philosophers: response.data.map(mapPhilosopherResponse)
 		};
@@ -85,7 +85,7 @@ const getPhilosopherById = async (id: string): Promise<Philosopher> => {
 	}
 
 	try {
-		const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/v1/philosophers/${id}`);
+		const response = await api.get(`${import.meta.env.VITE_BACKEND_URL}/api/v1/philosophers/${id}`);
 		const philosopher = mapPhilosopherResponse(response.data);
 
 		// Update cache
@@ -114,7 +114,7 @@ const getPhilosopherImageUrl = async (imageKey: string): Promise<string> => {
 	}
 
 	const filename = imageKey.split('/').pop() || imageKey;
-	const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/v1/philosophers/image`, {
+	const response = await api.get(`${import.meta.env.VITE_BACKEND_URL}/api/v1/philosophers/image`, {
 		params: { key: filename },
 	});
 	return response.data.url;
@@ -129,7 +129,7 @@ const getPhilosopherImageUrls = async (imageKeys: string[]): Promise<Record<stri
 		if (missing.length === 0) return imageUrlsCache.data;
 		// Only fetch missing keys
 		if (missing.length < filenames.length) {
-			const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/v1/philosophers/images`, {
+			const response = await api.post(`${import.meta.env.VITE_BACKEND_URL}/api/v1/philosophers/images`, {
 				keys: missing,
 			});
 			const newUrls = response.data.urls as Record<string, string>;
@@ -138,7 +138,7 @@ const getPhilosopherImageUrls = async (imageKeys: string[]): Promise<Record<stri
 		}
 	}
 
-	const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/v1/philosophers/images`, {
+	const response = await api.post(`${import.meta.env.VITE_BACKEND_URL}/api/v1/philosophers/images`, {
 		keys: filenames,
 	});
 	const urls = response.data.urls as Record<string, string>;

@@ -2,6 +2,7 @@ import os
 import config  # noqa: F401 — loads .env.{APP_ENV}
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from middleware.auth import AuthMiddleware
 from routes import chat_router
 from routes import prompt_router
 from routes import prompt_legacy_router
@@ -17,6 +18,9 @@ origins = [
 	"http://localhost",
 	frontend_url,
 ]
+
+# Auth middleware runs after CORS (middleware stack is LIFO, so add auth first)
+app.add_middleware(AuthMiddleware)
 
 app.add_middleware(
 	CORSMiddleware,

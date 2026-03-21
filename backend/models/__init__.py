@@ -4,5 +4,6 @@ from models.philosopher import Philosopher
 from models.chat import Chat
 from models.message import Message
 from models.philosopher_document import PhilosopherDocument
+from models.rate_limit_log import RateLimitLog
 
-__all__ = ["Base", "User", "Philosopher", "Chat", "Message", "PhilosopherDocument"]
+__all__ = ["Base", "User", "Philosopher", "Chat", "Message", "PhilosopherDocument", "RateLimitLog"]

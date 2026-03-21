@@ -147,13 +147,13 @@ resource "aws_security_group" "backend" {
     cidr_blocks = [var.allowed_cidr]
   }
 
-  # HTTP (for Caddy redirect)
+  # HTTP (for Caddy redirect + ACME challenges)
   ingress {
     description = "HTTP"
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = [var.allowed_cidr]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   # HTTPS (Caddy)
@@ -162,7 +162,7 @@ resource "aws_security_group" "backend" {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = [var.allowed_cidr]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   # Allow all outbound

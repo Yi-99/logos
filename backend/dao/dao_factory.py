@@ -5,6 +5,7 @@ from dao.philosopher_dao import PhilosopherDAO
 from dao.chat_dao import ChatDAO
 from dao.message_dao import MessageDAO
 from dao.philosopher_document_dao import PhilosopherDocumentDAO
+from dao.rate_limit_log_dao import RateLimitLogDAO
 
 
 class DAOFactory:
@@ -32,3 +33,7 @@ class DAOFactory:
     @property
     def philosopher_documents(self) -> PhilosopherDocumentDAO:
         return PhilosopherDocumentDAO(self._session)
+
+    @property
+    def rate_limit_logs(self) -> RateLimitLogDAO:
+        return RateLimitLogDAO(self._session)

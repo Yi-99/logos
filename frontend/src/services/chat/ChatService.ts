@@ -1,4 +1,4 @@
-import axios from 'axios';
+import api, { getAuthHeaders } from '@/lib/api';
 import { toast } from 'react-toastify';
 
 export interface History {
@@ -66,7 +66,7 @@ export interface DeleteChatResponse {
 
 const getChats = async (userId: string): Promise<ChatListItem[]> => {
 	try {
-		const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/v1/chat`, {
+		const response = await api.get(`${import.meta.env.VITE_BACKEND_URL}/api/v1/chat`, {
 			params: { user_id: userId }
 		});
 		return response.data;
@@ -88,7 +88,7 @@ const getChats = async (userId: string): Promise<ChatListItem[]> => {
 const createChat = async (request: CreateChatRequest): Promise<CreateChatResponse> => {
 	console.log('createChat request:', request);
 	try {
-		const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/v1/chat`, request);
+		const response = await api.post(`${import.meta.env.VITE_BACKEND_URL}/api/v1/chat`, request);
 		const createChatResponse: CreateChatResponse = response.data;
 
 		return createChatResponse;
@@ -110,7 +110,7 @@ const createChat = async (request: CreateChatRequest): Promise<CreateChatRespons
 const deleteChat = async (request: DeleteChatRequest): Promise<DeleteChatResponse> => {
 	console.log('deleteChat request:', request);
 	try {
-		const response = await axios.delete(
+		const response = await api.delete(
 			`${import.meta.env.VITE_BACKEND_URL}/api/v1/chat`,
 			{ data: request }
 		);
@@ -135,7 +135,7 @@ const deleteChat = async (request: DeleteChatRequest): Promise<DeleteChatRespons
 const getChatById = async (chatId: string): Promise<GetChatResponse> => {
 	console.log('getChatById request:', chatId);
 	try {
-		const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/v1/chat/${chatId}`);
+		const response = await api.get(`${import.meta.env.VITE_BACKEND_URL}/api/v1/chat/${chatId}`);
 		const getChatResponse: GetChatResponse = response.data;
 
 		return getChatResponse;
@@ -159,7 +159,7 @@ const getMessages = async (chatId: string, limit?: number): Promise<MessageRespo
 		const params: Record<string, any> = {};
 		if (limit) params.limit = limit;
 
-		const response = await axios.get(
+		const response = await api.get(
 			`${import.meta.env.VITE_BACKEND_URL}/api/v1/chat/${chatId}/messages`,
 			{ params }
 		);
@@ -188,9 +188,10 @@ export interface PromptAIStreamCallbacks {
 
 const promptAIStream = async (request: PromptAIRequest, callbacks: PromptAIStreamCallbacks): Promise<void> => {
 	try {
+		const authHeaders = await getAuthHeaders();
 		const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/prompt`, {
 			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
+			headers: { 'Content-Type': 'application/json', ...authHeaders },
 			body: JSON.stringify(request),
 		});
 
@@ -257,7 +258,7 @@ const transcribeAudio = async (audioBlob: Blob): Promise<TranscribeResponse> => 
 		const formData = new FormData();
 		formData.append('audio', audioBlob, 'recording.webm');
 
-		const response = await axios.post(
+		const response = await api.post(
 			`${import.meta.env.VITE_BACKEND_URL}/api/v1/prompt/transcribe`,
 			formData,
 			{
@@ -284,7 +285,7 @@ const transcribeAudio = async (audioBlob: Blob): Promise<TranscribeResponse> => 
 
 const promptAI = async (request: PromptAIRequest): Promise<PromptAIResponse> => {
 	try {
-		const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/v0/prompt`, request);
+		const response = await api.post(`${import.meta.env.VITE_BACKEND_URL}/api/v0/prompt`, request);
 		return response.data;
 	} catch (error: any) {
 		toast.error('Error: ' + (error.response?.data?.detail || error.message), {

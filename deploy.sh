@@ -3,8 +3,8 @@ set -euo pipefail
 
 REGION="us-west-1"
 ECR_REGISTRY="537093421907.dkr.ecr.${REGION}.amazonaws.com"
-ECR_REPO="${ECR_REGISTRY}/logos-backend"
-S3_BUCKET="logos-frontend-prod"
+ECR_REPO="${ECR_REGISTRY}/who-backend"
+S3_BUCKET="who-philo-ai-com-prod"
 BACKEND_URL="https://api.philo-ai.com"
 PROJECT_ROOT="$(cd "$(dirname "$0")" && pwd)"
 

@@ -1,4 +1,4 @@
-import axios from 'axios';
+import api from '@/lib/api';
 
 export interface SyncUserRequest {
 	user_id: string;
@@ -12,7 +12,7 @@ export interface SyncUserResponse {
 }
 
 const syncUser = async (request: SyncUserRequest): Promise<SyncUserResponse> => {
-	const response = await axios.post(
+	const response = await api.post(
 		`${import.meta.env.VITE_BACKEND_URL}/api/v1/users/sync`,
 		request
 	);

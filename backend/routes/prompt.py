@@ -4,13 +4,14 @@ from models.models import PromptRequest
 from database import get_dao_factory
 from dao import DAOFactory
 from controllers.prompt_philosopher import prompt_philosopher_stream
+from dependencies.rate_limit import rate_limit_prompt
 
 
 prompt_router = APIRouter(prefix="/v1/prompt", tags=["prompt"])
 
 
 @prompt_router.post("/")
-def prompt_philosopher_route(request: PromptRequest, dao: DAOFactory = Depends(get_dao_factory)):
+def prompt_philosopher_route(request: PromptRequest = Depends(rate_limit_prompt), dao: DAOFactory = Depends(get_dao_factory)):
     """
     Prompts the AI as an advisor, streaming the response via SSE.
     """
