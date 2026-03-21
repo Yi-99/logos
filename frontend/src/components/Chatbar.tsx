@@ -103,7 +103,6 @@ const Chatbar: React.FC<ChatbarProps> = ({
 	const audioChunksRef = useRef<Blob[]>([]);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
-	// Cleanup MediaRecorder on unmount
 	useEffect(() => {
 		return () => {
 			if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
@@ -112,7 +111,6 @@ const Chatbar: React.FC<ChatbarProps> = ({
 		};
 	}, []);
 
-	// Notify parent when listening state changes
 	useEffect(() => {
 		onListeningChange?.(isListening);
 	}, [isListening, onListeningChange]);
@@ -120,27 +118,16 @@ const Chatbar: React.FC<ChatbarProps> = ({
 	const startRecording = async () => {
 		try {
 			const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-
 			const mediaRecorder = new MediaRecorder(stream, {
 				mimeType: MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4'
 			});
-
 			audioChunksRef.current = [];
-
 			mediaRecorder.ondataavailable = (event) => {
-				if (event.data.size > 0) {
-					audioChunksRef.current.push(event.data);
-				}
+				if (event.data.size > 0) audioChunksRef.current.push(event.data);
 			};
-
 			mediaRecorder.onstop = async () => {
-				// Stop all tracks to release the microphone
 				stream.getTracks().forEach(track => track.stop());
-
-				const audioBlob = new Blob(audioChunksRef.current, {
-					type: mediaRecorder.mimeType
-				});
-
+				const audioBlob = new Blob(audioChunksRef.current, { type: mediaRecorder.mimeType });
 				if (audioBlob.size > 0) {
 					setIsTranscribing(true);
 					try {
@@ -155,11 +142,9 @@ const Chatbar: React.FC<ChatbarProps> = ({
 					}
 				}
 			};
-
 			mediaRecorderRef.current = mediaRecorder;
 			mediaRecorder.start();
 			setIsListening(true);
-
 			if (!hasShownMicInfo) {
 				console.log('Recording... Click again to stop and transcribe.');
 				setHasShownMicInfo(true);
@@ -178,12 +163,7 @@ const Chatbar: React.FC<ChatbarProps> = ({
 
 	const handleMicClick = () => {
 		if (isTranscribing) return;
-
-		if (isListening) {
-			stopRecording();
-		} else {
-			startRecording();
-		}
+		if (isListening) { stopRecording(); } else { startRecording(); }
 	};
 
 	const buildPromptWithAttachments = (userText: string, files: AttachedFile[]): string => {
@@ -199,12 +179,9 @@ const Chatbar: React.FC<ChatbarProps> = ({
 	};
 
 	const handleSendMessage = async () => {
-		const hasText = inputValue.trim().length > 0;
-		const hasFiles = attachedFiles.some(f => !f.error);
-		if ((!hasText && !hasFiles) || isLoading) return;
+		if (!inputValue.trim() || isLoading) return;
 		if (!advisorName) return;
 
-		// Build the full prompt with file context
 		const savedInput = inputValue;
 		const savedFiles = [...attachedFiles];
 		const fullPrompt = buildPromptWithAttachments(savedInput, savedFiles);
@@ -215,12 +192,6 @@ const Chatbar: React.FC<ChatbarProps> = ({
 		onSending?.();
 
 		try {
-			// Build display message (show user text + file names)
-			const fileNames = savedFiles.filter(f => !f.error).map(f => f.file.name);
-			const displayContent = fileNames.length > 0
-				? `${savedInput}${savedInput ? '\n' : ''}[${fileNames.join(', ')}]`
-				: savedInput;
-
 			const userMessage = {
 				role: 'user' as const,
 				content: displayContent,
@@ -228,7 +199,6 @@ const Chatbar: React.FC<ChatbarProps> = ({
 			};
 			onNewMessage?.(userMessage);
 
-			// Add an empty assistant message that will be filled by streaming deltas
 			const assistantMessage = {
 				role: 'assistant' as const,
 				content: '',
@@ -236,7 +206,6 @@ const Chatbar: React.FC<ChatbarProps> = ({
 			};
 			onNewMessage?.(assistantMessage);
 
-			// Stream response from backend
 			await chatService.promptAIStream(
 				{
 					user_id: user?.id || '',
@@ -251,12 +220,8 @@ const Chatbar: React.FC<ChatbarProps> = ({
 							onChatCreated?.(data.chat_id);
 						}
 					},
-					onDelta: (content) => {
-						onStreamDelta?.(content);
-					},
-					onDone: () => {
-						// Stream complete — message is already built up via deltas
-					},
+					onDelta: (content) => { onStreamDelta?.(content); },
+					onDone: () => {},
 					onError: (detail) => {
 						console.error('Stream error:', detail);
 						onRemoveLastMessage?.();
@@ -355,115 +320,44 @@ const Chatbar: React.FC<ChatbarProps> = ({
 	const hasValidAttachments = attachedFiles.some(f => !f.error);
 
 	return (
-		<div className="flex flex-col items-center w-full gap-3">
-			{/* Hidden file input */}
-			<input
-				ref={fileInputRef}
-				type="file"
-				multiple
-				className="hidden"
-				accept={[...TEXT_FILE_EXTENSIONS, ...BINARY_DOC_EXTENSIONS, 'application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/msword'].join(',')}
-				onChange={handleFileSelected}
-			/>
-
-			{/* Main Chat Input Area */}
-			<div className="w-full max-w-3xl mx-auto relative group">
-				{/* Glow effect */}
-				<div className="absolute -inset-0.5 bg-[#c6c6c6]/5 rounded-xl blur opacity-20 group-focus-within:opacity-40 transition duration-1000"></div>
-
-				{/* Input container */}
-				<div className="relative bg-[#131313] border-b border-[#484848]/20 focus-within:border-[#c6c6c6]/40 transition-all duration-500">
-					{/* Attached files display */}
-					{attachedFiles.length > 0 && (
-						<div className="flex flex-wrap gap-2 px-4 pt-3">
-							{attachedFiles.map((attached, index) => (
-								<div
-									key={index}
-									className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-['Inter'] ${
-										attached.error
-											? 'bg-red-500/10 border border-red-500/20 text-red-400'
-											: 'bg-[#191a1a] border border-[#484848]/20 text-[#acabaa]'
-									}`}
-								>
-									<InsertDriveFileOutlinedIcon sx={{ fontSize: 14 }} />
-									<span className="max-w-[150px] truncate">{attached.file.name}</span>
-									<span className="text-[#767575]">{formatFileSize(attached.file.size)}</span>
-									{attached.error && (
-										<span className="text-red-400 text-[10px]">{attached.error}</span>
-									)}
-									<button
-										onClick={() => handleRemoveFile(index)}
-										className="text-[#767575] hover:text-[#e7e5e5] transition-colors ml-1"
-									>
-										<CloseIcon sx={{ fontSize: 12 }} />
-									</button>
-								</div>
-							))}
-						</div>
-					)}
-
-					<div className="flex items-end p-4">
-						<textarea
-							ref={textareaRef}
-							value={inputValue}
-							onChange={(e) => setInputValue(e.target.value)}
-							onKeyDown={handleKeyDown}
-							placeholder="Whisper your next thought..."
-							className="flex-1 bg-transparent border-none focus:ring-0 focus:outline-none text-[#e7e5e5] placeholder:text-[#767575]/50 resize-none py-2 text-lg font-['Newsreader']"
-							rows={1}
-							disabled={isLoading}
-						/>
-						<div className="flex items-center space-x-4 pb-2 px-2">
-							{/* Microphone Button */}
-							<button
-								onClick={handleMicClick}
-								className={`text-[#767575] hover:text-[#c6c6c6] transition-colors duration-300 disabled:opacity-50 ${
-									isListening ? 'text-red-500 animate-pulse' : ''
-								}`}
-								disabled={isLoading || isTranscribing}
-								title={isListening ? 'Stop recording' : isTranscribing ? 'Transcribing...' : 'Start voice input'}
-							>
-								{isListening ? (
-									<span className="material-symbols-outlined text-[22px]">stop_circle</span>
-								) : isTranscribing ? (
-									<CircularProgress size={20} sx={{ color: '#c6c6c6' }} />
-								) : (
-									<MicIcon sx={{ fontSize: 22 }} />
-								)}
-							</button>
-
-							{/* Attach File Button */}
-							<button
-								onClick={handleAttachFile}
-								className="text-[#767575] hover:text-[#c6c6c6] transition-colors duration-300 disabled:opacity-50"
-								disabled={isLoading}
-								title="Attach file"
-							>
-								<AttachFileIcon sx={{ fontSize: 22 }}/>
-							</button>
-
-							{/* Send Button */}
-							<button
-								onClick={handleSendMessage}
-								disabled={isLoading || (!inputValue.trim() && !hasValidAttachments)}
-								className="w-10 h-10 flex items-center justify-center bg-[#c6c6c6] text-[#0e0e0e] rounded-full hover:scale-105 transition-transform duration-300 disabled:opacity-30"
-							>
-								<span className="material-symbols-outlined text-[20px]">arrow_upward</span>
-							</button>
-						</div>
-					</div>
+		<div className="flex flex-col items-center w-full gap-4">
+			<div className="flex flex-row items-center justify-center w-full max-w-4xl gap-2">
+				<div className="flex-1 relative">
+					<textarea
+						ref={textareaRef}
+						value={inputValue}
+						onChange={(e) => setInputValue(e.target.value)}
+						onKeyDown={handleKeyDown}
+						placeholder="Share your thoughts with the philosopher..."
+						className="w-full px-4 py-3 mt-1 bg-ink-bg border border-ink-outline-variant rounded-2xl outline-none text-ink-on-surface placeholder-ink-outline text-sm shadow-md resize-none overflow-y-hidden"
+						rows={1}
+						disabled={isLoading}
+					/>
 				</div>
 
-				{/* Helper text */}
-				<div className="mt-3 flex justify-between px-2">
-					<span className="text-[10px] font-['Inter'] text-[#767575]">
-						{attachedFiles.length > 0
-							? `${attachedFiles.filter(f => !f.error).length} file${attachedFiles.filter(f => !f.error).length !== 1 ? 's' : ''} attached`
-							: ''
-						}
-					</span>
-					<span className="text-[10px] font-['Inter'] text-[#767575] italic">Press Shift + Enter for new line</span>
-				</div>
+				<button
+					onClick={handleMicClick}
+					className={`w-12 h-12 rounded-xl flex items-center justify-center transition-colors shadow-md disabled:opacity-50 ${
+						isListening
+							? 'bg-red-500 text-white border-red-500 animate-pulse'
+							: isTranscribing
+							? 'bg-ink-bg border border-ink-outline-variant'
+							: 'text-ink-on-surface bg-ink-bg border border-ink-outline-variant hover:bg-ink-primary hover:text-ink-on-primary hover:border-ink-primary'
+					}`}
+					disabled={isLoading || isTranscribing}
+					title={isListening ? 'Stop recording' : isTranscribing ? 'Transcribing...' : 'Start voice input'}
+				>
+					{isListening ? <StopIcon sx={{ fontSize: 20 }} /> : isTranscribing ? <CircularProgress size={20} sx={{ color: 'var(--ink-on-surface)' }} /> : <MicIcon sx={{ fontSize: 20 }} />}
+				</button>
+
+				<button
+					onClick={handleSendMessage}
+					disabled={isLoading || !inputValue.trim()}
+					className="w-12 h-12 text-ink-on-surface bg-ink-bg border border-ink-outline-variant rounded-xl flex items-center justify-center
+					hover:bg-ink-primary hover:text-ink-on-primary hover:border-ink-primary transition-colors shadow-md disabled:opacity-50"
+				>
+					<SendIcon sx={{ fontSize: 20 }} />
+				</button>
 			</div>
 		</div>
 	)

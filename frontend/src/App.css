@@ -1,7 +1,7 @@
 /* Custom styles for the philosopher chat interface */
 
-/* Smooth animations */
-* {
+/* Smooth animations (exclude MUI popovers/tooltips which manage their own transitions) */
+*:not([class*="MuiTooltip"]):not([class*="MuiPopper"]) {
   transition: all 0.2s ease-in-out;
 }
 
@@ -11,27 +11,16 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: var(--ink-surface-low);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #48484826;
+  background: var(--ink-outline-variant);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #484848;
-}
-
-/* Ink Archive scrollbar variant */
-.ink-scroll::-webkit-scrollbar {
-  width: 2px;
-}
-.ink-scroll::-webkit-scrollbar-thumb {
-  background: #48484826;
-}
-.ink-scroll:hover::-webkit-scrollbar-thumb {
-  background: #484848;
+  background: var(--ink-outline);
 }
 
 /* Chat message animations */

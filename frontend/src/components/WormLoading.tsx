@@ -15,9 +15,9 @@ export const WormLoading = () => {
 				}
 			`}</style>
 			<div className="flex items-center justify-center space-x-1">
-				<div className="w-2 h-2 bg-[#c6c6c6] rounded-full big-bounce" style={{ animationDelay: '0ms' }}></div>
-				<div className="w-2 h-2 bg-[#c6c6c6] rounded-full big-bounce" style={{ animationDelay: '160ms' }}></div>
-				<div className="w-2 h-2 bg-[#c6c6c6] rounded-full big-bounce" style={{ animationDelay: '320ms' }}></div>
+				<div className="w-2 h-2 bg-ink-on-surface rounded-full big-bounce" style={{ animationDelay: '0ms' }}></div>
+				<div className="w-2 h-2 bg-ink-on-surface rounded-full big-bounce" style={{ animationDelay: '160ms' }}></div>
+				<div className="w-2 h-2 bg-ink-on-surface rounded-full big-bounce" style={{ animationDelay: '320ms' }}></div>
 			</div>
 		</>
 	)

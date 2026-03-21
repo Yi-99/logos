@@ -20,11 +20,11 @@ const InputSettingsBar: React.FC<InputSettingsBarProps> = ({
 	};
 
 	return (
-		<div className="flex flex-row justify-between items-center rounded-[3rem] px-3 py-3 border border-[#484848]/20 w-fit gap-2 bg-[#191a1a]">
+		<div className="flex flex-row justify-between items-center rounded-[3rem] px-3 py-3 border border-ink-outline-variant/20 w-fit gap-2 bg-ink-surface">
 			<button
 				onClick={() => handleModeChange('textToText')}
 				className={`p-2 hover:cursor-pointer rounded-full transition-colors duration-300 ${
-					isTextToText ? 'bg-[#c6c6c6] text-[#0e0e0e]' : 'text-[#acabaa] hover:bg-[#252626] hover:text-[#e7e5e5]'
+					isTextToText ? 'bg-ink-primary text-ink-on-primary' : 'text-ink-on-surface-variant hover:bg-ink-surface-highest hover:text-ink-on-surface'
 				}`}
 				title="Text to Text"
 			>
@@ -33,7 +33,7 @@ const InputSettingsBar: React.FC<InputSettingsBarProps> = ({
 			<button
 				onClick={() => handleModeChange('speechToSpeech')}
 				className={`p-2 hover:cursor-pointer rounded-full transition-colors duration-300 ${
-					isSpeechToSpeech ? 'bg-[#c6c6c6] text-[#0e0e0e]' : 'text-[#acabaa] hover:bg-[#252626] hover:text-[#e7e5e5]'
+					isSpeechToSpeech ? 'bg-ink-primary text-ink-on-primary' : 'text-ink-on-surface-variant hover:bg-ink-surface-highest hover:text-ink-on-surface'
 				}`}
 				title="Speech to Speech"
 			>

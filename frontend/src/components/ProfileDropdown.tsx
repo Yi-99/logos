@@ -52,48 +52,44 @@ const ProfileDropdown: React.FC = () => {
 
   return (
     <div className="relative" ref={dropdownRef}>
-      {/* Profile Icon */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white transition-all duration-200"
+        className="w-10 h-10 rounded-full bg-ink-primary flex items-center justify-center text-ink-on-primary transition-all duration-200"
       >
         <span className="text-sm font-bold">
           {getInitials(user.name)}
         </span>
       </button>
 
-      {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50">
-          {/* User Info */}
-          <div className="px-4 py-3 border-b border-gray-100">
-            <p className="text-sm font-medium text-gray-900">{user.name}</p>
-            <p className="text-xs text-gray-500">{user.email}</p>
+        <div className="absolute right-0 mt-2 w-64 bg-ink-bg rounded-lg shadow-xl border border-ink-outline-variant/20 py-2 z-50">
+          <div className="px-4 py-3 border-b border-ink-outline-variant/15">
+            <p className="text-sm font-medium text-ink-on-surface">{user.name}</p>
+            <p className="text-xs text-ink-on-surface-variant">{user.email}</p>
           </div>
 
-          {/* Menu Items */}
           <div className="py-1">
             <button
               onClick={handleHomeClick}
-              className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+              className="w-full flex items-center px-4 py-2 text-sm text-ink-on-surface-variant hover:bg-ink-surface hover:text-ink-on-surface transition-colors"
             >
               <HomeIcon sx={{ fontSize: 16 }} className="mr-3" />
               Home
             </button>
-            
+
             <button
               onClick={handleSettingsClick}
-              className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+              className="w-full flex items-center px-4 py-2 text-sm text-ink-on-surface-variant hover:bg-ink-surface hover:text-ink-on-surface transition-colors"
             >
               <SettingsIcon sx={{ fontSize: 16 }} className="mr-3" />
               Settings
             </button>
-            
-            <div className="border-t border-gray-100 my-1"></div>
-            
+
+            <div className="border-t border-ink-outline-variant/15 my-1"></div>
+
             <button
               onClick={handleLogoutClick}
-              className="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+              className="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
             >
               <LogoutIcon sx={{ fontSize: 16 }} className="mr-3" />
               Logout
