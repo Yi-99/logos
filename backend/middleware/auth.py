@@ -73,8 +73,12 @@ class AuthMiddleware(BaseHTTPMiddleware):
     """Middleware that validates Cognito JWT access tokens on every request."""
 
     async def dispatch(self, request: Request, call_next):
-        # Skip auth for public paths and CORS preflight requests
-        if request.url.path in PUBLIC_PATHS or request.method == "OPTIONS":
+        # Let CORS preflight requests pass through without auth
+        if request.method == "OPTIONS":
+            return await call_next(request)
+
+        # Skip auth for public paths
+        if request.url.path in PUBLIC_PATHS:
             return await call_next(request)
 
         auth_header = request.headers.get("Authorization")
