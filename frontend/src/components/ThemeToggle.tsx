@@ -18,6 +18,12 @@ const ThemeToggle: React.FC = () => {
       document.documentElement.classList.remove('dark');
       localStorage.setItem('theme', 'light');
     }
+
+    // Swap favicon to match theme
+    const favicon = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
+    if (favicon) {
+      favicon.href = isDark ? '/logo-dark.jpg' : '/logo-light.jpg';
+    }
   }, [isDark]);
 
   return (
