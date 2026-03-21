@@ -11,7 +11,7 @@ import { Philosopher } from '../constants/types/Philosopher';
 import { useAuth } from '../contexts/AuthContext';
 import { WormLoading } from '../components/WormLoading';
 import { toast } from 'react-toastify';
-import Layout from '../components/Layout';
+import Navbar from '../components/Navbar';
 
 const ChatListPage: React.FC = () => {
 	const navigate = useNavigate();
@@ -165,48 +165,53 @@ const ChatListPage: React.FC = () => {
 
 	if (isAuthLoading || isLoading) {
 		return (
-			<div className="h-screen bg-white flex items-center justify-center">
+			<div className="h-screen ink-dot-grid flex items-center justify-center">
 				<WormLoading />
 			</div>
 		);
 	}
 
 	return (
-		<Layout
-			title="Your Conversations"
-			showBackButton={false}
-		>
+		<div className="min-h-screen ink-dot-grid">
+			<Navbar
+				title="who"
+				titleHref="/"
+				subtitle="Your Conversations"
+				showChatsButton={false}
+				fixed={true}
+			/>
+
 			{/* Floating Stats Island */}
-			<div className="fixed right-6 top-1/2 -translate-y-1/2 z-20 bg-white shadow-lg border border-gray-200 rounded-2xl px-4 py-3">
+			<div className="fixed right-6 top-1/2 -translate-y-1/2 z-20 bg-ink-surface border border-ink-outline-variant/15 rounded-2xl px-4 py-3">
 				<div className="flex flex-col items-center space-y-2">
-					<BarChartIcon sx={{ fontSize: 24 }} className="text-gray-600" />
-					<span className="text-xs font-medium text-gray-600">Stats</span>
+					<BarChartIcon sx={{ fontSize: 24 }} className="text-ink-on-surface-variant" />
+					<span className="text-xs font-medium font-sans text-ink-on-surface-variant">Stats</span>
 
-					<div className="w-8 h-0.5 bg-gray-200 rounded-full" />
+					<div className="w-8 h-0.5 bg-ink-outline-variant/30 rounded-full" />
 
-					<span className="text-lg font-bold text-gray-800">{stats.totalChats}</span>
-					<span className="text-xs text-gray-500">chats</span>
+					<span className="text-lg font-bold text-ink-on-surface">{stats.totalChats}</span>
+					<span className="text-xs font-sans text-ink-on-surface-variant">chats</span>
 
-					<div className="w-8 h-0.5 bg-gray-200 rounded-full" />
+					<div className="w-8 h-0.5 bg-ink-outline-variant/30 rounded-full" />
 
-					<span className="text-lg font-bold text-gray-800">{stats.uniquePhilosophers}</span>
-					<span className="text-xs text-gray-500">advisors</span>
+					<span className="text-lg font-bold text-ink-on-surface">{stats.uniquePhilosophers}</span>
+					<span className="text-xs font-sans text-ink-on-surface-variant">advisors</span>
 				</div>
 			</div>
 
 			{/* Chat List */}
-			<div className="max-w-4xl mx-auto px-4 py-6">
+			<div className="max-w-4xl mx-auto px-4 py-6 pt-24">
 				{chats.length === 0 ? (
-					<div className="flex flex-col items-center justify-center py-20 text-gray-500">
-						<ChatBubbleOutlineIcon sx={{ fontSize: 64 }} className="mb-4 text-gray-300" />
-						<p className="text-lg font-medium mb-2">No conversations yet</p>
-						<p className="text-sm text-center mb-6">Start a conversation with a philosopher to see it here</p>
+					<div className="flex flex-col items-center justify-center py-20 text-ink-on-surface-variant">
+						<ChatBubbleOutlineIcon sx={{ fontSize: 64 }} className="mb-4 opacity-30" />
+						<p className="text-lg font-serif italic mb-2">No conversations yet</p>
+						<p className="text-sm text-center font-sans mb-6">Start a conversation with a philosopher to see it here</p>
 						<button
 							onClick={handleNewChat}
-							className="flex items-center space-x-2 bg-gray-800 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors"
+							className="flex items-center space-x-2 bg-ink-primary text-ink-on-primary px-6 py-3 rounded-lg hover:opacity-90 transition-opacity"
 						>
 							<AddIcon sx={{ fontSize: 20 }} />
-							<span>Start a Conversation</span>
+							<span className="font-sans">Start a Conversation</span>
 						</button>
 					</div>
 				) : (
@@ -215,11 +220,11 @@ const ChatListPage: React.FC = () => {
 							<div
 								key={chat.id}
 								onClick={() => handleChatSelect(chat.id)}
-								className="bg-white p-4 rounded-xl cursor-pointer transition-all border border-gray-200 hover:border-gray-300 hover:shadow-md"
+								className="bg-ink-surface-low p-4 rounded-xl cursor-pointer transition-all border border-ink-outline-variant/10 hover:border-ink-outline-variant/30 hover:bg-ink-surface"
 							>
 								<div className="flex items-start space-x-4">
 									{/* Philosopher Avatar */}
-									<div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center flex-shrink-0 overflow-hidden">
+									<div className="w-12 h-12 rounded-full bg-ink-surface-high flex items-center justify-center flex-shrink-0 overflow-hidden">
 										{getPhilosopherImage(chat.advisor_name) ? (
 											<img
 												className="h-full w-full rounded-full object-cover"
@@ -227,7 +232,7 @@ const ChatListPage: React.FC = () => {
 												alt={chat.advisor_name}
 											/>
 										) : (
-											<span className="text-lg font-bold text-amber-700">
+											<span className="text-lg font-serif italic text-ink-on-surface-variant">
 												{chat.advisor_name?.charAt(0) || '?'}
 											</span>
 										)}
@@ -236,30 +241,30 @@ const ChatListPage: React.FC = () => {
 									{/* Chat Info */}
 									<div className="flex-1 min-w-0">
 										<div className="flex items-center justify-between mb-1">
-											<h3 className="text-base font-medium text-gray-900">
+											<h3 className="text-base font-serif italic text-ink-on-surface">
 												{chat.advisor_name}
 											</h3>
 
 											<div className="flex flex-row items-center justify-center gap-2">
-												<div className="flex items-center space-x-1 text-xs text-gray-500">
+												<div className="flex items-center space-x-1 text-xs font-sans text-ink-on-surface-variant">
 													<AccessTimeIcon sx={{ fontSize: 14 }} />
 													<span>{formatTimestamp(chat.created_at)}</span>
 												</div>
 												<button
-													className="flex items-center justify-center border border-gray-200 rounded-md p-2 hover:border-red-300 hover:bg-red-50 transition-colors"
+													className="flex items-center justify-center border border-ink-outline-variant/20 rounded-md p-2 hover:border-red-300 hover:bg-red-500/10 transition-colors"
 													onClick={(e) => handleChatDelete(e, chat.id)}
 												>
-													<DeleteIcon sx={{ fontSize: 18 }} className="text-gray-400 hover:text-red-500" />
+													<DeleteIcon sx={{ fontSize: 18 }} className="text-ink-outline hover:text-red-500" />
 												</button>
 											</div>
 										</div>
 
-										<p className="text-sm text-gray-600 line-clamp-2 mb-2">
+										<p className="text-sm font-sans text-ink-on-surface-variant line-clamp-2 mb-2">
 											{getLastMessage(chat)}
 										</p>
 
 										<div className="flex items-center">
-											<span className="text-xs text-gray-500">
+											<span className="text-xs font-sans text-ink-outline">
 												{getMessageCount(chat)} messages
 											</span>
 										</div>
@@ -269,14 +274,14 @@ const ChatListPage: React.FC = () => {
 						))}
 						<div
 							onClick={handleAddChat}
-							className="group flex row justify-center bg-white p-4 rounded-xl cursor-pointer border hover:bg-[#1E2938] border-gray-200 hover:border-gray-200 hover:shadow-md transition-all duration-200"
+							className="group flex row justify-center bg-ink-surface-low p-4 rounded-xl cursor-pointer border border-ink-outline-variant/10 hover:bg-ink-primary hover:border-ink-primary transition-all duration-200"
 						>
-							<AddIcon sx={{ fontSize: 64 }} className="text-gray-400 group-hover:text-white" />
+							<AddIcon sx={{ fontSize: 64 }} className="text-ink-outline-variant group-hover:text-ink-on-primary" />
 						</div>
 					</div>
 				)}
 			</div>
-		</Layout>
+		</div>
 	);
 };
 
