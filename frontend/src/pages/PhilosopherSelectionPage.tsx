@@ -94,7 +94,7 @@ const PhilosopherSelectionPage: React.FC = () => {
     <header className="fixed top-0 w-full z-50 bg-ink-bg/80 backdrop-blur-xl border-b border-ink-outline-variant/15">
       <div className="flex items-center justify-between px-8 py-4">
         <div className="flex items-center gap-8">
-          <span className="text-2xl font-serif text-ink-on-surface italic">who</span>
+          <a href="/" className="text-2xl font-serif text-ink-on-surface italic hover:opacity-80 transition-opacity">who</a>
           <span className="font-sans text-2xs uppercase tracking-[0.2em] text-ink-outline">Philosophical Inquiry</span>
         </div>
         <div className="flex items-center gap-4">
