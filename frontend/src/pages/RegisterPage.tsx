@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ArrowBack, Person, Email, Lock, Visibility, VisibilityOff } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 import { confirmSignUp } from '@/lib/cognito';
+import ThemeToggle from '../components/ThemeToggle';
 
 const RegisterPage: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -73,6 +74,9 @@ const RegisterPage: React.FC = () => {
   if (step === 'confirm') {
     return (
       <div className="min-h-screen bg-white">
+        <div className="fixed top-4 right-4 md:top-6 md:right-6 z-50">
+          <ThemeToggle />
+        </div>
         <div className="p-6">
           <button
             onClick={() => setStep('register')}
@@ -133,14 +137,6 @@ const RegisterPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Navigation */}
-      <div className="p-6">
-        <Link to="/" className="flex items-center text-gray-600 hover:text-gray-900 transition-colors">
-          <ArrowBack className="mr-2" />
-          Back to Home
-        </Link>
-      </div>
-
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-12">
         {/* Register Form */}
         <div className="bg-white rounded-lg shadow-lg p-5 sm:p-8 mb-16 max-w-md mx-auto">

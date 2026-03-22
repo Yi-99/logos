@@ -17,7 +17,7 @@ ISSUER = f"https://cognito-idp.{COGNITO_REGION}.amazonaws.com/{COGNITO_USER_POOL
 JWKS_URL = f"{ISSUER}/.well-known/jwks.json"
 
 # Paths that do not require authentication
-PUBLIC_PATHS = {"/", "/health"}
+PUBLIC_PATHS = {"/", "/health", "/api/v1/stats", "/api/v1/stats/"}
 
 # Cached JWKS keys
 _jwks_cache: dict | None = None

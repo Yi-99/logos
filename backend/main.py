@@ -8,6 +8,7 @@ from routes import prompt_router
 from routes import prompt_legacy_router
 from routes import philosophers_router
 from routes import users_router
+from routes import stats_router
 
 frontend_url = os.getenv("FRONTEND_URL")
 
@@ -36,6 +37,7 @@ app.include_router(prompt_router, prefix="/api")
 app.include_router(prompt_legacy_router, prefix="/api")
 app.include_router(philosophers_router, prefix="/api")
 app.include_router(users_router, prefix="/api")
+app.include_router(stats_router, prefix="/api")
 
 @app.get("/")
 async def root():
