@@ -15,6 +15,7 @@ usage() {
     echo "  backend     Build and push backend image to ECR (Watchtower auto-pulls on EC2)"
     echo "  frontend    Build and deploy the frontend to S3 + CloudFront"
     echo "  restart     SSH into EC2 and manually restart the backend container"
+    echo "  seed        Run migrations and seed philosopher data on production"
     echo "  ssh         SSH into the EC2 instance"
     echo ""
     echo "Examples:"
@@ -56,14 +57,38 @@ restart_backend() {
         ECR_REPO="$3"
 
         echo "-> Fetching secrets from SSM..."
-        OPENAI_API_KEY=$(aws ssm get-parameter --name /logos/OPENAI_API_KEY --with-decryption --query Parameter.Value --output text --region "$REGION")
-        FRONTEND_URL=$(aws ssm get-parameter --name /logos/FRONTEND_URL --with-decryption --query Parameter.Value --output text --region "$REGION")
+        OPENAI_API_KEY=$(aws ssm get-parameter --name /who/OPENAI_API_KEY --with-decryption --query Parameter.Value --output text --region "$REGION")
+        FRONTEND_URL=$(aws ssm get-parameter --name /who/FRONTEND_URL --with-decryption --query Parameter.Value --output text --region "$REGION")
+        DATABASE_URL=$(aws ssm get-parameter --name /who/DATABASE_URL --with-decryption --query Parameter.Value --output text --region "$REGION")
+        COGNITO_USER_POOL_ID=$(aws ssm get-parameter --name /who/COGNITO_USER_POOL_ID --with-decryption --query Parameter.Value --output text --region "$REGION")
 
         echo "-> Authenticating with ECR..."
         aws ecr get-login-password --region "$REGION" | docker login --username AWS --password-stdin "$ECR_REGISTRY"
 
         echo "-> Pulling latest image..."
         docker pull "${ECR_REPO}:latest"
+
+        echo "-> Creating Docker network (if needed)..."
+        docker network create logos-net 2>/dev/null || true
+
+        echo "-> Ensuring Postgres is running..."
+        if ! docker ps --format '{{.Names}}' | grep -q '^logos-db$'; then
+            echo "   Starting Postgres container..."
+            docker run -d \
+                --name logos-db \
+                --network logos-net \
+                --restart unless-stopped \
+                -v logos-pgdata:/var/lib/postgresql/data \
+                -e POSTGRES_USER=who \
+                -e POSTGRES_PASSWORD=who \
+                -e POSTGRES_DB=who \
+                pgvector/pgvector:pg16
+            echo "   Waiting for Postgres to be ready..."
+            sleep 5
+        else
+            echo "   Postgres already running, connecting to network..."
+            docker network connect logos-net logos-db 2>/dev/null || true
+        fi
 
         echo "-> Stopping old container..."
         docker stop logos-backend 2>/dev/null || true
@@ -72,10 +97,17 @@ restart_backend() {
         echo "-> Starting new container..."
         docker run -d \
             --name logos-backend \
+            --network logos-net \
             --restart unless-stopped \
             -p 8000:8000 \
+            -e APP_ENV=prod \
             -e OPENAI_API_KEY="$OPENAI_API_KEY" \
             -e FRONTEND_URL="$FRONTEND_URL" \
+            -e DATABASE_URL="postgresql://who:who@logos-db:5432/who" \
+            -e COGNITO_USER_POOL_ID="$COGNITO_USER_POOL_ID" \
+            -e COGNITO_REGION="$REGION" \
+            -e AWS_REGION="$REGION" \
+            -e S3_BUCKET_NAME="who-portraits-prod" \
             "${ECR_REPO}:latest"
 
         echo "-> Container status:"
@@ -90,16 +122,44 @@ deploy_frontend() {
     cd "${PROJECT_ROOT}/frontend"
     VITE_BACKEND_URL="$BACKEND_URL" npm run build
 
-    echo "-> Uploading to S3..."
-    aws s3 sync dist/ "s3://${S3_BUCKET}" --delete --region "$REGION"
+    echo "-> Uploading assets to S3 (long cache)..."
+    aws s3 sync dist/assets/ "s3://${S3_BUCKET}/assets/" \
+        --delete --region "$REGION" --exact-timestamps \
+        --cache-control "public, max-age=31536000, immutable"
+
+    echo "-> Uploading HTML and static files to S3 (no cache)..."
+    aws s3 sync dist/ "s3://${S3_BUCKET}" \
+        --delete --region "$REGION" --exact-timestamps \
+        --cache-control "no-cache, no-store, must-revalidate" \
+        --exclude "assets/*"
 
     echo "-> Invalidating CloudFront cache..."
     local CF_ID
     CF_ID=$(get_tf_output cloudfront_distribution_id)
-    aws cloudfront create-invalidation --distribution-id "$CF_ID" --paths "/*" > /dev/null
+    aws cloudfront create-invalidation --distribution-id "$CF_ID" --paths "/*"
+    echo "   Waiting for invalidation to complete..."
+    aws cloudfront wait invalidation-completed --distribution-id "$CF_ID" \
+        --id "$(aws cloudfront list-invalidations --distribution-id "$CF_ID" --query 'InvalidationList.Items[0].Id' --output text)"
 
     echo "=== Frontend deployed ==="
     echo "Verify: curl https://who.philo-ai.com"
+}
+
+seed_db() {
+    local EC2_IP
+    EC2_IP=$(get_tf_output ec2_public_ip)
+
+    echo "=== Seeding production database ==="
+    echo "-> Connecting to EC2 at ${EC2_IP}..."
+    ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 ec2-user@"$EC2_IP" bash -s <<'REMOTE'
+        echo "-> Running migrations..."
+        docker exec logos-backend uv run alembic upgrade head
+
+        echo "-> Seeding philosopher data..."
+        docker exec -e APP_ENV=prod logos-backend uv run python -m scripts.seed
+
+        echo "=== Done ==="
+REMOTE
 }
 
 ssh_ec2() {
@@ -113,6 +173,7 @@ case "${1:-}" in
     backend)  deploy_backend ;;
     frontend) deploy_frontend ;;
     restart)  restart_backend ;;
+    seed)     seed_db ;;
     ssh)      ssh_ec2 ;;
     *)        usage ;;
 esac

@@ -16,8 +16,9 @@ app = FastAPI()
 origins = [
 	"http://localhost:5173", # Local React App
 	"http://localhost",
-	frontend_url,
 ]
+if frontend_url:
+	origins.append(frontend_url)
 
 # Auth middleware runs after CORS (middleware stack is LIFO, so add auth first)
 app.add_middleware(AuthMiddleware)

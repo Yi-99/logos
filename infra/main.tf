@@ -70,11 +70,13 @@ module "auth" {
   callback_urls = [
     "https://${var.app_name}.${var.domain_name}/auth/callback",
     "http://localhost:5173/auth/callback",
+    "http://localhost:4173/auth/callback",
   ]
 
   logout_urls = [
     "https://${var.app_name}.${var.domain_name}",
     "http://localhost:5173",
+    "http://localhost:4173",
   ]
 }
 

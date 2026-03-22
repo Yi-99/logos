@@ -235,17 +235,15 @@ const ChatListPage: React.FC = () => {
 								Page {String(currentPage).padStart(2, '0')} of {String(totalPages).padStart(2, '0')} — {stats.totalChats} dialogue{stats.totalChats !== 1 ? 's' : ''} — {stats.uniquePhilosophers} philosopher{stats.uniquePhilosophers !== 1 ? 's' : ''} — {stats.totalMessages} exchange{stats.totalMessages !== 1 ? 's' : ''}
 							</p>
 							<div className="flex gap-8">
-								{currentPage - 1 != 0 && <button
-									onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-									disabled={currentPage === 1}
-									className="font-sans text-xs tracking-widest uppercase text-ink-on-surface-variant hover:text-ink-primary transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+								{currentPage > 1 && <button
+									onClick={() => setCurrentPage(p => p - 1)}
+									className="font-sans text-xs tracking-widest uppercase text-ink-on-surface-variant hover:text-ink-primary transition-colors"
 								>
 									Previous
 								</button>}
-								{currentPage + 1 > paginatedChats.length && <button
-									onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-									disabled={currentPage === totalPages}
-									className="font-sans text-xs tracking-widest uppercase text-ink-on-surface-variant hover:text-ink-primary transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+								{currentPage < totalPages && <button
+									onClick={() => setCurrentPage(p => p + 1)}
+									className="font-sans text-xs tracking-widest uppercase text-ink-on-surface-variant hover:text-ink-primary transition-colors"
 								>
 									Next
 								</button>}

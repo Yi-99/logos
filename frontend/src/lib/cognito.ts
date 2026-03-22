@@ -4,6 +4,9 @@ import {
   AuthenticationDetails,
   CognitoUserAttribute,
   CognitoUserSession,
+  CognitoIdToken,
+  CognitoAccessToken,
+  CognitoRefreshToken,
 } from 'amazon-cognito-identity-js';
 
 const userPoolId = import.meta.env.VITE_COGNITO_USER_POOL_ID;
@@ -112,8 +115,20 @@ export function handleOAuthCallback(code: string): Promise<CognitoAuthUser> {
       return res.json();
     })
     .then(tokens => {
-      // Parse the ID token to get user info
+      // Store tokens in Cognito SDK so getAccessToken() works for subsequent requests
       const payload = JSON.parse(atob(tokens.id_token.split('.')[1]));
+      const cognitoUser = new CognitoUser({
+        Username: payload.sub,
+        Pool: userPool,
+      });
+
+      const session = new CognitoUserSession({
+        IdToken: new CognitoIdToken({ IdToken: tokens.id_token }),
+        AccessToken: new CognitoAccessToken({ AccessToken: tokens.access_token }),
+        RefreshToken: new CognitoRefreshToken({ RefreshToken: tokens.refresh_token }),
+      });
+      cognitoUser.setSignInUserSession(session);
+
       return {
         id: payload.sub,
         email: payload.email,
