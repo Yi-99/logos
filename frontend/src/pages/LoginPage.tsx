@@ -76,10 +76,10 @@ const LoginPage: React.FC = () => {
       {/* Scrollable Content */}
       <div className="relative" style={{ zIndex: 3 }}>
 
-		<div className="max-w-4xl mx-auto px-6 py-12">
+		<div className="max-w-4xl mx-auto px-10 md:px-6 py-12">
 			<div className="h-screen flex flex-col items-center justify-center text-white text-center space-y-6">
-				<p className="text-sm uppercase tracking-[0.4em]">who: logos project</p>
-				<h1 className="text-4xl md:text-5xl font-semibold leading-tight">
+				<p className="text-xs sm:text-sm uppercase tracking-[0.3em] sm:tracking-[0.4em]">who: logos project</p>
+				<h1 className="text-2xl sm:text-4xl md:text-5xl font-semibold leading-tight">
 					Reflect, wander, and sign in to continue the journey.
 				</h1>
 				<p className="text-sm max-w-2xl">
@@ -95,7 +95,7 @@ const LoginPage: React.FC = () => {
 
 			<div className="min-h-screen flex flex-col items-center justify-center">
 					{/* Login Form */}
-					<div className="bg-white rounded-lg shadow-lg p-8 mb-16 max-w-md mx-auto">
+					<div className="bg-white rounded-lg shadow-lg p-5 sm:p-8 mb-16 max-w-md mx-auto">
 						<div className="text-center mb-8">
 							<h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
 							<p className="text-gray-600">Sign in to continue your philosophical journey</p>

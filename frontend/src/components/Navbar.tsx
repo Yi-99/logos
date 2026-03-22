@@ -46,25 +46,25 @@ const Navbar: React.FC<NavbarProps> = ({
   const isTitleMode = !!title;
 
   return (
-    <header className={`${fixed ? 'fixed top-0 w-full z-50' : ''} flex items-center justify-between px-8 py-4 bg-ink-bg/80 backdrop-blur-xl border-b border-ink-outline-variant/15 z-10`}>
-      <div className="flex items-center gap-8">
+    <header className={`${fixed ? 'fixed top-0 w-full z-50' : ''} flex items-center justify-between px-4 md:px-8 py-3 md:py-4 bg-ink-bg/80 backdrop-blur-xl border-b border-ink-outline-variant/15 z-10`}>
+      <div className="flex items-center gap-4 md:gap-8 min-w-0">
         {isTitleMode ? (
           /* Title mode */
           <>
-            <a href={titleHref} className="text-2xl font-serif text-ink-on-surface italic hover:opacity-80 transition-opacity">
+            <a href={titleHref} className="text-2xl font-serif text-ink-on-surface italic hover:opacity-80 transition-opacity shrink-0">
               {title}
             </a>
             {subtitle && (
-              <span className="font-sans text-2xs uppercase tracking-[0.2em] text-ink-outline">{subtitle}</span>
+              <span className="font-sans text-2xs uppercase tracking-[0.2em] text-ink-outline hidden sm:inline">{subtitle}</span>
             )}
           </>
         ) : (
           /* Philosopher mode */
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 md:space-x-4 min-w-0">
             {onBackClick && (
               <button
                 onClick={onBackClick}
-                className="py-2 px-3 text-ink-on-surface-variant hover:text-ink-on-surface hover:bg-ink-surface rounded-xl transition-colors duration-500"
+                className="hidden md:flex py-2 px-2 md:px-3 text-ink-on-surface-variant hover:text-ink-on-surface hover:bg-ink-surface rounded-xl transition-colors duration-500 shrink-0"
               >
                 <ArrowBackIcon sx={{ fontSize: 20 }} />
               </button>
@@ -73,17 +73,17 @@ const Navbar: React.FC<NavbarProps> = ({
             {showHistory && (
               <button
                 onClick={onHistoryClick}
-                className="py-2 px-3 text-ink-on-surface-variant hover:text-ink-on-surface hover:bg-ink-surface rounded-xl transition-colors duration-500"
+                className="py-2 px-2 md:px-3 text-ink-on-surface-variant hover:text-ink-on-surface hover:bg-ink-surface rounded-xl transition-colors duration-500 shrink-0"
               >
                 <HistoryIcon sx={{ fontSize: 20 }} />
               </button>
             )}
 
-            <div className="h-4 w-[1px] bg-ink-outline-variant/30"></div>
+            <div className="h-4 w-[1px] bg-ink-outline-variant/30 shrink-0"></div>
 
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-3 md:space-x-4 min-w-0">
               {philosopherImage && (
-                <div className="w-10 h-10 rounded-full overflow-hidden bg-ink-surface">
+                <div className="hidden md:flex w-10 h-10 rounded-full overflow-hidden bg-ink-surface shrink-0">
                   <img
                     className="h-full w-full rounded-full object-cover"
                     src={philosopherImage}
@@ -91,9 +91,9 @@ const Navbar: React.FC<NavbarProps> = ({
                   />
                 </div>
               )}
-              <div>
-                <h1 className="text-xl font-serif text-ink-on-surface italic tracking-tight">{philosopherName}</h1>
-                <span className="font-sans text-2xs uppercase tracking-[0.2em] text-ink-outline">{philosopherSubtitle || 'Session active'}</span>
+              <div className="min-w-0">
+                <h1 className="text-base md:text-xl font-serif text-ink-on-surface italic tracking-tight truncate">{philosopherName}</h1>
+                <span className="font-sans text-2xs uppercase tracking-[0.2em] text-ink-outline hidden sm:block">{philosopherSubtitle || 'Session active'}</span>
               </div>
             </div>
           </div>

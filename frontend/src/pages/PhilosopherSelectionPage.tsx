@@ -55,10 +55,10 @@ const PhilosopherSelectionPage: React.FC = () => {
   const isListView = viewMode === 'list';
 
   const viewToggleIsland = (
-    <div className="fixed right-6 top-1/2 -translate-y-1/2 z-20 bg-ink-surface border border-ink-outline-variant/15 rounded-2xl px-3 py-4">
-      <div className="flex flex-col items-center space-y-3">
-        <span className="font-sans text-2xs uppercase tracking-widest text-ink-outline">View</span>
-        <div className="w-8 h-[1px] bg-ink-outline-variant/30 rounded-full" />
+    <div className="hidden mdd:fixed right-3 md:right-6 bottom-6 md:bottom-auto md:top-1/2 md:-translate-y-1/2 z-20 bg-ink-surface border border-ink-outline-variant/15 rounded-2xl px-3 py-3 md:py-4 shadow-lg md:shadow-none">
+      <div className="flex flex-row md:flex-col items-center space-x-3 md:space-x-0 md:space-y-3">
+        <span className="font-sans text-2xs uppercase tracking-widest text-ink-outline hidden md:block">View</span>
+        <div className="w-8 h-[1px] bg-ink-outline-variant/30 rounded-full hidden md:block" />
 
         <Tooltip title="List view" arrow placement="left">
           <button
@@ -117,15 +117,15 @@ const PhilosopherSelectionPage: React.FC = () => {
     );
   }
 
-  const staggerOffsets = ['mt-0', 'mt-8', 'mt-0', 'mt-12', 'mt-0', 'mt-4', 'mt-16', 'mt-0'];
+  const staggerOffsets = ['mt-0', 'sm:mt-8', 'mt-0', 'sm:mt-12', 'mt-0', 'sm:mt-4', 'sm:mt-16', 'mt-0'];
 
   return (
     <div className="h-screen overflow-x-hidden ink-dot-grid">
       {selectionNavbar}
 
-      <main className="pt-28 pb-20 px-8 md:px-16 max-w-6xl mx-auto">
-        <section className="mb-12 border-b border-ink-outline-variant/10 pb-8">
-          <h2 className="text-4xl font-serif italic text-ink-on-surface mb-2">Select Philosophers</h2>
+      <main className="pt-20 md:pt-28 pb-20 px-10 md:px-16 max-w-6xl mx-auto">
+        <section className="mb-8 md:mb-12 border-b border-ink-outline-variant/10 pb-8">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif italic text-ink-on-surface mb-2">Select Philosophers</h2>
           <p className="font-sans text-sm text-ink-on-surface-variant mb-8">Choose a philosopher to begin your dialogue</p>
 
           {(() => {
@@ -136,7 +136,7 @@ const PhilosopherSelectionPage: React.FC = () => {
             ));
             if (categories.length === 0) return null;
             return (
-              <div className="flex gap-3 overflow-x-auto pb-2 ink-scroll">
+              <div className="flex gap-3 overflow-x-hidden md:overflow-x-auto flex-wrap md:flex-nowrap pb-2 ink-scroll">
                 <button
                   onClick={() => setActiveFilter(null)}
                   className={`px-4 py-1.5 rounded-full border text-sm font-sans whitespace-nowrap transition-all ${
@@ -203,7 +203,7 @@ const PhilosopherSelectionPage: React.FC = () => {
 
       {viewToggleIsland}
 
-      <footer className="py-12 px-8 md:px-16 border-t border-ink-outline-variant/10 max-w-6xl mx-auto">
+      <footer className="py-8 md:py-12 px-4 sm:px-8 md:px-16 border-t border-ink-outline-variant/10 max-w-6xl mx-auto">
         <div className="font-serif italic text-sm text-ink-on-surface-variant/50">
           Philosophical inquiry is a journey without destination.
         </div>

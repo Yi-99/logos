@@ -83,10 +83,10 @@ const RegisterPage: React.FC = () => {
           </button>
         </div>
 
-        <div className="max-w-4xl mx-auto px-6 py-12">
-          <div className="bg-white rounded-lg shadow-lg p-8 mb-16 max-w-md mx-auto">
+        <div className="max-w-4xl mx-auto px-10 md:px-6 py-12">
+          <div className="bg-white rounded-lg shadow-lg p-5 sm:p-8 mb-16 max-w-md mx-auto">
             <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Verify Your Email</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Verify Your Email</h1>
               <p className="text-gray-600">
                 We sent a 6-digit code to <span className="font-medium text-gray-900">{formData.email}</span>
               </p>
@@ -141,11 +141,11 @@ const RegisterPage: React.FC = () => {
         </Link>
       </div>
 
-      <div className="max-w-4xl mx-auto px-6 py-12">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-12">
         {/* Register Form */}
-        <div className="bg-white rounded-lg shadow-lg p-8 mb-16 max-w-md mx-auto">
+        <div className="bg-white rounded-lg shadow-lg p-5 sm:p-8 mb-16 max-w-md mx-auto">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Join PhiloAI</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Join PhiloAI</h1>
             <p className="text-gray-600">Create an account to start conversations with history's greatest minds</p>
           </div>
 

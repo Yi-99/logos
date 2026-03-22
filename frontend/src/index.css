@@ -170,6 +170,7 @@ button {
 	}
   html, body {
     @apply bg-background text-foreground;
+    color-scheme: light dark;
     scrollbar-gutter: stable;
 	}
 }

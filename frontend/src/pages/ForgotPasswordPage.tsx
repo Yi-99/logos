@@ -44,11 +44,11 @@ const ForgotPasswordPage: React.FC = () => {
         style={{ zIndex: 2, backgroundColor: 'rgba(0, 0, 0, 0.35)' }}
       />
 
-      <div className="relative min-h-screen flex items-center justify-center px-4" style={{ zIndex: 3 }}>
-        <div className="max-w-5xl w-full mx-auto px-6 py-16 grid gap-12 lg:grid-cols-2 items-center rounded-3xl">
-          <div className="text-white space-y-6 rounded-3xl">
-            <p className="text-sm uppercase tracking-[0.4em] text-white">Logos Project</p>
-            <h1 className="text-4xl md:text-5xl font-semibold leading-tight">
+      <div className="relative min-h-screen flex items-center justify-center px-10 md:px-4" style={{ zIndex: 3 }}>
+        <div className="max-w-5xl w-full mx-auto px-0 md:px-6 py-8 md:py-16 grid gap-8 md:gap-12 lg:grid-cols-2 items-center rounded-3xl">
+          <div className="text-white space-y-4 md:space-y-6 rounded-3xl">
+            <p className="text-xs sm:text-sm uppercase tracking-[0.3em] sm:tracking-[0.4em] text-white">Logos Project</p>
+            <h1 className="text-2xl sm:text-4xl md:text-5xl font-semibold leading-tight">
               Forgotten password, familiar journey.
             </h1>
             <p className="text-lg text-white">
@@ -61,7 +61,7 @@ const ForgotPasswordPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-2xl p-8">
+          <div className="bg-white rounded-2xl shadow-2xl p-5 sm:p-8">
             <div className="mb-8 text-center">
               <h2 className="text-2xl font-semibold text-gray-900">Reset Password</h2>
               <p className="text-gray-600">

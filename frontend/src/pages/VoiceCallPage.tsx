@@ -53,10 +53,10 @@ const VoiceCallPage: React.FC = () => {
       />
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col items-center justify-center p-8">
+      <div className="flex-1 flex flex-col items-center justify-center p-10 md:p-8">
         {/* Large Philosopher Image */}
-        <div className="w-80 h-80 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center mb-8">
-          <span className="text-9xl">{philosopher.image}</span>
+        <div className="w-48 h-48 sm:w-64 sm:h-64 md:w-80 md:h-80 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center mb-6 md:mb-8">
+          <span className="text-6xl sm:text-7xl md:text-9xl">{philosopher.image}</span>
         </div>
 
         {/* Listening Status */}

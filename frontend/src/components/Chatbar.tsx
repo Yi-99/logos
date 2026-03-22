@@ -381,22 +381,22 @@ const Chatbar: React.FC<ChatbarProps> = ({
 						</div>
 					)}
 
-					<div className="flex items-end py-4 px-6 dark:p-4">
+					<div className="flex items-end py-2 px-3 md:py-4 md:px-6 dark:p-3 dark:md:p-4 gap-2 md:gap-0">
 						<textarea
 							ref={textareaRef}
 							value={inputValue}
 							onChange={(e) => setInputValue(e.target.value)}
 							onKeyDown={handleKeyDown}
 							placeholder="Offer a counter-dialectic..."
-							className="flex-1 bg-transparent border-none focus:ring-0 focus:outline-none text-ink-on-surface placeholder:text-ink-on-surface/30 dark:placeholder:text-ink-outline/50 resize-none py-2 text-base dark:text-lg font-sans dark:font-serif leading-relaxed"
+							className="flex-1 bg-transparent border-0 border-none outline-none shadow-none focus:ring-0 focus:outline-none focus:border-0 text-ink-on-surface placeholder:text-ink-on-surface/30 dark:placeholder:text-ink-outline/50 resize-none py-1 md:py-2 text-sm md:text-base dark:text-lg font-sans dark:font-serif leading-relaxed"
 							rows={1}
 							disabled={isLoading}
 						/>
-						<div className="flex items-center gap-3 pb-1 px-2">
+						<div className="flex items-center gap-2 md:gap-3 pb-0.5 md:pb-1">
 							{/* Microphone Button */}
 							<button
 								onClick={handleMicClick}
-								className={`transition-colors duration-300 disabled:opacity-50 ${
+								className={`hidden md:block transition-colors duration-300 disabled:opacity-50 ${
 									isListening
 										? 'text-red-500 animate-pulse'
 										: isTranscribing
@@ -429,11 +429,11 @@ const Chatbar: React.FC<ChatbarProps> = ({
 							<button
 								onClick={handleSendMessage}
 								disabled={isLoading || (!inputValue.trim() && !hasValidAttachments)}
-								className="w-10 h-10 bg-ink-primary text-ink-on-primary flex items-center justify-center
+								className="w-8 h-8 md:w-10 md:h-10 bg-ink-primary text-ink-on-primary flex items-center justify-center
 									rounded-lg dark:rounded-full
-									hover:opacity-90 transition-all active:scale-95 shadow-sm disabled:opacity-30"
+									hover:opacity-90 transition-all active:scale-95 shadow-sm disabled:opacity-30 rotate-270"
 							>
-								<SendIcon sx={{ fontSize: 20 }} />
+								<SendIcon sx={{ fontSize: 18 }} className="md:!text-[20px]" />
 							</button>
 						</div>
 					</div>
@@ -443,7 +443,7 @@ const Chatbar: React.FC<ChatbarProps> = ({
 				</div>
 
 				{/* Helper text */}
-				<div className="mt-3 flex justify-between items-center px-2">
+				<div className="mt-3 hidden md:flex justify-between items-center px-2">
 					<span className="text-2xs font-sans text-ink-on-surface-variant">
 						{attachedFiles.length > 0
 							? `${attachedFiles.filter(f => !f.error).length} file${attachedFiles.filter(f => !f.error).length !== 1 ? 's' : ''} attached`

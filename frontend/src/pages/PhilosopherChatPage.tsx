@@ -278,31 +278,31 @@ const PhilosopherChatPage: React.FC = () => {
         onClick={isSidebarOpen ? handleSidebarClose : undefined}
       >
         {/* Chat Messages */}
-        <div className="absolute inset-0 overflow-y-auto ink-scroll px-6 md:px-24 py-12 z-10">
-          <div className="max-w-3xl mx-auto space-y-16">
+        <div className="absolute inset-0 overflow-y-auto ink-scroll px-10 md:px-24 py-6 md:py-12 z-10">
+          <div className="max-w-3xl mx-auto space-y-8 md:space-y-16">
             {messages.map((message, index) => (
               <div key={index} className="chat-message">
                 {message.role === 'user' ? (
                   /* User Message */
-                  <div className="flex flex-col items-end space-y-4 ml-auto max-w-2xl">
+                  <div className="flex flex-col items-end space-y-2 md:space-y-4 ml-auto max-w-full md:max-w-2xl">
                     <div className="flex items-center space-x-2 opacity-50">
                       <span className="text-2xs font-sans text-ink-outline">{message.timestamp} •</span>
                       <span className="text-2xs font-sans uppercase tracking-widest text-ink-primary">You</span>
                     </div>
-                    <div className="text-lg leading-relaxed text-ink-on-surface bg-ink-surface-low p-6 border border-ink-outline-variant/5 font-serif">
+                    <div className="text-base md:text-lg leading-relaxed text-ink-on-surface bg-ink-surface-low p-4 md:p-6 border border-ink-outline-variant/5 font-serif">
                       {message.content}
                     </div>
                   </div>
                 ) : (
                   /* Assistant Message */
-                  <div className="flex flex-col space-y-4 max-w-2xl">
+                  <div className="flex flex-col space-y-2 md:space-y-4 max-w-full md:max-w-2xl">
                     <div className="flex items-center space-x-2 opacity-50">
                       <span className="text-2xs font-sans uppercase tracking-widest text-ink-on-surface-variant">
                         {philosopher?.name || 'Archive Intelligence'}
                       </span>
                       <span className="text-2xs font-sans text-ink-outline">• {message.timestamp}</span>
                     </div>
-                    <div className="text-lg md:text-xl leading-relaxed text-ink-on-surface-variant italic font-serif">
+                    <div className="text-base md:text-xl leading-relaxed text-ink-on-surface-variant italic font-serif">
                       {message.content}
                     </div>
                   </div>
@@ -330,7 +330,7 @@ const PhilosopherChatPage: React.FC = () => {
 
       {/* Listening Indicator */}
       {isListening && (
-        <div className="fixed bottom-52 left-1/2 transform -translate-x-1/2 z-20">
+        <div className="fixed bottom-40 md:bottom-52 left-1/2 transform -translate-x-1/2 z-20">
           <div className="flex flex-row items-center gap-2 bg-ink-bg border border-ink-outline-variant/20 px-4 py-2 rounded-xl">
             <div className="h-2 w-2 bg-red-500 rounded-full animate-pulse"></div>
             <span className="text-sm text-ink-on-surface-variant">Listening...</span>
@@ -340,7 +340,7 @@ const PhilosopherChatPage: React.FC = () => {
 
       {/* Processing Indicator */}
       {isProcessing && (
-        <div className="fixed bottom-52 left-1/2 transform -translate-x-1/2 z-20">
+        <div className="fixed bottom-40 md:bottom-52 left-1/2 transform -translate-x-1/2 z-20">
           <div className="flex flex-row items-center gap-2 bg-ink-bg border border-ink-outline-variant/20 px-4 py-2 rounded-xl">
             <WormLoading />
             <span className="text-sm text-ink-on-surface-variant">Processing...</span>
@@ -350,7 +350,7 @@ const PhilosopherChatPage: React.FC = () => {
 
       {/* AI Responding Indicator */}
       {isAIResponding && (
-        <div className="fixed bottom-48 left-1/2 transform -translate-x-1/2 z-20">
+        <div className="fixed bottom-36 md:bottom-48 left-1/2 transform -translate-x-1/2 z-20">
           <div className="flex flex-row items-center gap-2 bg-ink-bg border border-ink-outline-variant/20 px-4 py-2 rounded-xl">
             <WormLoading />
             <span className="text-sm text-ink-on-surface-variant">Thinking...</span>
@@ -359,7 +359,7 @@ const PhilosopherChatPage: React.FC = () => {
       )}
 
       {/* Bottom Controls */}
-      <div className="p-6 pb-0">
+      <div className="p-3 md:p-6 pb-0">
         <div className="flex items-center justify-center space-x-6 mb-4">
           {isSpeechToSpeech && !isListening ? (<button
             onClick={handleMicClick}
@@ -392,7 +392,7 @@ const PhilosopherChatPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex flex-col items-center justify-center mb-5 gap-3">
+      <div className="hidden md:flex flex-col items-center justify-center mb-5 gap-3">
         {isSpeechToSpeech && <div className="w-full flex flex-row items-center justify-center gap-1 text-ink-on-surface-variant">
           <MicNoneIcon sx={{ fontSize: 16 }} />
           <ArrowRightAltIcon sx={{ fontSize: 16 }} />

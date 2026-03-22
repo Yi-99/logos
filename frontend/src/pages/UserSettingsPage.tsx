@@ -33,9 +33,9 @@ const UserSettingsPage: React.FC = () => {
       backPath="/"
     >
       <div className="bg-gray-50 min-h-screen">
-        <div className="max-w-4xl mx-auto px-6 py-8">
+        <div className="max-w-4xl mx-auto px-10 md:px-6 py-6 md:py-8">
         {/* Navigation Tabs */}
-        <div className="flex space-x-1 mb-8">
+        <div className="flex space-x-1 mb-6 md:mb-8">
           <button
             onClick={() => setActiveTab('profile')}
             className={`px-6 py-3 text-sm font-medium rounded-lg transition-colors ${
@@ -65,11 +65,11 @@ const UserSettingsPage: React.FC = () => {
             <p className="text-sm text-gray-600 mb-6">Update your personal information and preferences</p>
 
             {/* Avatar Section */}
-            <div className="flex items-start space-x-6 mb-8">
-              <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center">
+            <div className="flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-6 mb-8">
+              <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center shrink-0">
                 <span className="text-2xl font-bold text-gray-600">JD</span>
               </div>
-              <div>
+              <div className="text-center sm:text-left">
                 <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors mb-2">
                   Change Avatar
                 </button>
@@ -100,7 +100,7 @@ const UserSettingsPage: React.FC = () => {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex space-x-4">
+            <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
               <button
                 onClick={handleSaveChanges}
                 className="px-6 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
@@ -272,15 +272,15 @@ const UserSettingsPage: React.FC = () => {
               <p className="text-sm text-gray-600 mb-6">Manage your billing details and payment methods</p>
               
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border border-gray-200 rounded-lg gap-3">
                   <div className="flex items-center space-x-3">
-                    <CreditCardIcon className="text-gray-400" />
+                    <CreditCardIcon className="text-gray-400 shrink-0" />
                     <div>
                       <p className="text-sm font-medium text-gray-900">•••• •••• •••• 4242</p>
                       <p className="text-xs text-gray-500">Expires 12/25</p>
                     </div>
                   </div>
-                  <button className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors">
+                  <button className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors shrink-0">
                     Update
                   </button>
                 </div>

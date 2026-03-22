@@ -129,18 +129,18 @@ const ChatListPage: React.FC = () => {
 			/>
 
 			{/* Content Area */}
-			<section className="flex-1 px-6 py-12 md:px-20 lg:px-32 max-w-7xl mx-auto w-full pt-24">
+			<section className="flex-1 px-10 py-8 md:py-12 md:px-20 lg:px-32 max-w-7xl mx-auto w-full pt-20 md:pt-24">
 				{/* Hero Header (Asymmetric Layout) */}
-				<div className="mb-20 grid grid-cols-1 md:grid-cols-7 gap-8 items-end">
+				<div className="mb-10 md:mb-20 grid grid-cols-1 md:grid-cols-7 gap-4 md:gap-8 items-end">
 					<div className="md:col-span-4">
 						<span className="font-sans text-xs tracking-[0.2em] text-ink-on-surface-variant uppercase mb-4 block">
 							The Private Collection
 						</span>
-						<h2 className="text-5xl md:text-7xl font-serif font-light tracking-tighter text-ink-on-surface leading-tight">
+						<h2 className="text-3xl sm:text-5xl md:text-7xl font-serif font-light tracking-tighter text-ink-on-surface leading-tight">
 							Scholarly <br /> <span className="italic text-ink-primary">Perspectives</span>
 						</h2>
 					</div>
-					<div className="md:col-span-3 text-ink-on-surface-variant font-serif text-lg italic leading-relaxed md:pb-2">
+					<div className="md:col-span-3 text-ink-on-surface-variant font-serif text-base md:text-lg italic leading-relaxed md:pb-2">
 						"The unexamined life is not worth living." A digital repository of your philosophical explorations through time.
 					</div>
 				</div>
@@ -160,7 +160,7 @@ const ChatListPage: React.FC = () => {
 					</div>
 				) : (
 					/* Inquiries Grid (Bento Style) */
-					<div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+					<div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6">
 						{paginatedChats.map((chat, index) => {
 							const isWide = index % 3 === 0;
 							const colSpan = isWide ? 'md:col-span-8' : 'md:col-span-4';
@@ -176,11 +176,11 @@ const ChatListPage: React.FC = () => {
 								<div
 									key={chat.id}
 									onClick={() => handleChatSelect(chat.id)}
-									className={`${colSpan} ${bgClass} transition-all duration-500 cursor-pointer p-8 relative overflow-hidden group`}
+									className={`${colSpan} ${bgClass} transition-all duration-500 cursor-pointer p-5 md:p-8 relative overflow-hidden group`}
 								>
-									<div className="flex justify-between items-start mb-6 gap-4">
+									<div className="flex justify-between items-start mb-4 md:mb-6 gap-3 md:gap-4">
 										<div>
-											<h3 className="text-2xl md:text-3xl font-serif text-ink-on-surface mb-1">
+											<h3 className="text-xl sm:text-2xl md:text-3xl font-serif text-ink-on-surface mb-1">
 												{chat.advisor_name}
 											</h3>
 											<p className="font-sans text-xs text-ink-on-surface-variant tracking-widest uppercase italic">
@@ -230,9 +230,9 @@ const ChatListPage: React.FC = () => {
 						</div>
 
 						{/* Pagination / Footer */}
-						<div className="md:col-span-12 mt-12 flex flex-col md:flex-row items-center justify-between border-t border-ink-outline-variant/10 pt-8">
-							<p className="font-sans text-xs tracking-[0.25em] text-ink-on-surface-variant uppercase mb-4 md:mb-0">
-								Page {String(currentPage).padStart(2, '0')} of {String(totalPages).padStart(2, '0')} — {stats.totalChats} dialogue{stats.totalChats !== 1 ? 's' : ''} — {stats.uniquePhilosophers} philosopher{stats.uniquePhilosophers !== 1 ? 's' : ''} — {stats.totalMessages} exchange{stats.totalMessages !== 1 ? 's' : ''}
+						<div className="md:col-span-12 mt-8 md:mt-12 flex flex-col md:flex-row items-center justify-between border-t border-ink-outline-variant/10 pt-6 md:pt-8">
+							<p className="font-sans text-2xs md:text-xs tracking-[0.15em] md:tracking-[0.25em] text-ink-on-surface-variant uppercase mb-4 md:mb-0 text-center md:text-left">
+								Page {String(currentPage).padStart(2, '0')} of {String(totalPages).padStart(2, '0')} — {stats.totalChats} dialogue{stats.totalChats !== 1 ? 's' : ''} <span className="hidden sm:inline">— {stats.uniquePhilosophers} philosopher{stats.uniquePhilosophers !== 1 ? 's' : ''} — {stats.totalMessages} exchange{stats.totalMessages !== 1 ? 's' : ''}</span>
 							</p>
 							<div className="flex gap-8">
 								{currentPage > 1 && <button

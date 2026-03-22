@@ -91,8 +91,8 @@ const HomePage: React.FC = () => {
 	      <div className="relative" style={{ zIndex: 3 }}>
         {/* Hero Section */}
         <div className="hero-section min-h-screen flex flex-col items-center justify-center">
-          <div className="max-w-6xl mx-auto px-6 py-20 text-center">
-            <h1 className="text-5xl md:text-6xl font-bold text-gray-700 mb-6 text-shadow-lg">
+          <div className="max-w-6xl mx-auto px-10 md:px-6 py-20 text-center">
+            <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold text-gray-700 mb-6 text-shadow-lg">
               Converse with History's Greatest Philosophers
             </h1>
 				<button
@@ -105,7 +105,7 @@ const HomePage: React.FC = () => {
         </div>
 
 				<div className="min-h-screen flex flex-col items-center justify-center">
-					<div className="max-w-6xl mx-auto px-6 py-20 text-center">
+					<div className="max-w-6xl mx-auto px-10 md:px-6 py-20 text-center">
 						<div className="text-xl text-gray-700 text-shadow-lg mb-8 max-w-3xl mx-auto font-bold leading-relaxed backdrop-blur-xs p-4 rounded-4xl">
 							Experience profound conversations with ancient and modern briliant minds of philosophers and thinkers. Choose between text, speech-to-text, or speech-to-speech interactions for a truly immersive philosophical journey.
 						</div>
@@ -113,13 +113,13 @@ const HomePage: React.FC = () => {
 				</div>
 				
         {/* Features Section */}
-        <div ref={featuresRef} className="min-h-screen py-20 bg-transparent backdrop-blur-xs flex flex-col items-center justify-around gap-10">
-					<div className="max-w-6xl mx-auto px-6">
-						<div className="text-center mb-16">
-							<h2 className="text-4xl font-bold text-gray-700 mb-4 p-4 bg-gray-50/75 rounded-lg border border-gray-700">
+        <div ref={featuresRef} className="min-h-screen py-12 md:py-20 bg-transparent backdrop-blur-xs flex flex-col items-center justify-around gap-10">
+					<div className="max-w-6xl mx-auto px-10 md:px-6">
+						<div className="text-center mb-10 md:mb-16">
+							<h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-700 mb-4 p-4 bg-gray-50/75 rounded-lg border border-gray-700">
 								Powerful Features for Deep Conversations
 							</h2>
-							<p className="text-xl font-bold text-gray-700 max-w-3xl mx-auto">
+							<p className="text-base md:text-xl font-bold text-gray-700 max-w-3xl mx-auto">
 								Multiple interaction modes and authentic philosophical perspectives bring ancient wisdom to modern conversations.
 							</p>
 						</div>
