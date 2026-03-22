@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { useAuth } from '../contexts/AuthContext';
-import Navbar from '../components/Navbar';
 import ThemeToggle from '../components/ThemeToggle';
 import InteractiveDotGrid from '../components/InteractiveDotGrid';
 

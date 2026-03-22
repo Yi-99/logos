@@ -15,6 +15,7 @@ import { Philosopher } from '../constants/types/Philosopher';
 import philosopherService from '../services/philosophers/PhilosopherService';
 import { toast } from 'react-toastify';
 import { useAuth } from '../contexts/AuthContext';
+import InteractiveDotGrid from '../components/InteractiveDotGrid';
 
 export interface ChatMessage {
   role: 'user' | 'assistant';
@@ -252,7 +253,7 @@ const PhilosopherChatPage: React.FC = () => {
   };
 
   return (
-    <div className="h-screen ink-dot-grid flex flex-col">
+    <InteractiveDotGrid className="h-screen flex flex-col">
       {/* Header */}
       <Navbar
         philosopherName={philosopher?.name || ''}
@@ -421,7 +422,7 @@ const PhilosopherChatPage: React.FC = () => {
           onModeChange={handleModeChange}
         />
       </div>
-    </div>
+    </InteractiveDotGrid>
   );
 };
 

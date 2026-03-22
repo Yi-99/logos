@@ -11,32 +11,36 @@ const MAX_RADIUS = 3.5;
 const INFLUENCE_RADIUS = 70;
 
 const InteractiveDotGrid: React.FC<InteractiveDotGridProps> = ({ className = '', children }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const mouseRef = useRef({ x: -9999, y: -9999 });
   const rafRef = useRef<number>(0);
 
   useEffect(() => {
+    const container = containerRef.current;
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!container || !canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const parent = canvas.parentElement;
-    if (!parent) return;
+    let dpr = window.devicePixelRatio || 1;
 
     const resize = () => {
-      const dpr = window.devicePixelRatio || 1;
-      const rect = parent.getBoundingClientRect();
-      canvas.width = rect.width * dpr;
-      canvas.height = rect.height * dpr;
-      canvas.style.width = `${rect.width}px`;
-      canvas.style.height = `${rect.height}px`;
-      ctx.scale(dpr, dpr);
+      dpr = window.devicePixelRatio || 1;
+      const w = container.clientWidth;
+      const h = container.clientHeight;
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      canvas.style.width = `${w}px`;
+      canvas.style.height = `${h}px`;
     };
 
     const handleMouseMove = (e: MouseEvent) => {
-      const rect = canvas.getBoundingClientRect();
-      mouseRef.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+      const rect = container.getBoundingClientRect();
+      mouseRef.current = {
+        x: e.clientX - rect.left + container.scrollLeft,
+        y: e.clientY - rect.top + container.scrollTop,
+      };
     };
 
     const handleMouseLeave = () => {
@@ -48,17 +52,16 @@ const InteractiveDotGrid: React.FC<InteractiveDotGridProps> = ({ className = '',
       return {
         base: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.10)',
         active: isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.55)',
-        bg: isDark ? '#0e0e0e' : '#fbf9f8',
       };
     };
 
     const draw = () => {
-      const rect = parent.getBoundingClientRect();
-      const w = rect.width;
-      const h = rect.height;
+      const w = container.clientWidth;
+      const h = container.clientHeight;
       const { x: mx, y: my } = mouseRef.current;
       const colors = getColors();
 
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, w, h);
 
       const cols = Math.ceil(w / GRID_SIZE) + 1;
@@ -88,22 +91,22 @@ const InteractiveDotGrid: React.FC<InteractiveDotGridProps> = ({ className = '',
     draw();
 
     const resizeObserver = new ResizeObserver(resize);
-    resizeObserver.observe(parent);
-    parent.addEventListener('mousemove', handleMouseMove);
-    parent.addEventListener('mouseleave', handleMouseLeave);
+    resizeObserver.observe(container);
+    container.addEventListener('mousemove', handleMouseMove);
+    container.addEventListener('mouseleave', handleMouseLeave);
 
     return () => {
       cancelAnimationFrame(rafRef.current);
       resizeObserver.disconnect();
-      parent.removeEventListener('mousemove', handleMouseMove);
-      parent.removeEventListener('mouseleave', handleMouseLeave);
+      container.removeEventListener('mousemove', handleMouseMove);
+      container.removeEventListener('mouseleave', handleMouseLeave);
     };
   }, []);
 
   return (
-    <div className={`relative ${className}`} style={{ backgroundColor: 'var(--ink-bg)' }}>
-      <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none" />
-      <div className="relative z-10">{children}</div>
+    <div ref={containerRef} className={`isolate relative ${className}`} style={{ backgroundColor: 'var(--ink-bg)' }}>
+      <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none -z-10" />
+      {children}
     </div>
   );
 };

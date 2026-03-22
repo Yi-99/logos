@@ -7,6 +7,7 @@ import Tooltip from '@mui/material/Tooltip';
 import philosopherService from '../services/philosophers/PhilosopherService';
 import PhilosopherClusterMap from '../components/PhilosopherClusterMap';
 import Navbar from '../components/Navbar';
+import InteractiveDotGrid from '../components/InteractiveDotGrid';
 
 type ViewMode = 'list' | 'graph';
 
@@ -101,7 +102,7 @@ const PhilosopherSelectionPage: React.FC = () => {
 
   if (isGraphView) {
     return (
-      <div className="h-screen flex flex-col overflow-hidden ink-dot-grid">
+      <InteractiveDotGrid className="h-screen flex flex-col overflow-hidden">
         {selectionNavbar}
 
         <div className="flex-1 relative pt-[60px]">
@@ -113,14 +114,14 @@ const PhilosopherSelectionPage: React.FC = () => {
         </div>
 
         {viewToggleIsland}
-      </div>
+      </InteractiveDotGrid>
     );
   }
 
   const staggerOffsets = ['mt-0', 'sm:mt-8', 'mt-0', 'sm:mt-12', 'mt-0', 'sm:mt-4', 'sm:mt-16', 'mt-0'];
 
   return (
-    <div className="h-screen overflow-x-hidden ink-dot-grid">
+    <InteractiveDotGrid className="h-screen overflow-x-hidden">
       {selectionNavbar}
 
       <main className="pt-20 md:pt-28 pb-20 px-10 md:px-16 max-w-6xl mx-auto">
@@ -208,7 +209,7 @@ const PhilosopherSelectionPage: React.FC = () => {
           Philosophical inquiry is a journey without destination.
         </div>
       </footer>
-    </div>
+    </InteractiveDotGrid>
   );
 };
 

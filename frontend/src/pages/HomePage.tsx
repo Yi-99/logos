@@ -8,22 +8,23 @@ import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import ThemeToggle from '../components/ThemeToggle';
 import axios from 'axios';
+import InteractiveDotGrid from '../components/InteractiveDotGrid';
 
-function toRoman(num: number): string {
-  const pairs: [number, string][] = [
-    [1000, 'M'], [900, 'CM'], [500, 'D'], [400, 'CD'],
-    [100, 'C'], [90, 'XC'], [50, 'L'], [40, 'XL'],
-    [10, 'X'], [9, 'IX'], [5, 'V'], [4, 'IV'], [1, 'I'],
-  ];
-  let result = '';
-  for (const [value, numeral] of pairs) {
-    while (num >= value) {
-      result += numeral;
-      num -= value;
-    }
-  }
-  return result;
-}
+// function toRoman(num: number): string {
+//   const pairs: [number, string][] = [
+//     [1000, 'M'], [900, 'CM'], [500, 'D'], [400, 'CD'],
+//     [100, 'C'], [90, 'XC'], [50, 'L'], [40, 'XL'],
+//     [10, 'X'], [9, 'IX'], [5, 'V'], [4, 'IV'], [1, 'I'],
+//   ];
+//   let result = '';
+//   for (const [value, numeral] of pairs) {
+//     while (num >= value) {
+//       result += numeral;
+//       num -= value;
+//     }
+//   }
+//   return result;
+// }
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
@@ -91,7 +92,7 @@ const HomePage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen ink-dot-grid">
+    <InteractiveDotGrid className="min-h-screen">
 
       {/* Floating theme toggle */}
       <div className="fixed top-4 right-4 md:top-6 md:right-6 z-50">
@@ -319,7 +320,7 @@ const HomePage: React.FC = () => {
           </p>
         </div>
       </section>
-    </div>
+    </InteractiveDotGrid>
   );
 };
 

@@ -9,6 +9,7 @@ import { WormLoading } from '../components/WormLoading';
 import Navbar from '../components/Navbar';
 import AddIcon from '@mui/icons-material/Add';
 import AutoStoriesIcon from '@mui/icons-material/AutoStories';
+import InteractiveDotGrid from '../components/InteractiveDotGrid';
 
 const ChatListPage: React.FC = () => {
 	const navigate = useNavigate();
@@ -112,14 +113,14 @@ const ChatListPage: React.FC = () => {
 
 	if (isAuthLoading || isLoading) {
 		return (
-			<div className="h-screen ink-dot-grid flex items-center justify-center">
+			<InteractiveDotGrid className="h-screen flex items-center justify-center">
 				<WormLoading />
-			</div>
+			</InteractiveDotGrid>
 		);
 	}
 
 	return (
-		<div className="min-h-screen ink-dot-grid flex flex-col">
+		<InteractiveDotGrid className="min-h-screen flex flex-col">
 			<Navbar
 				title="who"
 				titleHref="/"
@@ -259,7 +260,7 @@ const ChatListPage: React.FC = () => {
 					who: Logos Project
 				</p>
 			</footer>
-		</div>
+		</InteractiveDotGrid>
 	);
 };
 

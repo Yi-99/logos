@@ -388,11 +388,11 @@ const Chatbar: React.FC<ChatbarProps> = ({
 							onChange={(e) => setInputValue(e.target.value)}
 							onKeyDown={handleKeyDown}
 							placeholder="Offer a counter-dialectic..."
-							className="flex-1 bg-transparent border-0 border-none outline-none shadow-none focus:ring-0 focus:outline-none focus:border-0 text-ink-on-surface placeholder:text-ink-on-surface/30 dark:placeholder:text-ink-outline/50 resize-none py-1 md:py-2 text-sm md:text-base dark:text-lg font-sans dark:font-serif leading-relaxed"
+							className="flex-1 bg-transparent border-none outline-none shadow-none focus:ring-0 focus:outline-none text-ink-on-surface placeholder:text-ink-on-surface/30 dark:placeholder:text-ink-outline/50 resize-none py-1 md:py-2 text-sm md:text-base dark:text-lg font-sans dark:font-serif leading-relaxed"
 							rows={1}
 							disabled={isLoading}
 						/>
-						<div className="flex items-center gap-2 md:gap-3 pb-0.5 md:pb-1">
+						<div className="flex items-center md:gap-3 pb-0.5 md:pb-1">
 							{/* Microphone Button */}
 							<button
 								onClick={handleMicClick}
